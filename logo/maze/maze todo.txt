@@ -1,0 +1,48 @@
+0.0.1
+X- a map same size as the minimal screen
+X- one entry, one exit, move only
+
+0.0.2
+X- a map same size as the minimal screen
+- *two* entry, one exit, move only
+
+0.0.3
+X- a map same size as the minimal screen
+- two entry, one exit, move only
+- *choice of the move control*
+
+0.0.4
+X- a map *any* size
+X- a camera centered on the char (rectangle around the char), bound by the map
+- two entry, one exit, move only
+- choice of the move control
+
+0.0.5
+- a map any size
+- choice of the camera mode:
+	- a camera centered on the char (rectangle around the char), bound by the map
+	- a free camera bound by the map
+- two entry, one exit, move only
+- choice of the move control
+
+0.0.5
+- a map any size
+- choice of the camera mode:
+	- a camera centered on the char (rectangle around the char), bound by the map
+	- a free camera bound by the map
+- two entry, one exit, move only
+X- *a wall blocking the exit*
+X- *a one-time visible trigger to remove the wall blocking the exit*
+- choice of the move control
+
+0.0.6
+- a map any size
+- choice of the camera mode:
+	- a camera centered on the char (rectangle around the char), bound by the map
+	- a free camera bound by the map
+- two entry, one exit, move only
+X- a *unactivated (invisible)* wall blocking the exit
+X- *an multi-time visible trigger to activate the blocking wall*
+X- a *multi-time* visible trigger to desactivate the blocking wall
+- choice of the move control
+

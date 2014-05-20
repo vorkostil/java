@@ -1,0 +1,83 @@
+------------------------------------------------------------------------
+Server side
+
+(DONE) Reactive Object (::applyAction(IAction action))
+	no self modification of internal state, can only react to external modification --> door, chest ...
+	
+(DONE) Cognitive Object (::process(Time))
+	self modification of internal state --> player, monster ...
+	a process on cognitive object returns a list of intention which must be checked by the env and which can lead to action if the intention is validate
+	--> MovingIntention must check the crossability of the new position and can lead to a MovingAction applied on the valid object
+	--> OpeningIntention must check the reachibility of the door, the availability of the opening and can lead to an OpenAction or to some MoveAction for example
+	
+Static Object 
+	only visibility transition are available --> wall
+	
+(DONE) Movable Object
+	can change its position
+
+(DONE) Physical Object
+	any item with a physical presence, it means that a physical object can be interacted by any other physical object.
+	visibility
+	crossable
+		
+Object
+	model
+----------------------------------------------------------------------
+(DONE) Environment
+	(DONE) Wall
+		Static
+		Invisible
+		Bloque Player
+	Trigger Question
+		Static
+		Activable
+		Visible
+		Freeze
+	(DONE) Trigger Activator
+		Static
+		Activable
+		Invisible
+	(DONE) Trigger End
+		Static
+		Activable
+		Visible
+	
+(DONE) Player
+	Mobile
+	Visible
+	
+--------------------------------------------------------------------------
+screen preemptif ou non, screen transparent ou superposition d'ecran
+screen overlap
+	--> Question Screen
+	--> Pause Screen
+	--> Inventory Screen
+	
+Screen observer du modele (Inventory screen) ?
+
+Use case 
+	init
+	setup
+	teardown
+	finish
+	start
+	stop
+	pause
+	
+Game map > screen size
+	--> scrolling auto ?
+	--> scrolling at demand ?
+	--> mini map
+	
+ 		
+animation of graphical object
+
+separation physique client/server
+	communication
+	information exchange
+	map coherence (CRC)
+--------------------------------------------------------------------------
+env bitume
+differente tribu, chaque tribu modifie env de depart, cout des carac primaires et secondaire, tech disponible, matos de depart (potentiellement carac dev militaire / techno / croissance etc)
+rts/rpg/aventure

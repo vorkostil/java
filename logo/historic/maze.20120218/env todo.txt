@@ -1,0 +1,59 @@
+------------------------------------------------------------------------
+Server side
+
+Reactive Object (::applyAction(IAction action))
+	no self modification of internal state, can only react to external modification --> door, chest ...
+	
+Cognitive Object (::process(Time))
+	self modification of internal state --> player, monster ...
+	a process on cognitive object returns a list of intention which must be checked by the env and which can lead to action if the intention is validate
+	--> MovingIntention must check the crossability of the new position and can lead to a MovingAction applied on the valid object
+	--> OpeningIntention must check the reachibility of the door, the availability of the opening and can lead to an OpenAction or to some MoveAction for example
+	
+Static Object 
+	only visibility transition are available --> wall
+	
+Movable Object
+	can change its position
+
+Physical Object
+	any item with a physical presence, it means that a physical object can be interacted by any other physical object.
+	visibility
+	crossable
+		
+Object
+	model
+----------------------------------------------------------------------
+Environment
+	Wall
+		Static
+		Invisible
+		Bloque Player
+	Trigger Question
+		Static
+		Activable
+		Visible
+		Freeze
+	Trigger Activator
+		Static
+		Activable
+		Invisible
+	Trigger End
+		Static
+		Activable
+		Visible
+	Trigger Begin
+		Static
+		Inactivable
+		Invisible
+	
+Player
+	Mobile
+	Visible
+	
+		
+		
+--------------------------------------------------------------------------
+env bitume
+differente tribu, chaque tribu modifie env de depart, cout des carac primaires et secondaire, tech disponible, matos de depart (potentiellement carac dev militaire / techno / croissance etc)
+rts/rpg/aventure
