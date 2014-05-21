@@ -21,6 +21,10 @@ import javax.swing.JPanel;
 @SuppressWarnings("serial")
 public abstract class GraphicalEnvironment extends JPanel
 {
+	public final static int TEMPO_60_HZ = 16;
+	public final static int TEMPO_100_HZ = 10;
+	public final static int TEMPO_25_HZ = 40;
+	
 	public final static String BACKGROUND_IMAGE_PATH = "background_image_path";
 	public enum ImageLevel 
 	{
@@ -46,12 +50,12 @@ public abstract class GraphicalEnvironment extends JPanel
 	Image image = null;
 	Graphics buffer = null;
 
-	private MediaTracker tracker = new MediaTracker( this );
+	private MediaTracker tracker = null;
 	private int viewMaxWidth = 0;
 	private int viewMaxHeight = 0;
 
 	// used for the rendering of the environment
-	private final static int TEMPO = 16; // 60Hz
+	private int tempo = -1; // 60Hz
 	class RenderingThread extends Thread 
 	{
 		 public void run() 
@@ -61,7 +65,7 @@ public abstract class GraphicalEnvironment extends JPanel
 				 try 
 				 {
 					 repaint(); 
-					 sleep( TEMPO );
+					 sleep( tempo );
 				 } 
 				 catch ( Exception e ) 
 				 {
@@ -75,16 +79,19 @@ public abstract class GraphicalEnvironment extends JPanel
 	
 	// first, consider 5 levels of layer
 	public final static int FIRST_LAYER_LEVEL_TO_DRAW = 0;
-	public final static int LAST_LAYER_LEVEL_TO_DRAW = 5;
+	public final static int LAST_LAYER_LEVEL_TO_DRAW = 4;
 	
 	Image backgroundImage = null;
 	List< List< GraphicalItem > > graphicalItemLayers = new ArrayList< List< GraphicalItem > >();
 	List< GraphicalItem > graphicalItems = new ArrayList< GraphicalItem >();
 
-	public GraphicalEnvironment( DataInformation datas ) 
+	public GraphicalEnvironment( DataInformation datas, MediaTracker tracker, int tempo ) 
 	{
+		this.tempo = tempo;
+		this.tracker = tracker;
+		
 		for ( int level = FIRST_LAYER_LEVEL_TO_DRAW;
-			  level < LAST_LAYER_LEVEL_TO_DRAW; 
+			  level < LAST_LAYER_LEVEL_TO_DRAW + 1; 
 			  level++ )
 		{
 			graphicalItemLayers.add( new ArrayList< GraphicalItem >() );			
@@ -121,7 +128,7 @@ public abstract class GraphicalEnvironment extends JPanel
 	public boolean addItem( GraphicalItem item, int layerLevel )
 	{
 		if (  ( layerLevel >= FIRST_LAYER_LEVEL_TO_DRAW )
-			&&( layerLevel < LAST_LAYER_LEVEL_TO_DRAW )  )
+			&&( layerLevel < LAST_LAYER_LEVEL_TO_DRAW + 1 )  )
 		{
 			graphicalItemLayers.get( layerLevel ).add( item );
 			graphicalItems.add( item );
@@ -134,18 +141,24 @@ public abstract class GraphicalEnvironment extends JPanel
 		return tracker;
 	}
 	
-	protected void drawLayers(Graphics g, int x, int y, int width, int height) 
+	private void processVisibleElement() 
 	{
 		// process event for animated item
 		long time = System.currentTimeMillis();
 		for ( GraphicalItem item : graphicalItems ) 
 		{
-			item.process(time);
+			if ( item.isVisible() == true )
+			{
+				item.process(time);
+			}
 		}
-		
+	}
+
+	protected void drawLayers(Graphics g, int x, int y, int width, int height) 
+	{
 		// draw the images
 		for ( int level = FIRST_LAYER_LEVEL_TO_DRAW;
-				  level < LAST_LAYER_LEVEL_TO_DRAW; 
+				  level < LAST_LAYER_LEVEL_TO_DRAW + 1; 
 				  level++ )
 		{
 			for ( GraphicalItem item : graphicalItemLayers.get( level ) ) 
@@ -178,14 +191,12 @@ public abstract class GraphicalEnvironment extends JPanel
 		super.paintComponent(g) ;
 		
 		// backward drawing of the components, from brackground to foreground
+		processVisibleElement();
 		drawBackGround( buffer );
 		drawLayers( buffer, 0, 0, viewMaxWidth, viewMaxHeight );
-		drawForeground( buffer );
 		
 		// double buffering display
 		g.drawImage( image, 0, 0, this);
 		
 	}  
-
-	protected abstract void drawForeground( Graphics g ); 
 }

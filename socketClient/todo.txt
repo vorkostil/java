@@ -1,0 +1,67 @@
+XX GraphicalModel
+---
+XX MainFrame
+XX 3 zones
+XX 	mainView : GraphicalEnvironment
+XX 	minimapView : GraphicalEnvironment
+XX 	text display : GraphicalEnvironment
+XX  
+XX question
+XX 	qui synchronize les vues / raffraichissement --> GraphicalEnvironment
+XX 	qui crée les elements --> MainFrame
+XX 	qui maintient les elements --> MainFrame
+XX 	qui manipulent les elements --> MainFrame
+XX  
+XX un visitor sait comment restituer de l'information dans SON contexte
+XX  
+XX les 3 zones sont maintenu par le rootPane
+XX chaque GEnv maintient un RenderingThread
+XX le RenderingThread repeint regulierement toutes le rootPane (et donc les zones)
+XX  
+---
+XX faire dessin tron player red / blue UP, DOWN, RIGHT, LEFT + 4 frame each
+XX
+---
+XX Generaliser les 
+XX 	WindowListener (un closewindowListener envoyant un message sur une socket par exemple)
+XX 	KeyListener dependant du Game
+XX                 
+XX retravailler le forward des message de type Game vers les jeu
+XX 	conserver les message technique (Open, Close, ready ...)
+XX 	forwarder en l'état les messages liés au jeu en lui même et donc dépdendant du type de jeu
+XX                 
+----
+XX Game
+XX	Server part: Mfonctionel + C
+XX		gestion du mouvement
+XX		gestion de la colission
+XX		gestion des regles
+XX		appel des IA si besion
+XX				   
+XX	Client part: Mview + V (utilisation du Datarepository et config pour la definition)
+XX		gestion du display des differents objets
+XX		gestion de la presentation
+XX		gestion des commandes via forward au Server
+XX                               
+---
+Une fois le framework en place, faire un chess simple avec comme message
+	validateSelection := TRUE si il existe au moins un déplacement possible
+	validateMovement := TRUE si le deplacement est valide
+	Le joueur qui initie le jeu est en noir
+                
+au niveau client
+	affichage des case en fct des validate ( selection, movement autorise, movement interdit ) grace a des GItems (selection (1 state) + movement (2 states) )
+	affichage du tableau avec le joueur toujours en bas ( ADD: un menu pour choisir si on veut être affciher en bas ou en haut)
+	2 GItem (1 win, 1 loose) avec animation non cyclique et une action qui ferme la fenetre si on cllique dessus
+                
+--- 
+2eme phase de rationalisation
+phase de commentaire
+extraire une librairie technique avec un debut de framework 
+ 
+---
+2eme client
+	- ecran principale avec demande de connection direct et/ou automatique avec stockage info dans un configFile (read / write) (D3 like/WoW like) + Quit
+	- ecran jeu avec les 2 jeux (BG + 2 GItem (un pour chaque jeu (states: DEFAULT, MOUSE_OVER, MOUSE_CLICK + animation cyclique pour chaque state) + action sur GItem pour ouvrir l'ecran de lancement avec le nom du jeu en param (ecran minimaliste avec juste les 2 jeu sous forme d'image 128 * 128 par exemple ) + Cancel (retour ecran principal) + Quit
+	- ecran lancement d'un jeu contre une IA ou un joueur ( 1 GItem IA + 1 GItem Humain ( qui ouvre une popup avec la liste des joueurs connectés ) Avec Cancel (retrou choix jeu) + Quit
+	- ecran du jeu choisi

@@ -4,19 +4,16 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.HashMap;
-import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -24,7 +21,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
@@ -35,12 +31,14 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
+import main.listener.ClientNameMouseListener;
+
 import common.MessageType;
 
 import frame.ConnectionDialog;
 import frame.ConnectionInfo;
 import frame.PeerToPeerCommunicationFrame;
-import frame.tron.TronGameFrame;
+import game.tron.TronGameFrame;
 
 @SuppressWarnings("serial")
 public class GraphicalClient extends JFrame 
@@ -86,12 +84,6 @@ public class GraphicalClient extends JFrame
 		this.setJMenuBar( menuBar );
 		createMenuBar();
 		
-		// create the reference panel
-		JPanel pan = new ClientPanel();
-		
-		// associate the panel to the frame
-		this.setContentPane(pan);
-
 		// associate a BorderLayout (simplest one)
 		this.setLayout( new BorderLayout() );
 		
@@ -133,7 +125,7 @@ public class GraphicalClient extends JFrame
 		
 		clientName.setPrototypeCellValue( "Abcdefgh Ijk" );
 		clientName.setBackground( new Color( 232, 232, 196 ) );
-		clientName.addMouseListener( new ClientNameMouseListener( this, this ) );
+		clientName.addMouseListener( new ClientNameMouseListener( this ) );
 		chatArea.setEditable( false );
 		chatArea.setBorder( new EtchedBorder( EtchedBorder.RAISED ) );
 		chatArea.setBackground( new Color( 232, 232, 196 ) );
@@ -351,7 +343,7 @@ public class GraphicalClient extends JFrame
 		for ( TronGameFrame game : games.values() )
 		{
 			appendToChatArea( "Game close with id: " + game.getId() + "\n", serverFont, serverColor);
-			((TronGameFrame) games.get( game.getId() )).dispose();
+			game.dispose();
 			games.remove( game.getId() );
 		}
 	}
@@ -367,16 +359,6 @@ public class GraphicalClient extends JFrame
 		}
 	}
 
-	public void updateInformationGame( String gameId, 
-									   double bx, double by, List< Point2D > bp, 
-									   double rx, double ry, List< Point2D > rp ) 
-	{
-		if ( games.containsKey( gameId ) == true )
-		{
-			((TronGameFrame) games.get( gameId )).updateInformation( bx, by, bp, rx, ry, rp);
-		}
-	}
-
 	public void openGame( String gameId, String playerBlue, String playerRed ) 
 	{
 		if ( games.containsKey( gameId ) == false )
@@ -384,7 +366,7 @@ public class GraphicalClient extends JFrame
 			appendToChatArea( "Game open with id: " + gameId + "\n", serverFont, serverColor);
 			try 
 			{
-				games.put( gameId, new TronGameFrame( this, writer, gameId, login, playerBlue, playerRed ) );
+				games.put( gameId, new TronGameFrame( writer, gameId, login, playerBlue, playerRed ) );
 			} 
 			catch (IOException e) 
 			{
@@ -395,7 +377,7 @@ public class GraphicalClient extends JFrame
 
 	public void readyGame( String gameId, String name ) 
 	{
-		if ( games.containsKey( gameId ) == false )
+		if ( games.containsKey( gameId ) == true )
 		{
 			appendToChatArea( "Game " + gameId + ", player " + name + " is ready\n", serverFont, serverColor);
 			((TronGameFrame) games.get( gameId )).ready( name );
@@ -404,10 +386,19 @@ public class GraphicalClient extends JFrame
 
 	public void startGame( String gameId ) 
 	{
-		if ( games.containsKey( gameId ) == false )
+		if ( games.containsKey( gameId ) == true )
 		{
 			appendToChatArea( "Game " + gameId + " will start\n", serverFont, serverColor);
 			((TronGameFrame) games.get( gameId )).start();
+		}
+	}
+
+	public void startGameSoon(String gameId) 
+	{
+		if ( games.containsKey( gameId ) == true )
+		{
+			appendToChatArea( "Game " + gameId + " will start soon\n", serverFont, serverColor);
+			((TronGameFrame) games.get( gameId )).startSoon();
 		}
 	}
 
@@ -441,12 +432,27 @@ public class GraphicalClient extends JFrame
 			closeGame(gameId, true);
 		}
 	}
-}
 
-@SuppressWarnings("serial")
-class ClientPanel extends JPanel
-{
-	public void paintComponent(Graphics g)
+	public void forwardGameMessage(String gameId, String line) 
 	{
-	}  
+		if ( games.containsKey( gameId ) == true )
+		{
+			((TronGameFrame) games.get( gameId )).forwardMessage( line );
+		}
+	}
+
+	public JList< String > getClientName() 
+	{
+		return clientName;
+	}
+
+	public String getLogin() 
+	{
+		return login;
+	}
+
+	public JScrollPane getClientScrollPane() 
+	{
+		return clientScrollPane;
+	}
 }

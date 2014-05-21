@@ -8,7 +8,7 @@ import java.awt.Image;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 
-public class GraphicalVisitor extends AbstractVisitor 
+public class DefaultGraphicalDisplayer extends AbstractDisplayer 
 {
 	private Polygon copyAndTranslate_(Polygon model, int x, int y) 
 	{
@@ -18,11 +18,11 @@ public class GraphicalVisitor extends AbstractVisitor
 	}
 
 	@Override
-	public void visit(GraphicalItem item, Graphics g, int x, int y, int width,int height) 
+	public void draw(GraphicalItem item, Graphics g, int x, int y, int width,int height) 
 	{
-		if ( item.needDrawing( new Rectangle( x, y, width, height ) ) ) 
+		if ( item.isPolygonPartInScreen( new Rectangle( x, y, width, height ) ) ) 
 		{
-			if ( item.isVisible() )
+			if ( item.isVisible() == true )
 			{
 				// draw image or place holder
 				Image image = item.getImage(); 
@@ -34,7 +34,7 @@ public class GraphicalVisitor extends AbstractVisitor
 				{
 					Color oldColor = g.getColor();
 					g.setColor( item.getColor() );
-					g.fillPolygon( copyAndTranslate_( item.getModel(), x, y ) );
+					g.fillPolygon( copyAndTranslate_( item.getPolygonModel(), x, y ) );
 					g.setColor( oldColor );
 				}
 			}

@@ -13,13 +13,28 @@ import main.ClientConnectionManager;
 
 import common.MessageType;
 
+/*
+ * 	Server part: Mfonctionel + C
+ *		gestion du mouvement
+ *		gestion de la colision
+ *		gestion des regles
+ *		appel des IA si besion
+ */
 public class TronGame {
 	
-	public static int LEFT = -2; 
-	public static int RIGHT = 2; 
-	public static int UP = -1; 
-	public static int DOWN = 1; 
-	public static int gridSize = 16;
+	public static final int NO_DIRECTION = 0;
+	public static final int LEFT = -2; 
+	public static final int RIGHT = 2; 
+	public static final int UP = -1; 
+	public static final int DOWN = 1; 
+	public static final int gridSize = 16;
+	
+	public static final int BLUE_START_X = 3;
+	public static final int BLUE_START_Y = 2;
+	public static final int RED_START_X = 12;
+	public static final int RED_START_Y = 13;
+	public static final int BLUE_START_DIRECTION = RIGHT;
+	public static final int RED_START_DIRECTION = LEFT;
 	
 	// number of cell each second
 	private static double speed = 1.5;
@@ -36,20 +51,20 @@ public class TronGame {
 	private String bluePlayer = null;
 	private String redPlayer = null;
 	
-	private double blueX = 3;
-	private double blueY = 2;
-	private double redX = 12;
-	private double redY = 13;
+	private double blueX = BLUE_START_X;
+	private double blueY = BLUE_START_Y;
+	private double redX = RED_START_X;
+	private double redY = RED_START_Y;
 	
 	private List< Point2D > pathBlue = new ArrayList< Point2D >();
 	private List< Point2D > pathRed = new ArrayList< Point2D >();
 	
 	// direction: 0 --> left, 1 --> right, 2 --> up, 3 --> down
-	private int blueDirection = RIGHT;
-	private int redDirection = LEFT;
+	private int blueDirection = BLUE_START_DIRECTION;
+	private int redDirection = RED_START_DIRECTION;
 	
-	private int blueTargetDirection = RIGHT;
-	private int redTargetDirection = LEFT;
+	private int blueTargetDirection = BLUE_START_DIRECTION;
+	private int redTargetDirection = RED_START_DIRECTION;
 	
 	private boolean isBlueReady = false;
 	private boolean isRedReady = false;
@@ -179,7 +194,7 @@ public class TronGame {
 	private String createBlueInfo() 
 	{
 		String result = new String();
-		result += blueX + " " + blueY + " " + pathBlue.size();
+		result += blueX + " " + blueY + " " + blueDirection + " " + pathBlue.size();
 		for ( Point2D point : pathBlue )
 		{
 			result += " " + point.getX() + " " + point.getY();
@@ -190,7 +205,7 @@ public class TronGame {
 	private String createRedInfo() 
 	{
 		String result = new String();
-		result += redX + " " + redY + " " + pathRed.size();
+		result += redX + " " + redY + " " + redDirection + " " + pathRed.size();
 		for ( Point2D point : pathRed )
 		{
 			result += " " + point.getX() + " " + point.getY();
@@ -348,14 +363,21 @@ public class TronGame {
 		if (  ( isBlueReady == true )
 			&&( isRedReady == true )  )
 		{
+			manager.forwardToClient( bluePlayer, MessageType.MessageSystem + " " + MessageType.MessageGameStartSoon + " " + id );
+			manager.forwardToClient( redPlayer , MessageType.MessageSystem + " " + MessageType.MessageGameStartSoon + " " + id );
+			
 			javax.swing.Timer timer = new javax.swing.Timer( 3000, new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					manager.forwardToClient( bluePlayer, MessageType.MessageSystem + " " + MessageType.MessageGameStart + " " + id );
 					manager.forwardToClient( redPlayer , MessageType.MessageSystem + " " + MessageType.MessageGameStart + " " + id );
 					
-					mainTask.init();
-					mainTimer.schedule( mainTask, tempo, tempo);
+					if (  ( mainTimer != null )
+						&&( mainTask != null )  )
+					{
+						mainTask.init();
+						mainTimer.schedule( mainTask, tempo, tempo);
+					}
 				}
 			});
 			timer.setRepeats( false );
@@ -378,5 +400,17 @@ public class TronGame {
 	public void stop()
 	{
 		mainTimer.cancel();
+		mainTimer = null;
+	}
+
+	public boolean containsPlayer(String login) 
+	{
+		return (  ( login.compareTo( redPlayer ) == 0)
+				||( login.compareTo( bluePlayer ) == 0)  );
+	}
+
+	public String getId() 
+	{
+		return id;
 	}
 }

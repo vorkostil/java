@@ -1,4 +1,4 @@
-package main;
+package main.listener;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,7 +8,9 @@ import java.awt.event.MouseListener;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-class ClientNameMouseListener implements MouseListener 
+import main.GraphicalClient;
+
+public class ClientNameMouseListener implements MouseListener 
 {
 	/**
 	 * 
@@ -17,9 +19,9 @@ class ClientNameMouseListener implements MouseListener
 	String name = null;
 	
 	GraphicalClient gClient = null;
-	ClientNameMouseListener( GraphicalClient graphicalClient, GraphicalClient src )
+	public ClientNameMouseListener( GraphicalClient graphicalClient )
 	{
-		gClient = src;
+		gClient = graphicalClient;
 		JMenuItem chat = new JMenuItem( "Chat"); 
 		JMenuItem game = new JMenuItem( "Game"); 
 		
@@ -44,12 +46,12 @@ class ClientNameMouseListener implements MouseListener
 	public void mouseReleased(MouseEvent arg0) {
 		if ( arg0.isPopupTrigger() == true )
 		{
-		     int index = gClient.clientName.locationToIndex( arg0.getPoint());
-		     name = gClient.clientName.getModel().getElementAt(index);
-		     gClient.clientName.ensureIndexIsVisible(index);
-		     if ( name.compareTo( gClient.login ) != 0 )
+		     int index = gClient.getClientName().locationToIndex( arg0.getPoint());
+		     name = gClient.getClientName().getModel().getElementAt(index);
+		     gClient.getClientName().ensureIndexIsVisible(index);
+		     if ( name.compareTo( gClient.getLogin() ) != 0 )
 		     {
-		    	 menu.show( gClient.clientScrollPane, arg0.getX(), arg0.getY() );
+		    	 menu.show( gClient.getClientScrollPane(), arg0.getX(), arg0.getY() );
 		     }				
 		}
 	}
@@ -58,12 +60,12 @@ class ClientNameMouseListener implements MouseListener
 	public void mousePressed(MouseEvent arg0) {
 		if ( arg0.isPopupTrigger() == true )
 		{
-		     int index = gClient.clientName.locationToIndex( arg0.getPoint());
-		     name = gClient.clientName.getModel().getElementAt(index);
-		     gClient.clientName.ensureIndexIsVisible(index);
-		     if ( name.compareTo( gClient.login ) != 0 )
+		     int index = gClient.getClientName().locationToIndex( arg0.getPoint());
+		     name = gClient.getClientName().getModel().getElementAt(index);
+		     gClient.getClientName().ensureIndexIsVisible(index);
+		     if ( name.compareTo( gClient.getLogin() ) != 0 )
 		     {
-		    	 menu.show( gClient.clientScrollPane, arg0.getX(), arg0.getY() );
+		    	 menu.show( gClient.getClientScrollPane(), arg0.getX(), arg0.getY() );
 		     }				
 		}
 	}

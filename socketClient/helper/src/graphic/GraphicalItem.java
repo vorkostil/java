@@ -17,7 +17,7 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import visitor.AbstractVisitor;
+import visitor.AbstractDisplayer;
 
 /* Abstract class for item animated or not which need to be displayed on the layer of a graphical environment
  * 
@@ -32,6 +32,7 @@ public abstract class GraphicalItem
 	private static final String STATE = "state";
 	private static final String COLOR = "color";
 	private static final String FRAME = "frame";
+	private static final String CYCLIC = "cyclic";
 	
 	private static final String IMAGE_PATH = "image_path";
 	private static final String IMAGE_PATH_FRAME = IMAGE_PATH + SEPARATOR + FRAME;
@@ -41,15 +42,19 @@ public abstract class GraphicalItem
 	private static final String FRAME_SIZE_GETTER( String state ) 			 { return STATE + SEPARATOR + state + SEPARATOR + NUMBER_FRAME; }
 	private static final String FRAME_PATH_GETTER( String state, int frame ) { return STATE + SEPARATOR + state + SEPARATOR + IMAGE_PATH_FRAME + SEPARATOR + ( frame + 1 ); }
 	private static final String FRAME_DELAY_GETTER( String state ) 			 { return STATE + SEPARATOR + state + SEPARATOR + DELAY_FRAME; }
+	private static final String FRAME_CYCLIC_GETTER( String state ) 		 { return STATE + SEPARATOR + state + SEPARATOR + CYCLIC; }
 	private static final String IMAGE_PATH_GETTER( String state ) 			 { return STATE + SEPARATOR + state + SEPARATOR + IMAGE_PATH; }
 	
 	public static final String DEFAULT_STATE = "DEFAULT";
 	
-	private List< AbstractVisitor > displayer_ = null;
+	protected static final Polygon emptyPolygon = new Polygon();
+	
+	private AbstractDisplayer displayer_ = null;
 	private Color color_ = Color.BLACK;
 	private Map< String, List< Image > > images_ = new HashMap< String, List< Image > >();
 	private Map< String, Integer> delays_ = new HashMap< String, Integer >();
-	private String currentState_ = DEFAULT_STATE;
+	private Map< String, Boolean> cyclic_ = new HashMap< String, Boolean >();
+	protected String currentState_ = DEFAULT_STATE;
 	private int currentFrame_ = 0;
 	private int delay_ = 0;
 	private long currentTime_ = 0;
@@ -59,12 +64,12 @@ public abstract class GraphicalItem
 	 * 
 	 * 
 	 * */
-	public GraphicalItem( List<AbstractVisitor> visitors, 
+	public GraphicalItem( AbstractDisplayer displayer, 
 						  DataInformation dataInformation, 
 						  MediaTracker mediaTracker,
 						  int levelId ) throws IOException 
 	{
-		displayer_ = visitors;
+		displayer_ = displayer;
 		color_ = Color.decode( dataInformation.getStringValue( COLOR ) );
 		
 		// check for multi-state object
@@ -91,9 +96,18 @@ public abstract class GraphicalItem
 						}
 					}
 					// awful method to store the delay between frame
-					// TODO rework this part to store the delay within the frames of state
-					//--------------------------------------------------------------------
+					// TODO rework this part to store the delay and cycle within the frames of state
+					//------------------------------------------------------------------------------
 					delays_.put( state, dataInformation.getIntegerValue(FRAME_DELAY_GETTER( state ) ) );
+					if ( dataInformation.contains( FRAME_CYCLIC_GETTER( state ) ) == true )
+					{
+						cyclic_.put( state, dataInformation.getBooleanValue( FRAME_CYCLIC_GETTER( state ) ) );
+					}
+					else
+					{
+						cyclic_.put( state, true );
+					}
+						
 				}
 				else 
 				{ 
@@ -125,20 +139,17 @@ public abstract class GraphicalItem
 					  int x, int y, 
 					  int width, int height ) 
 	{
-		for (AbstractVisitor visitor : displayer_)
-		{
-			visitor.visit( this, g, x, y, width, height );
-		}
+		displayer_.draw( this, g, x, y, width, height );
 	}
 	
-	public boolean needDrawing(Rectangle rect)
+	public boolean isPolygonPartInScreen( Rectangle rect )
 	{
-		for ( int i = 0; i < getModel().npoints - 1; ++i )
+		for ( int i = 0; i < getPolygonModel().npoints - 1; ++i )
 		{
-			if ( rect.intersectsLine( getModel().xpoints[i], 
-									  getModel().ypoints[i],
-									  getModel().xpoints[i+1], 
-									  getModel().ypoints[i+1] ) == true )
+			if ( rect.intersectsLine( getPolygonModel().xpoints[i], 
+									  getPolygonModel().ypoints[i],
+									  getPolygonModel().xpoints[i+1], 
+									  getPolygonModel().ypoints[i+1] ) == true )
 			{
 				return true;
 			}
@@ -182,15 +193,28 @@ public abstract class GraphicalItem
 				}
 				
 				// roll on the first image of the animation if needed
+				// or stay on the last image if not cyclic
 				//---------------------------------------------------
-				if ( currentFrame_ >= images_.get(currentState_).size() ) 
+				if ( currentFrame_ >= images_.get(currentState_).size() )
 				{
-					currentFrame_ = 0;
+					if ( cyclic_.get( currentState_ ) == true )
+					{
+						currentFrame_ = 0;
+					}
+					else
+					{
+						currentFrame_ = images_.get(currentState_).size() - 1;
+					}
 				}
 			}
 		}
 		
 		currentTime_ = currentTimeInMilli;
+	}
+	
+	public void resetProcessTime()
+	{
+		currentTime_ = 0;
 	}
 	
 	public Image getImage() 
@@ -233,5 +257,6 @@ public abstract class GraphicalItem
 
 	/* return the polygon structure used to described the object on screen
 	 * */
-	abstract public Polygon getModel();
+	abstract public Polygon getPolygonModel();
+
 }

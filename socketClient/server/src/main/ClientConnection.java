@@ -84,8 +84,8 @@ class ClientConnection implements Runnable {
 																  this ) );
 				listener.start();
 				
-				// wait 1s for the client to initialize its listener
-				Thread.sleep( 1000 );
+				// wait for the client to initialize its listener
+				Thread.sleep( 100 );
 				getFather().clientListChanged();
 			}
 			else

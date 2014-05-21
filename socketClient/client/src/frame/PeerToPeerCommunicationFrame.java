@@ -6,8 +6,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.PrintWriter;
 
 import javax.swing.JFrame;
@@ -22,6 +20,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
 import main.GraphicalClient;
+import main.listener.ClosingMessageListener;
 
 import common.MessageType;
 
@@ -48,67 +47,9 @@ public class PeerToPeerCommunicationFrame extends JFrame
 		this.setSize( 400, 320 );
 		this.setLocationRelativeTo( null );
 
-		this.addWindowListener( new WindowListener() {
-			
-			@Override
-			public void windowOpened(WindowEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void windowIconified(WindowEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void windowDeiconified(WindowEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void windowDeactivated(WindowEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void windowClosing(WindowEvent arg0) 
-			{
-				if  ( targetWriter != null )
-				{
-					father.closeSpecificCommunication( targetName, false );
-					targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageCommunicationSpecificClose + " " + targetName + " " + login );
-					targetWriter.flush();
-				}
-			}
-			
-			@Override
-			public void windowClosed(WindowEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void windowActivated(WindowEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
+		this.addWindowListener( new ClosingMessageListener( targetWriter, 
+															MessageType.MessageSystem + " " + MessageType.MessageCommunicationSpecificClose + " " + targetName + " " + login ) ); 
 		
-		createElement();
-	}
-	
-	private void createElement()
-	{
-		// create the reference panel
-//		JPanel pan = new ClientPanel();
-		
-		// associate the panel to the frame
-//		this.setContentPane(pan);
-
 		// associate a BorderLayout (simplest one)
 		this.setLayout( new BorderLayout() );
 		

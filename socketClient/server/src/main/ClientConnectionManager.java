@@ -61,6 +61,19 @@ public class ClientConnectionManager implements Runnable {
 	{
 		currentClientSize--;
 		clients.remove( client );
+		List< String > gameToClose = new ArrayList< String >();
+		for ( TronGame game : games.values() )
+		{
+			if ( game.containsPlayer( client.getLogin() ) == true )
+			{
+				gameToClose.add( game.getId() );
+			}
+		}
+		for ( String gameId : gameToClose )
+		{
+			closeGame( gameId );
+		}
+		
 		System.out.println( "Client " + client.getId() + " released a space in the pool (" +  currentClientSize + ") / games: " + games.size() );
 		clientListChanged();
 	}

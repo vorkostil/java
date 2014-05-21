@@ -79,6 +79,7 @@ public class ConnectionDialog extends JDialog {
 	    loginText = new JTextField();
 	    loginText.setPreferredSize(new Dimension(100, 25));
 	    loginLabel = new JLabel("login:");
+	    loginText.requestFocusInWindow();
 	    
 	    passwdText = new JTextField();
 	    passwdText.setPreferredSize(new Dimension(100, 25));

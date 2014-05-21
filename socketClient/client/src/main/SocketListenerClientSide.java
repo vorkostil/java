@@ -2,14 +2,11 @@ package main;
 
 import helper.StringHelper;
 
-import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.List;
 
 import common.MessageType;
 
@@ -84,7 +81,7 @@ public class SocketListenerClientSide implements Runnable {
 					// game communication
 					// formalism MESSAGE_SYSTEM GAME gameID <ACTION> <parameters> 
 					else if (  ( splitted.length > 3 )
-							&&( splitted[1].compareTo( MessageType.MessageGame ) == 0 )  )
+							 &&( splitted[1].compareTo( MessageType.MessageGame ) == 0 )  )
 					{
 						String action = splitted[ 2 ];
 						String gameId = splitted[ 3 ];
@@ -101,6 +98,10 @@ public class SocketListenerClientSide implements Runnable {
 						{
 							gClient.startGame( gameId );
 						}
+						else if ( action.compareTo( MessageType.MessageStartSoon ) == 0 )
+						{
+							gClient.startGameSoon( gameId );
+						}
 						else if ( action.compareTo( MessageType.MessageEnd ) == 0 )
 						{
 							gClient.endGame( gameId, splitted[ 4 ] );
@@ -114,30 +115,9 @@ public class SocketListenerClientSide implements Runnable {
 							// in fact, gameId is the name of the asker
 							gClient.askForGameFrom( gameId );
 						}
-						else if ( action.compareTo( MessageType.MessageUpdatePosition ) == 0 )
+						else
 						{
-							double bX 	= java.lang.Double.parseDouble( splitted[ 4 ] );
-							double bY 	= java.lang.Double.parseDouble( splitted[ 5 ] );
-							int bS 		= Integer.parseInt( splitted[ 6 ] );
-							List< Point2D > bP = new ArrayList< Point2D >();  
-							for ( int i = 0; i < bS; i++ )
-							{
-								bP.add( new Point2D.Double( java.lang.Double.parseDouble( splitted[ 7 + i * 2 ] ),
-															java.lang.Double.parseDouble( splitted[ 8 + i * 2 ] ) ) );
-							}
-							
-							double rX 	= java.lang.Double.parseDouble( splitted[ 7 + bS * 2 ] );
-							double rY 	= java.lang.Double.parseDouble( splitted[ 8 + bS * 2 ] );
-							int rS 		= Integer.parseInt( splitted[ 9 + bS * 2 ] );
-							List< Point2D > rP = new ArrayList< Point2D >();  
-							for ( int i = 0; i < rS; i++ )
-							{
-								rP.add( new Point2D.Double( java.lang.Double.parseDouble( splitted[ 10 + bS * 2 + i * 2] ),
-															java.lang.Double.parseDouble( splitted[ 11 + bS * 2 + i * 2] ) ) );
-							}
-							gClient.updateInformationGame( gameId,
-														   bX, bY, bP,
-														   rX, rY, rP );
+							gClient.forwardGameMessage( gameId, line );
 						}
 					}
 				}
