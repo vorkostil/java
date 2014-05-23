@@ -15,6 +15,10 @@ public class MessageType {
 	public static final String MessageChangeDirection = "CHANGE_DIRECTION";
 	public static final String MessageEnd = "END";
 	
+	public static final String MessageUpdatePieceInformation = "UPDATE_PIECE_INFORMATION";
+	public static final String MessagePlayerToPlay = "UPDATE_PLAYER_TO_PLAY";
+	public static final String MessageMoveInvalid = "MOVE_INVALID";
+	
 	public static final String MessageLogin = "LOGIN";
 	public static final String MessageLoginAsked = MessageLogin + "_" + MessageAsked; 
 	public static final String MessageLoginAccepted = MessageLogin + "_" + MessageAccepted; 
@@ -44,5 +48,9 @@ public class MessageType {
 	public static final String MessageMoveUp = "MOVE_UP";
 	public static final String MessageMoveDown = "MOVE_DOWN";
 
+	public static final String MessageGameUpdatePieceInformation = MessageGame + " " + MessageUpdatePieceInformation;
+	public static final String MessageGamePlayerToPlay = MessageGame + " " + MessagePlayerToPlay;
+	public static final String MessageGameMoveInvalid = MessageGame + " " + MessageMoveInvalid;
+	
 
 }

@@ -54,6 +54,35 @@ au niveau client
 	affichage du tableau avec le joueur toujours en bas ( ADD: un menu pour choisir si on veut être affciher en bas ou en haut)
 	2 GItem (1 win, 1 loose) avec animation non cyclique et une action qui ferme la fenetre si on cllique dessus
                 
+cScreen
+	1 zone pieces blanches mangées en bas a gauche
+	1 zone pièces noires mangées en haut à gauche
+	1 zone nom joueur noir en haut au centre
+	1 zone nom joueur blanc en bas au centre
+	1 zone tableau au centre
+	1 zone horloge blanche en haut a droite
+	1 zone horloge noir en haut à droite
+	1 zone coup joués a droite
+                
+besoin:
+	voir le joueur qui doit jouer le coup courant
+	voir le nom des joueurs 
+	voir les pièces sur le plateau
+	voir les pièces mangés
+	voir la liste des coups depuis le début (attention, pas de scroll bar donc prévoir un affichage sur 2 colonnes possibles)
+	validation de la pièce à déplacer (sssi il existe au moins un mouvement disponible)
+	validation de la cellule courante comme cellule valide (sssi le mouvement est valide)
+	bouger une pièce
+                
+C --> S
+	isMoveValid( x0, y0, x1, y1 )
+	movePiece( x0, y0, x1, y1 )
+                
+S --> C
+	validMove( x0, y0, x1, y1 )
+	invalidMove( x0, y0, x1, y1 )
+	updatePieceStatus( id, x, y, movable, alive )
+
 --- 
 2eme phase de rationalisation
 phase de commentaire
@@ -65,3 +94,70 @@ extraire une librairie technique avec un debut de framework
 	- ecran jeu avec les 2 jeux (BG + 2 GItem (un pour chaque jeu (states: DEFAULT, MOUSE_OVER, MOUSE_CLICK + animation cyclique pour chaque state) + action sur GItem pour ouvrir l'ecran de lancement avec le nom du jeu en param (ecran minimaliste avec juste les 2 jeu sous forme d'image 128 * 128 par exemple ) + Cancel (retour ecran principal) + Quit
 	- ecran lancement d'un jeu contre une IA ou un joueur ( 1 GItem IA + 1 GItem Humain ( qui ouvre une popup avec la liste des joueurs connectés ) Avec Cancel (retrou choix jeu) + Quit
 	- ecran du jeu choisi
+
+---
+Tactical infiltration
+chaque pnj est une instance d'agent autonome avec son propre mécanisme de reactif/cognitif basé sur le type de d'agent (ex: dog, sniper, CaC, mdeic ...)
+mécanisme d'input d'alerte
+	vue
+	son
+                
+mécanisme de communication
+	voix       --> son (multi directionel)
+	signe     --> vue (mono directionnel)
+	radio     --> son (multi directionel)
+                
+cela permet de défnir les vecteurs de propagation des informations sous forme d'un graphe dont les noeuds sont les pnj et les liens sont la liste des outputs entre eux
+A et B sont en alerte vers l'ouest, B à une radio
+C et D sont en alerte vers le sud, C à une radio
+E est en alerte vers l'est et à une radio
+F est en coordination au centre, il a une radio et il voit C et D
+ 
+A <-- voix --> B <-- radio --> C <-- voix --> D
+E <-- radio --> C
+E <-- radio --> B
+E <-- radio --> F -- vue --> C
+F -- vue --> D
+ 
+l'information est répliquer chez les agents de façon concentrique par rapport au(x) premier(s) input(s)
+si A passe en alerte, il previent B qui previent C, E et F ; C previent D
+si B est tué avec production de son, A passe en alerte mais l'information ne se propage pas (par contre C, E et F peuvent se poser des questions car plus de communications de B - de même A va tenter de prendre la radio pour 
+ 
+on en ressort le facteur de niveau d'alerte
+	VERT     --> pas de problème, contexte stable
+	JAUNE  --> suspicions, contexte stable mais input en alerte (à vue ou entendu qqchose de non précisé (friend or foe ?))
+	ORANGE             --> problème, contexte ayant évolué de combat potentiel (à vu ou entendu qqchose d'identifié comme hostile (foe))
+	ROUGE --> gros problème, contexte ayant évolué vers une agression, préparation de combat en cours (foe à entamé les hostilités, tir non précis ou approche dans la zone de contact)
+	NOIR     --> attack, contexte ayant évolué vers une situation de combat avéré (agent tué, échange de coup de feu, communication rompu ou non ...)
+                
+d'ou la notion de contexte et de stabilité
+un context contient au minimum 
+	les agents en communications avec l'agent concerné, 
+	l'etat de l'environment au alentour du point de vue de l'agent
+ 
+ainsi que la notion de communication et/ou d'action
+	communication
+		TALK
+		SIGN
+	action / order
+		PATROL
+		FOLLOW
+		EXPLORE
+		INVESTIGATE
+		MOVE
+		SURROUND
+		ATTACK
+		WATCH
+ 
+mise en condition 1:
+	reproduire le cas de test de communication au dessus
+	simuler le passage d'un agent Friend dans la zone
+	simuler le passage d'un agent Foe dans la zone
+	tenter de faire passer un Foe au milieu pour tuer F
+
+Test :
+	Camp raider boulet
+	Camp raider un peu aware
+	Camp raider aware
+	Camp militaire 
+	Camp militaire sous pression

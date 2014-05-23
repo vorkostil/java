@@ -20,8 +20,8 @@ import common.MessageType;
  *		gestion des regles
  *		appel des IA si besion
  */
-public class TronGame {
-	
+public class TronGame 
+{
 	public static final int NO_DIRECTION = 0;
 	public static final int LEFT = -2; 
 	public static final int RIGHT = 2; 
