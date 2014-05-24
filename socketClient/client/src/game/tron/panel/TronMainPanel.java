@@ -1,6 +1,6 @@
 package game.tron.panel;
 
-import game.TronGame;
+import game.TronGameServer;
 import game.tron.item.TronStartText;
 import graphic.GraphicalEnvironment;
 import helper.DataRepository;
@@ -17,7 +17,7 @@ public class TronMainPanel extends GraphicalEnvironment
 	private static final String START_TEXT_CONFIGURATION = "start_configuration";
 	
 	public static int gridPadding = 32;
-	private static int gridWidth = (TronGame.gridSize - 1) * gridPadding; // we move on the grid, not on the cell
+	private static int gridWidth = (TronGameServer.gridSize - 1) * gridPadding; // we move on the grid, not on the cell
 	public static int framePadding = 7;
 	
 	public static int frameSize = gridWidth + framePadding * 2;

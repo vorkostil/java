@@ -112,8 +112,8 @@ public class SocketListenerClientSide implements Runnable {
 						}
 						else if ( action.compareTo( MessageType.MessageAsked ) == 0 )
 						{
-							// in fact, gameId is the name of the asker
-							gClient.askForGameFrom( gameId );
+							// in fact, gameId is the name of the asker and the fourth element is the game kind
+							gClient.askForGameFrom( gameId, splitted[ 4 ] );
 						}
 						else
 						{

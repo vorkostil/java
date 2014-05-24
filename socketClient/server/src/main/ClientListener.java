@@ -72,7 +72,7 @@ class ClientListener implements Runnable
 						String action = splitted[2]; 
 						if ( action.compareTo( MessageType.MessageAsked ) == 0 )
 						{
-							connection.getFather().forwardToClient( splitted[ 3 ], MessageType.MessageSystem + " " + MessageType.MessageGameAsked + " " + clientLogin );
+							connection.getFather().forwardToClient( splitted[ 3 ], MessageType.MessageSystem + " " + MessageType.MessageGameAsked + " " + clientLogin + " " + splitted[ 4 ] );
 						}
 						else if ( action.compareTo( MessageType.MessageRefused ) == 0 )
 						{
@@ -87,13 +87,13 @@ class ClientListener implements Runnable
 						{
 							connection.getFather().updateGamePlayerReady( splitted[ 3 ], splitted[ 4 ] );
 						}
-						else if ( action.compareTo( MessageType.MessageChangeDirection ) == 0 )
-						{
-							connection.getFather().updateGamePlayerChangeDirection( splitted[ 3 ], splitted[ 4 ], splitted[ 5 ] );
-						}
 						else if ( action.compareTo( MessageType.MessageAccepted ) == 0 )
 						{
-							connection.getFather().beginGame( clientLogin, splitted[ 3 ] );
+							connection.getFather().beginGame( clientLogin, splitted[ 3 ], splitted[ 4 ] );
+						}
+						else
+						{
+							connection.getFather().updateGameSpecificMessage( splitted[ 3 ], command );
 						}
 						
 					}

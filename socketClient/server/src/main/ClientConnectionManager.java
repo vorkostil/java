@@ -1,6 +1,8 @@
 package main;
 
-import game.TronGame;
+import game.AbstractGame;
+import game.ChessGameServer;
+import game.TronGameServer;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -8,6 +10,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 import common.MessageType;
 
 public class ClientConnectionManager implements Runnable {
@@ -18,7 +21,7 @@ public class ClientConnectionManager implements Runnable {
    private int maxClient = 0;
    private List< ClientConnection > clients = new ArrayList< ClientConnection >();
    
-	HashMap< String, TronGame > games = new HashMap< String, TronGame >();
+	HashMap< String, AbstractGame > games = new HashMap< String, AbstractGame >();
 
 	public ClientConnectionManager(ServerSocket s, int maxClient) 
 	{
@@ -62,7 +65,7 @@ public class ClientConnectionManager implements Runnable {
 		currentClientSize--;
 		clients.remove( client );
 		List< String > gameToClose = new ArrayList< String >();
-		for ( TronGame game : games.values() )
+		for ( AbstractGame game : games.values() )
 		{
 			if ( game.containsPlayer( client.getLogin() ) == true )
 			{
@@ -108,12 +111,19 @@ public class ClientConnectionManager implements Runnable {
 		}
 	}
 	
-	public void beginGame( String login, String player ) 
+	public void beginGame( String login, String player, String gameKind ) 
 	{
-		String gameId = "tron_" + player + "_" + login;
+		String gameId = gameKind + "_" + player + "_" + login;
 		if ( games.containsKey( gameId ) == false )
 		{
-			games.put( gameId, new TronGame( player, login, gameId, this ) );
+			if ( gameKind.compareTo( TronGameServer.NAME ) == 0 )
+			{
+				games.put( gameId, new TronGameServer( player, login, gameId, this ) );
+			}
+			else if ( gameKind.compareTo( ChessGameServer.NAME ) == 0 )
+			{
+				games.put( gameId, new ChessGameServer( player, login, gameId, this ) );
+			}
 		}
 	}
 
@@ -121,17 +131,17 @@ public class ClientConnectionManager implements Runnable {
 	{
 		if ( games.containsKey( gameId ) == true )
 		{
-			TronGame game = games.get( gameId );
+			AbstractGame game = games.get( gameId );
 			game.setReady( player );
 		}
 	}
 
-	public void updateGamePlayerChangeDirection(String gameId, String player, String dir) 
+	public void updateGameSpecificMessage( String gameId, String command ) 
 	{
 		if ( games.containsKey( gameId ) == true )
 		{
-			TronGame game = games.get( gameId );
-			game.changePlayerDirection( player, dir );
+			AbstractGame game = games.get( gameId );
+			game.manageSpecificMessage( command );
 		}
 	}
 
@@ -139,7 +149,7 @@ public class ClientConnectionManager implements Runnable {
 	{
 		if ( games.containsKey( gameId ) == true )
 		{
-			TronGame game = games.get( gameId );
+			AbstractGame game = games.get( gameId );
 			games.remove( gameId );
 			
 			game.stop();

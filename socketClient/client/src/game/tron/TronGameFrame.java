@@ -1,6 +1,6 @@
 package game.tron;
 
-import game.TronGame;
+import game.TronGameServer;
 import game.tron.displayer.TronMainDisplayer;
 import game.tron.displayer.TronMiniMapDisplayer;
 import game.tron.displayer.TronPlayerPanelDisplayer;
@@ -40,8 +40,8 @@ import common.MessageType;
  *		gestion des commandes via forward au Server
  * */
 @SuppressWarnings("serial")
-public class TronGameFrame extends JFrame {
-
+public class TronGameFrame extends JFrame 
+{
 	private static final String TRON_CONFIG_PATH = "resources/config/tron.cfg";
 	private static final String BLUE_PLAYER_GRAPHICAL_CONFIGURATION = "blue_player_configuration";
 	private static final String RED_PLAYER_GRAPHICAL_CONFIGURATION = "red_player_configuration";
@@ -79,22 +79,22 @@ public class TronGameFrame extends JFrame {
 		{
 			if ( arg0.getKeyCode() == KeyEvent.VK_LEFT )
 			{
-				targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + login + " " + TronGame.LEFT );
+				targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + login + " " + TronGameServer.LEFT );
 				targetWriter.flush();
 			}
 			else if ( arg0.getKeyCode() == KeyEvent.VK_RIGHT )
 			{
-				targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + login + " " + TronGame.RIGHT );
+				targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + login + " " + TronGameServer.RIGHT );
 				targetWriter.flush();
 			}
 			else if ( arg0.getKeyCode() == KeyEvent.VK_UP )
 			{
-				targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + login + " " + TronGame.UP );
+				targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + login + " " + TronGameServer.UP );
 				targetWriter.flush();
 			}
 			else if ( arg0.getKeyCode() == KeyEvent.VK_DOWN )
 			{
-				targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + login + " " + TronGame.DOWN );
+				targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + login + " " + TronGameServer.DOWN );
 				targetWriter.flush();
 			}
 		}
@@ -123,13 +123,13 @@ public class TronGameFrame extends JFrame {
 	
 		// create the player's model 
 		bluePlayerModel = new TronPlayerModel( bluePlayerName,
-											   TronGame.BLUE_START_X, 
-			 	  							   TronGame.BLUE_START_Y,
-			 	  							   TronGame.BLUE_START_DIRECTION );
+											   TronGameServer.BLUE_START_X, 
+			 	  							   TronGameServer.BLUE_START_Y,
+			 	  							   TronGameServer.BLUE_START_DIRECTION );
 		redPlayerModel = new TronPlayerModel( redPlayerName,
-											  TronGame.RED_START_X, 
-											  TronGame.RED_START_Y,
-											  TronGame.RED_START_DIRECTION );
+											  TronGameServer.RED_START_X, 
+											  TronGameServer.RED_START_Y,
+											  TronGameServer.RED_START_DIRECTION );
 		
 		// create the main panel
 		gamePanel = new TronMainPanel( repository, tracker, GraphicalEnvironment.TEMPO_60_HZ );
@@ -299,13 +299,13 @@ public class TronGameFrame extends JFrame {
 			}
 
 			// forward player position update
-			bluePlayerModel.changePosition( Math.min( TronGame.gridSize - 1, Math.max( 0.0, bX ) ), 
-											Math.min( TronGame.gridSize - 1, Math.max( 0.0, bY ) ) );
+			bluePlayerModel.changePosition( Math.min( TronGameServer.gridSize - 1, Math.max( 0.0, bX ) ), 
+											Math.min( TronGameServer.gridSize - 1, Math.max( 0.0, bY ) ) );
 			bluePlayerModel.changeDirection( bD );
 			bluePlayerModel.changePath( bP );
 			
-			redPlayerModel.changePosition( Math.min( TronGame.gridSize - 1, Math.max( 0.0, rX ) ), 
-				  	   					   Math.min( TronGame.gridSize - 1, Math.max( 0.0, rY ) ) );
+			redPlayerModel.changePosition( Math.min( TronGameServer.gridSize - 1, Math.max( 0.0, rX ) ), 
+				  	   					   Math.min( TronGameServer.gridSize - 1, Math.max( 0.0, rY ) ) );
 			redPlayerModel.changeDirection( rD );
 			redPlayerModel.changePath( rP );
 		}

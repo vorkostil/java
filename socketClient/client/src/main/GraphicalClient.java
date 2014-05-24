@@ -402,24 +402,24 @@ public class GraphicalClient extends JFrame
 		}
 	}
 
-	public void askForGameTo(String name) 
+	public void askForGameTo( String opponentName, String gameName) 
 	{
-		writer.println( MessageType.MessageSystem + " " + MessageType.MessageGameAsked + " " + name );
+		writer.println( MessageType.MessageSystem + " " + MessageType.MessageGameAsked + " " + opponentName + " " + gameName );
 		writer.flush();
 	}
 
-	public void askForGameFrom(String name) 
+	public void askForGameFrom( String opponentName, String gameName) 
 	{
-		int response = JOptionPane.showConfirmDialog(null, "Would you play with " + name + " ?", "Game launch", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		int response = JOptionPane.showConfirmDialog(null, "Would you play " + gameName + " with " + opponentName + " ?", "Game launch", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		
 		if ( response == JOptionPane.OK_OPTION)
 		{
-			writer.println( MessageType.MessageSystem + " " + MessageType.MessageGameAccepted + " " + name );
+			writer.println( MessageType.MessageSystem + " " + MessageType.MessageGameAccepted + " " + opponentName + " " + gameName );
 			writer.flush();
 		}
 		else
 		{
-			writer.println( MessageType.MessageSystem + " " + MessageType.MessageGameRefused + " " + name );
+			writer.println( MessageType.MessageSystem + " " + MessageType.MessageGameRefused + " " + opponentName );
 			writer.flush();
 		}
 	}

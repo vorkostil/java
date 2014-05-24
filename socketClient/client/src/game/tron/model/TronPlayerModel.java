@@ -1,6 +1,6 @@
 package game.tron.model;
 
-import game.TronGame;
+import game.TronGameServer;
 import graphic.GraphicalItem;
 
 import java.awt.geom.Point2D;
@@ -17,7 +17,7 @@ public class TronPlayerModel
 	private double x = -1;
 	private double y = -1;
 	private List< Point2D > path = null;
-	private int direction = TronGame.NO_DIRECTION;
+	private int direction = TronGameServer.NO_DIRECTION;
 	private String state = GraphicalItem.DEFAULT_STATE;
 	private String name = null;
 	
@@ -36,19 +36,19 @@ public class TronPlayerModel
 
 	private void computeState() 
 	{
-		if ( direction == TronGame.UP )
+		if ( direction == TronGameServer.UP )
 		{
 			state = UP_STATE;
 		}
-		else if ( direction == TronGame.DOWN )
+		else if ( direction == TronGameServer.DOWN )
 		{
 			state = DOWN_STATE;
 		}
-		else if ( direction == TronGame.LEFT )
+		else if ( direction == TronGameServer.LEFT )
 		{
 			state = LEFT_STATE;
 		}
-		else if ( direction == TronGame.RIGHT )
+		else if ( direction == TronGameServer.RIGHT )
 		{
 			state = RIGHT_STATE;
 		}
@@ -113,8 +113,8 @@ public class TronPlayerModel
 
 	public boolean isCurrentlyVertical() 
 	{
-		return (  ( direction == TronGame.UP )
-				||( direction == TronGame.DOWN )  );
+		return (  ( direction == TronGameServer.UP )
+				||( direction == TronGameServer.DOWN )  );
 	}
 
 }

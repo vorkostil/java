@@ -20,7 +20,7 @@ import common.MessageType;
  *		gestion des regles
  *		appel des IA si besion
  */
-public class TronGame 
+public class TronGameServer extends AbstractGame
 {
 	public static final int NO_DIRECTION = 0;
 	public static final int LEFT = -2; 
@@ -35,6 +35,7 @@ public class TronGame
 	public static final int RED_START_Y = 13;
 	public static final int BLUE_START_DIRECTION = RIGHT;
 	public static final int RED_START_DIRECTION = LEFT;
+	public static final String NAME = "Tron";
 	
 	// number of cell each second
 	private static double speed = 1.5;
@@ -46,8 +47,6 @@ public class TronGame
 	
 	private ClientConnectionManager manager = null;
 
-	private String id = null;
-	
 	private String bluePlayer = null;
 	private String redPlayer = null;
 	
@@ -65,9 +64,6 @@ public class TronGame
 	
 	private int blueTargetDirection = BLUE_START_DIRECTION;
 	private int redTargetDirection = RED_START_DIRECTION;
-	
-	private boolean isBlueReady = false;
-	private boolean isRedReady = false;
 	
 	class MainTask extends TimerTask
 	{
@@ -91,19 +87,17 @@ public class TronGame
 	MainTask mainTask = new MainTask();
 	Timer mainTimer = new Timer();
 	
-	public TronGame( String player1, String player2, String gameId, ClientConnectionManager connectionManager ) 
+	public TronGameServer( String player1, String player2, String gameId, ClientConnectionManager connectionManager ) 
 	{
-		manager = connectionManager;
-		id = gameId;
+		super( gameId, connectionManager );
 		
-		bluePlayer = player1;
-		redPlayer = player2;
+		addPlayer( bluePlayer = player1 );
+		addPlayer( redPlayer = player2 );
 		
 		pathBlue.add( new Point2D.Double( blueX, blueY ) );
 		pathRed.add( new Point2D.Double( redX, redY ) );
 		
-		manager.forwardToClient( bluePlayer, MessageType.MessageSystem + " " + MessageType.MessageGameOpen + " " + id + " " + bluePlayer + " " + redPlayer);
-		manager.forwardToClient( redPlayer , MessageType.MessageSystem + " " + MessageType.MessageGameOpen + " " + id + " " + bluePlayer + " " + redPlayer);
+		sendOpenMessageToPlayers();
 	}
 
 	protected void computeMovement( long elaspedTimeInMilliSecond ) 
@@ -185,9 +179,9 @@ public class TronGame
 		}
 		
 		// forward the new position to the client
-		manager.forwardToClient( bluePlayer, MessageType.MessageSystem + " " + MessageType.MessageGameUpdatePosition + " " + id + " " + createBlueInfo() + " " + createRedInfo() );
-		manager.forwardToClient( redPlayer, MessageType.MessageSystem + " " + MessageType.MessageGameUpdatePosition + " " + id + " " + createBlueInfo() + " " + createRedInfo() );
-		
+		forwardMessageToAllPlayer( MessageType.MessageSystem + " " + MessageType.MessageGameUpdatePosition + " " + id + " " + createBlueInfo() + " " + createRedInfo() );
+
+		// check for the and of the game
 		checkEndGame();
 	}
 
@@ -346,48 +340,9 @@ public class TronGame
 		return false;
 	}
 
-	public void setReady(String player) 
-	{
-		if ( player.compareTo( bluePlayer ) == 0 )
-		{
-			isBlueReady = true;
-		}
-		else if ( player.compareTo( redPlayer ) == 0 )
-		{
-			isRedReady = true;
-		}
-		
-		manager.forwardToClient( bluePlayer, MessageType.MessageSystem + " " + MessageType.MessageGameReady + " " + id + " " + player );
-		manager.forwardToClient( redPlayer , MessageType.MessageSystem + " " + MessageType.MessageGameReady + " " + id + " " + player );
-		
-		if (  ( isBlueReady == true )
-			&&( isRedReady == true )  )
-		{
-			manager.forwardToClient( bluePlayer, MessageType.MessageSystem + " " + MessageType.MessageGameStartSoon + " " + id );
-			manager.forwardToClient( redPlayer , MessageType.MessageSystem + " " + MessageType.MessageGameStartSoon + " " + id );
-			
-			javax.swing.Timer timer = new javax.swing.Timer( 3000, new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent arg0) {
-					manager.forwardToClient( bluePlayer, MessageType.MessageSystem + " " + MessageType.MessageGameStart + " " + id );
-					manager.forwardToClient( redPlayer , MessageType.MessageSystem + " " + MessageType.MessageGameStart + " " + id );
-					
-					if (  ( mainTimer != null )
-						&&( mainTask != null )  )
-					{
-						mainTask.init();
-						mainTimer.schedule( mainTask, tempo, tempo);
-					}
-				}
-			});
-			timer.setRepeats( false );
-			timer.start();
-		}
-	}
-
 	public void changePlayerDirection(String player, String dir) 
 	{
-		if ( player.compareTo(bluePlayer) == 0 )
+		if ( player.compareTo( bluePlayer ) == 0 )
 		{
 			blueTargetDirection = Integer.parseInt( dir );
 		}
@@ -397,20 +352,42 @@ public class TronGame
 		}
 	}
 
+	@Override
 	public void stop()
 	{
 		mainTimer.cancel();
 		mainTimer = null;
 	}
 
-	public boolean containsPlayer(String login) 
+	@Override
+	protected void callGameStart() 
 	{
-		return (  ( login.compareTo( redPlayer ) == 0)
-				||( login.compareTo( bluePlayer ) == 0)  );
+		javax.swing.Timer timer = new javax.swing.Timer( 3000, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				sendGameStartMessage();
+				
+				if (  ( mainTimer != null )
+					&&( mainTask != null )  )
+				{
+					mainTask.init();
+					mainTimer.schedule( mainTask, tempo, tempo);
+				}
+			}
+		});
+		timer.setRepeats( false );
+		timer.start();
 	}
 
-	public String getId() 
+	@Override
+	public void manageSpecificMessage(String command) 
 	{
-		return id;
+		String[] splitted = command.split( " " );
+		String action = splitted[2]; 
+		
+		if ( action.compareTo( MessageType.MessageChangeDirection ) == 0 )
+		{
+			changePlayerDirection( splitted[ 4 ], splitted[ 5 ] );
+		}
 	}
 }

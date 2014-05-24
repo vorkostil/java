@@ -1,5 +1,8 @@
 package main.listener;
 
+import game.ChessGameServer;
+import game.TronGameServer;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -23,7 +26,8 @@ public class ClientNameMouseListener implements MouseListener
 	{
 		gClient = graphicalClient;
 		JMenuItem chat = new JMenuItem( "Chat"); 
-		JMenuItem game = new JMenuItem( "Game"); 
+		JMenuItem tron = new JMenuItem( "Tron"); 
+		JMenuItem chess = new JMenuItem( "Chess"); 
 		
 		chat.addActionListener( new ActionListener() {
 			@Override
@@ -31,15 +35,24 @@ public class ClientNameMouseListener implements MouseListener
 				gClient.addDirectCommunication( name );
 			}
 		});
-		game.addActionListener( new ActionListener() {
+		
+		tron.addActionListener( new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				gClient.askForGameTo( name );
+				gClient.askForGameTo( name, TronGameServer.NAME );
+			}
+		});
+		
+		chess.addActionListener( new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				gClient.askForGameTo( name, ChessGameServer.NAME );
 			}
 		});
 		
 		menu.add( chat );
-		menu.add( game );
+		menu.add( tron );
+		menu.add( chess );
 	}
 	
 	@Override
