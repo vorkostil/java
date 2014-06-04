@@ -5,7 +5,8 @@
 //import java.util.List;
 //import java.util.Scanner;
 //
-//class Player {
+//class MainCrusade1_old
+//{
 //
 //    private static final String TOP = "TOP";
 //    private static final String LEFT = "LEFT";

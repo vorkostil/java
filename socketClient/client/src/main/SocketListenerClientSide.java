@@ -108,7 +108,7 @@ public class SocketListenerClientSide implements Runnable {
 						}
 						else if ( action.compareTo( MessageType.MessageOpen ) == 0 )
 						{
-							gClient.openGame( gameId, splitted[ 4 ], splitted[ 5 ] );
+							gClient.openGame( gameId, splitted[ 4 ], splitted[ 5 ], splitted[ 6 ] );
 						}
 						else if ( action.compareTo( MessageType.MessageAsked ) == 0 )
 						{

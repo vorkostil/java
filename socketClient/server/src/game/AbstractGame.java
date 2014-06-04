@@ -110,7 +110,7 @@ public abstract class AbstractGame
 	public void sendOpenMessageToPlayers() 
 	{
 		// create the message to send
-		String msg = MessageType.MessageSystem + " " + MessageType.MessageGameOpen + " " + id;
+		String msg = MessageType.MessageSystem + " " + MessageType.MessageGameOpen + " " + id + " " + getName();
 		for ( PlayerProperties player : players )
 		{
 			msg += " " + player.getName();
@@ -135,6 +135,14 @@ public abstract class AbstractGame
 		forwardMessageToAllPlayer( MessageType.MessageSystem + " " + MessageType.MessageGameStart + " " + id );		
 	}
 	
+	// send the game stop message to all player with the winner inside
+	// and ask the manager to close the game
+	public void sendGameEndMessage( String winner )
+	{
+		forwardMessageToAllPlayer( MessageType.MessageSystem + " " + MessageType.MessageGameEnd + " " + id + " " + winner );
+		connectionManager.closeGame( id );
+	}
+	
 	// the implementation of this callback MUST call the sendGameStartMessage
 	abstract protected void callGameStart();
 
@@ -143,5 +151,8 @@ public abstract class AbstractGame
 
 	// use to manage specific message, obviously different for each game  
 	abstract public void manageSpecificMessage(String command);
+	
+	// get the name identifier for the game
+	abstract protected String getName();
 	
 }

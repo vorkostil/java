@@ -1,5 +1,6 @@
 package game.tron;
 
+import game.AbstractGameFrame;
 import game.TronGameServer;
 import game.tron.displayer.TronMainDisplayer;
 import game.tron.displayer.TronMiniMapDisplayer;
@@ -11,10 +12,8 @@ import game.tron.panel.TronMiniMapPanel;
 import game.tron.panel.TronPlayerPanel;
 import graphic.GraphicalEnvironment;
 import graphic.GraphicalEnvironment.ImageLevel;
-import helper.DataRepository;
 
 import java.awt.BorderLayout;
-import java.awt.MediaTracker;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.geom.Point2D;
@@ -24,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Box;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.border.EtchedBorder;
 
@@ -40,7 +38,7 @@ import common.MessageType;
  *		gestion des commandes via forward au Server
  * */
 @SuppressWarnings("serial")
-public class TronGameFrame extends JFrame 
+public class TronGameFrame extends AbstractGameFrame 
 {
 	private static final String TRON_CONFIG_PATH = "resources/config/tron.cfg";
 	private static final String BLUE_PLAYER_GRAPHICAL_CONFIGURATION = "blue_player_configuration";
@@ -48,30 +46,19 @@ public class TronGameFrame extends JFrame
 	private static final String BLUE_PLAYER_MINIMAP_CONFIGURATION = "blue_player_minimap_configuration";
 	private static final String RED_PLAYER_MINIMAP_CONFIGURATION = "red_player_minimap_configuration";
 	
-	private PrintWriter targetWriter = null;
-	private String gameId = null;
 	private TronMainPanel gamePanel = null;
-	
-	private String login = null;
-	private DataRepository repository = new DataRepository();
 
 	private TronPlayerModel bluePlayerModel = null;
 	private TronPlayerModel redPlayerModel = null;
-	
-	private MediaTracker tracker = new MediaTracker( this );
 	
 	private KeyListener movementKeyListener = new KeyListener() {
 		
 		@Override
 		public void keyTyped(KeyEvent arg0) {
-			// TODO Auto-generated method stub
-			
 		}
 		
 		@Override
 		public void keyReleased(KeyEvent arg0) {
-			// TODO Auto-generated method stub
-			
 		}
 		
 		@Override
@@ -79,22 +66,22 @@ public class TronGameFrame extends JFrame
 		{
 			if ( arg0.getKeyCode() == KeyEvent.VK_LEFT )
 			{
-				targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + login + " " + TronGameServer.LEFT );
+				targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + getLogin() + " " + TronGameServer.LEFT );
 				targetWriter.flush();
 			}
 			else if ( arg0.getKeyCode() == KeyEvent.VK_RIGHT )
 			{
-				targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + login + " " + TronGameServer.RIGHT );
+				targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + getLogin() + " " + TronGameServer.RIGHT );
 				targetWriter.flush();
 			}
 			else if ( arg0.getKeyCode() == KeyEvent.VK_UP )
 			{
-				targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + login + " " + TronGameServer.UP );
+				targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + getLogin() + " " + TronGameServer.UP );
 				targetWriter.flush();
 			}
 			else if ( arg0.getKeyCode() == KeyEvent.VK_DOWN )
 			{
-				targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + login + " " + TronGameServer.DOWN );
+				targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + getLogin() + " " + TronGameServer.DOWN );
 				targetWriter.flush();
 			}
 		}
@@ -106,12 +93,7 @@ public class TronGameFrame extends JFrame
 					  	  String bluePlayerName, 
 					  	  String redPlayerName ) throws IOException 
 	{
-		targetWriter  = writer;
-		gameId  = gameID;
-		login = name;
-
-		// load repository of information
-		repository.addFromFile( TRON_CONFIG_PATH );
+		super( writer, gameID, name, TRON_CONFIG_PATH );
 		
 		// characteristics of the frame
 		this.setTitle( "Tron");
@@ -212,7 +194,7 @@ public class TronGameFrame extends JFrame
 		
 		
 		String player = "You play as ";
-		if ( login.compareTo( bluePlayerName ) == 0 )
+		if ( getLogin().compareTo( bluePlayerName ) == 0 )
 		{
 			player += " BLUE\n";
 		}
@@ -228,7 +210,7 @@ public class TronGameFrame extends JFrame
 											JOptionPane.YES_NO_OPTION, 
 											JOptionPane.QUESTION_MESSAGE ) == JOptionPane.OK_OPTION)
 		{
-			targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameReady + " " + gameId + " " + login );
+			targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameReady + " " + gameId + " " + getLogin() );
 		}
 		else
 		{
@@ -247,14 +229,9 @@ public class TronGameFrame extends JFrame
 		gamePanel.setStart();
 	}
 
-	public String getId() 
-	{
-		return gameId;
-	}
-
 	public void end(String winner) 
 	{
-		if ( login.compareTo( winner ) == 0 )
+		if ( getLogin().compareTo( winner ) == 0 )
 		{
 			JOptionPane.showMessageDialog(this, "You WIN", "Game finish, " + winner + " wins", JOptionPane.INFORMATION_MESSAGE );
 		}

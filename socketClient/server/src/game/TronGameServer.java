@@ -45,7 +45,7 @@ public class TronGameServer extends AbstractGame
 	// 0.03 s tempo, speed = 1.5 --> 0.045 / tempo
 	private static double EPSILON = (2.2 * speed * tempo) / 1000;
 	
-	private ClientConnectionManager manager = null;
+//	private ClientConnectionManager manager = null;
 
 	private String bluePlayer = null;
 	private String redPlayer = null;
@@ -304,9 +304,7 @@ public class TronGameServer extends AbstractGame
 		if ( winner.length() > 0 )
 		{
 			System.out.println( "Game " + id + " end, winner is " + winner );
-			manager.forwardToClient( bluePlayer, MessageType.MessageSystem + " " + MessageType.MessageGameEnd + " " + id + " " + winner );
-			manager.forwardToClient( redPlayer, MessageType.MessageSystem + " " + MessageType.MessageGameEnd + " " + id + " " + winner );
-			manager.closeGame( id );
+			sendGameEndMessage(winner);
 		}
 	}
 	
@@ -389,5 +387,11 @@ public class TronGameServer extends AbstractGame
 		{
 			changePlayerDirection( splitted[ 4 ], splitted[ 5 ] );
 		}
+	}
+
+	@Override
+	protected String getName() 
+	{
+		return NAME;
 	}
 }

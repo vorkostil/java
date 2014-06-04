@@ -453,4 +453,10 @@ public class ChessGameServer extends AbstractGame
 	{
 	}
 
+	@Override
+	protected String getName() 
+	{
+		return NAME;
+	}
+
 }

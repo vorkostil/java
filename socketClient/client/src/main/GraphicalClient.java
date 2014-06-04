@@ -38,6 +38,10 @@ import common.MessageType;
 import frame.ConnectionDialog;
 import frame.ConnectionInfo;
 import frame.PeerToPeerCommunicationFrame;
+import game.AbstractGameFrame;
+import game.ChessGameServer;
+import game.TronGameServer;
+import game.chess.ChessGameFrame;
 import game.tron.TronGameFrame;
 
 @SuppressWarnings("serial")
@@ -61,7 +65,7 @@ public class GraphicalClient extends JFrame
 	JMenuItem menuItemDisconnect = new JMenuItem( "Disconnect" );
 	
 	HashMap< String, PeerToPeerCommunicationFrame > directCommunications = new HashMap< String, PeerToPeerCommunicationFrame >();
-	HashMap< String, TronGameFrame > games = new HashMap< String, TronGameFrame >();
+	HashMap< String, AbstractGameFrame > games = new HashMap< String, AbstractGameFrame >();
 	
 	public enum State { WAITING_FOR_SERVER, WAITING_FOR_LOGIN, CONNECTED, DURING_LOGIN };
 				 
@@ -340,7 +344,7 @@ public class GraphicalClient extends JFrame
 
 	public void closeAllGames() 
 	{
-		for ( TronGameFrame game : games.values() )
+		for ( AbstractGameFrame game : games.values() )
 		{
 			appendToChatArea( "Game close with id: " + game.getId() + "\n", serverFont, serverColor);
 			game.dispose();
@@ -354,19 +358,26 @@ public class GraphicalClient extends JFrame
 		{
 			appendToChatArea( "Game close with id: " + gameId + "\n", serverFont, serverColor);
 			if ( destroy == true )
-				((TronGameFrame) games.get( gameId )).dispose();
+				games.get( gameId ).dispose();
 			games.remove( gameId );
 		}
 	}
 
-	public void openGame( String gameId, String playerBlue, String playerRed ) 
+	public void openGame( String gameId, String gameName, String playerBlue, String playerRed ) 
 	{
 		if ( games.containsKey( gameId ) == false )
 		{
-			appendToChatArea( "Game open with id: " + gameId + "\n", serverFont, serverColor);
+			appendToChatArea( "Game " + gameName + " open with id: " + gameId + "\n", serverFont, serverColor);
 			try 
 			{
-				games.put( gameId, new TronGameFrame( writer, gameId, login, playerBlue, playerRed ) );
+				if ( gameName.compareTo( TronGameServer.NAME ) == 0 )
+				{
+					games.put( gameId, new TronGameFrame( writer, gameId, login, playerBlue, playerRed ) );
+				}
+				else if ( gameName.compareTo( ChessGameServer.NAME ) == 0 )
+				{
+					games.put( gameId, new ChessGameFrame( writer, gameId, login, playerBlue, playerRed ) );
+				}
 			} 
 			catch (IOException e) 
 			{
@@ -380,7 +391,7 @@ public class GraphicalClient extends JFrame
 		if ( games.containsKey( gameId ) == true )
 		{
 			appendToChatArea( "Game " + gameId + ", player " + name + " is ready\n", serverFont, serverColor);
-			((TronGameFrame) games.get( gameId )).ready( name );
+			games.get( gameId ).ready( name );
 		}
 	}
 
@@ -389,7 +400,7 @@ public class GraphicalClient extends JFrame
 		if ( games.containsKey( gameId ) == true )
 		{
 			appendToChatArea( "Game " + gameId + " will start\n", serverFont, serverColor);
-			((TronGameFrame) games.get( gameId )).start();
+			games.get( gameId ).start();
 		}
 	}
 
@@ -398,7 +409,7 @@ public class GraphicalClient extends JFrame
 		if ( games.containsKey( gameId ) == true )
 		{
 			appendToChatArea( "Game " + gameId + " will start soon\n", serverFont, serverColor);
-			((TronGameFrame) games.get( gameId )).startSoon();
+			games.get( gameId ).startSoon();
 		}
 	}
 
@@ -428,7 +439,7 @@ public class GraphicalClient extends JFrame
 	{
 		if ( games.containsKey( gameId ) == true )
 		{
-			((TronGameFrame) games.get( gameId )).end( winner );
+			games.get( gameId ).end( winner );
 			closeGame(gameId, true);
 		}
 	}
@@ -437,7 +448,7 @@ public class GraphicalClient extends JFrame
 	{
 		if ( games.containsKey( gameId ) == true )
 		{
-			((TronGameFrame) games.get( gameId )).forwardMessage( line );
+			games.get( gameId ).forwardMessage( line );
 		}
 	}
 
