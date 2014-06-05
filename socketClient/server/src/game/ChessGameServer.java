@@ -14,6 +14,11 @@ public class ChessGameServer extends AbstractGame
 
 	private static final String CREATE_PIECE_INFORMATION_MESSAGE( String id, ChessPiece piece )
 	{
+		return MessageType.MessageSystem + " " + MessageType.MessageGameInitPieceInformation + " " + id + " " + piece.toString();
+	}
+	
+	private static final String CREATE_UPDATE_PIECE_INFORMATION_MESSAGE( String id, ChessPiece piece )
+	{
 		return MessageType.MessageSystem + " " + MessageType.MessageGameUpdatePieceInformation + " " + id + " " + piece.toString();
 	}
 	
@@ -49,16 +54,18 @@ public class ChessGameServer extends AbstractGame
 	private List< Point > dangerousCells = new ArrayList< Point >();
 	int lastMoveUnlockEnPassant = -1;
 	
-	public ChessGameServer( String playerBlackName, 
-							String playerWhiteName, 
+	public ChessGameServer( String playerWhiteName, 
+							String playerBlackName, 
 							String gameId, 
 							ClientConnectionManager connectionManager ) 
 	{
 		super( gameId, connectionManager );
 		
+		System.out.println( "create new chess game, white is " + playerWhiteName + " - black is " + playerBlackName );
+		
 		// create environment
-		addPlayer( playerWhite = playerWhiteName );
 		addPlayer( playerBlack = playerBlackName );
+		addPlayer( playerWhite = playerWhiteName );
 
 		// board 0 = A1, board 63 = G8, A1 is SW
 		whitePieceAlive.add( board[ 0 ] = new ChessPiece( true, ChessPiece.TOWER_ID, 0, 0 ) );
@@ -109,14 +116,14 @@ public class ChessGameServer extends AbstractGame
 		{
 			// get the piece before movement and prepare the message to send to the clients
 			ChessPiece movedPiece = pieceAt( x0, y0 );
-			String messageMove = CREATE_PIECE_INFORMATION_MESSAGE( id, movedPiece );
+			String messageMove = CREATE_UPDATE_PIECE_INFORMATION_MESSAGE( id, movedPiece );
 			
 			// apply the movement and get the eated piece if any
 			ChessPiece eatedPiece = move( x0, y0, x1, y1 );
 			if ( eatedPiece != null )
 			{
 				// prepare the message for the eated piece to send to the clients
-				String messageEated = CREATE_PIECE_INFORMATION_MESSAGE( id, eatedPiece );
+				String messageEated = CREATE_UPDATE_PIECE_INFORMATION_MESSAGE( id, eatedPiece );
 				
 				// add the piece to the eated repository
 				if ( whiteToPlay == true )
@@ -214,7 +221,7 @@ public class ChessGameServer extends AbstractGame
 			}
 			
 			// and then, send the movable pieces to the player
-			connectionManager.forwardToClient( playerWhite, CREATE_PLAYER_MOVABLE_PIECES( id, movable ) );
+			connectionManager.forwardToClient( playerBlack, CREATE_PLAYER_MOVABLE_PIECES( id, movable ) );
 		}
 	}
 
@@ -258,7 +265,7 @@ public class ChessGameServer extends AbstractGame
 					&&( ( tower = pieceAt( 0, 0) ) != null )  )
 				{
 					// move the W tower to its new position
-					String message = CREATE_PIECE_INFORMATION_MESSAGE( id, tower );
+					String message = CREATE_UPDATE_PIECE_INFORMATION_MESSAGE( id, tower );
 					
 					tower.modifyStatus( 3, 0, true );
 
@@ -271,7 +278,7 @@ public class ChessGameServer extends AbstractGame
 						 &&( ( tower = pieceAt( 7, 0) ) != null )  )
 				{
 					// move the W tower to its new position
-					String message = CREATE_PIECE_INFORMATION_MESSAGE( id, tower );
+					String message = CREATE_UPDATE_PIECE_INFORMATION_MESSAGE( id, tower );
 					
 					tower.modifyStatus( 5, 0, true );
 
@@ -291,7 +298,7 @@ public class ChessGameServer extends AbstractGame
 					&&( ( tower = pieceAt( 0, 7) ) != null )  )
 				{
 					// move the W tower to its new position
-					String message = CREATE_PIECE_INFORMATION_MESSAGE( id, tower );
+					String message = CREATE_UPDATE_PIECE_INFORMATION_MESSAGE( id, tower );
 					
 					tower.modifyStatus( 3, 7, true );
 
@@ -304,7 +311,7 @@ public class ChessGameServer extends AbstractGame
 						 &&( ( tower = pieceAt( 7, 7) ) != null )  )
 				{
 					// move the W tower to its new position
-					String message = CREATE_PIECE_INFORMATION_MESSAGE( id, tower );
+					String message = CREATE_UPDATE_PIECE_INFORMATION_MESSAGE( id, tower );
 					
 					tower.modifyStatus( 5, 7, true );
 
@@ -441,6 +448,16 @@ public class ChessGameServer extends AbstractGame
 	protected void callGameStart() 
 	{
 		sendGameStartMessage();
+		for ( ChessPiece piece : this.whitePieceAlive )
+		{
+			forwardMessageToAllPlayer( CREATE_PIECE_INFORMATION_MESSAGE(id, piece));
+		}
+		for ( ChessPiece piece : this.blackPieceAlive )
+		{
+			forwardMessageToAllPlayer( CREATE_PIECE_INFORMATION_MESSAGE(id, piece));
+		}
+		forwardMessageToAllPlayer(CREATE_PLAYER_TURN_TO_PLAY(id, whiteToPlay));
+		sendMovablePiece();
 	}
 
 	@Override

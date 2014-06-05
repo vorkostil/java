@@ -125,7 +125,7 @@ public abstract class GraphicalEnvironment extends JPanel
 		}
 	}
 
-	public boolean addItem( GraphicalItem item, int layerLevel )
+	public synchronized boolean addItem( GraphicalItem item, int layerLevel )
 	{
 		if (  ( layerLevel >= FIRST_LAYER_LEVEL_TO_DRAW )
 			&&( layerLevel < LAST_LAYER_LEVEL_TO_DRAW + 1 )  )
@@ -154,7 +154,7 @@ public abstract class GraphicalEnvironment extends JPanel
 		}
 	}
 
-	protected void drawLayers(Graphics g, int x, int y, int width, int height) 
+	protected synchronized void drawLayers(Graphics g, int x, int y, int width, int height) 
 	{
 		// draw the images
 		for ( int level = FIRST_LAYER_LEVEL_TO_DRAW;

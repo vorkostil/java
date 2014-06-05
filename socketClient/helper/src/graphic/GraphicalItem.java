@@ -70,67 +70,74 @@ public abstract class GraphicalItem
 						  int levelId ) throws IOException 
 	{
 		displayer_ = displayer;
-		color_ = Color.decode( dataInformation.getStringValue( COLOR ) );
-		
-		// check for multi-state object
-		//-----------------------------
-		if ( dataInformation.contains( STATES ) == true ) 
+		if ( dataInformation == null )
 		{
-			hasImage = true;
-			String states[] = dataInformation.getStringValue( STATES ).split( DataInformation.LIST_SEPARATOR );
-			for (String state : states) 
+			color_ = Color.BLACK;
+		}
+		else
+		{
+			color_ = Color.decode( dataInformation.getStringValue( COLOR ) );
+			
+			// check for multi-state object
+			//-----------------------------
+			if ( dataInformation.contains( STATES ) == true ) 
 			{
-				// check for multi-frame state
-				//----------------------------
-				images_.put( state, new ArrayList< Image >() );
-				if ( dataInformation.contains( FRAME_SIZE_GETTER( state ) ) == true ) 
+				hasImage = true;
+				String states[] = dataInformation.getStringValue( STATES ).split( DataInformation.LIST_SEPARATOR );
+				for (String state : states) 
 				{
-					int frameSize = dataInformation.getIntegerValue( FRAME_SIZE_GETTER( state ) );
-					for ( int i = 0; i < frameSize;++i) 
+					// check for multi-frame state
+					//----------------------------
+					images_.put( state, new ArrayList< Image >() );
+					if ( dataInformation.contains( FRAME_SIZE_GETTER( state ) ) == true ) 
 					{
-						Image image = ImageIO.read( new File( dataInformation.getStringValue( FRAME_PATH_GETTER( state, i ) ) ) );
+						int frameSize = dataInformation.getIntegerValue( FRAME_SIZE_GETTER( state ) );
+						for ( int i = 0; i < frameSize;++i) 
+						{
+							Image image = ImageIO.read( new File( dataInformation.getStringValue( FRAME_PATH_GETTER( state, i ) ) ) );
+							if ( image != null )
+							{
+								mediaTracker.addImage( image, levelId );
+								images_.get( state ).add( image );
+							}
+						}
+						// awful method to store the delay between frame
+						// TODO rework this part to store the delay and cycle within the frames of state
+						//------------------------------------------------------------------------------
+						delays_.put( state, dataInformation.getIntegerValue(FRAME_DELAY_GETTER( state ) ) );
+						if ( dataInformation.contains( FRAME_CYCLIC_GETTER( state ) ) == true )
+						{
+							cyclic_.put( state, dataInformation.getBooleanValue( FRAME_CYCLIC_GETTER( state ) ) );
+						}
+						else
+						{
+							cyclic_.put( state, true );
+						}
+							
+					}
+					else 
+					{ 
+						Image image = ImageIO.read( new File( dataInformation.getStringValue( IMAGE_PATH_GETTER( state ) ) ) );
 						if ( image != null )
 						{
 							mediaTracker.addImage( image, levelId );
-							images_.get( state ).add( image );
+							images_.get(state).add(image);
 						}
-					}
-					// awful method to store the delay between frame
-					// TODO rework this part to store the delay and cycle within the frames of state
-					//------------------------------------------------------------------------------
-					delays_.put( state, dataInformation.getIntegerValue(FRAME_DELAY_GETTER( state ) ) );
-					if ( dataInformation.contains( FRAME_CYCLIC_GETTER( state ) ) == true )
-					{
-						cyclic_.put( state, dataInformation.getBooleanValue( FRAME_CYCLIC_GETTER( state ) ) );
-					}
-					else
-					{
-						cyclic_.put( state, true );
-					}
-						
-				}
-				else 
-				{ 
-					Image image = ImageIO.read( new File( dataInformation.getStringValue( IMAGE_PATH_GETTER( state ) ) ) );
-					if ( image != null )
-					{
-						mediaTracker.addImage( image, levelId );
-						images_.get(state).add(image);
 					}
 				}
 			}
-		}
-		// Check if there is at least one image
-		//-------------------------------------
-		else if ( dataInformation.contains( IMAGE_PATH ) == true ) 
-		{
-			hasImage = true;
-			Image image = ImageIO.read( new File( dataInformation.getStringValue( IMAGE_PATH ) ) );
-			if (image != null)
+			// Check if there is at least one image
+			//-------------------------------------
+			else if ( dataInformation.contains( IMAGE_PATH ) == true ) 
 			{
-				mediaTracker.addImage( image, levelId );
-				images_.put( DEFAULT_STATE, new ArrayList< Image >() );
-				images_.get( DEFAULT_STATE ).add( image );
+				hasImage = true;
+				Image image = ImageIO.read( new File( dataInformation.getStringValue( IMAGE_PATH ) ) );
+				if (image != null)
+				{
+					mediaTracker.addImage( image, levelId );
+					images_.put( DEFAULT_STATE, new ArrayList< Image >() );
+					images_.get( DEFAULT_STATE ).add( image );
+				}
 			}
 		}
 	}

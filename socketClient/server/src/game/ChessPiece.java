@@ -10,12 +10,12 @@ class ChessPiece
 	 * 
 	 */
 	private ChessGameServer chessGameServer;
+	public static final int PEON_ID = 0;
 	public static final int TOWER_ID = 1;
 	public static final int HORSE_ID = 2;
 	public static final int BISHOP_ID = 3;
 	public static final int QUEEN_ID = 4;
 	public static final int KING_ID = 5;
-	public static final int PEON_ID = 6;
 	 
 	private int kind;
 	private int x;
@@ -44,7 +44,7 @@ class ChessPiece
 	// translate the piece information to string for the clients
 	public String toString()
 	{
-		return kind + " " + x + " " + y + " " + alive; 
+		return kind + " " + isWhite + " " + x + " " + y + " " + alive; 
 	}
 
 	// return the list of the cells available
@@ -301,7 +301,7 @@ class ChessPiece
 		
 		// compute south cells
 		d = -1;
-		while (  ( x + d > 0 )
+		while (  ( y + d > 0 )
 			   &&( ( currentPiece = chess.pieceAt( x, y + d ) ) == null )  )
 		{
 			result.add( new Point( x, y + d ) );
