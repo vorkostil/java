@@ -49,6 +49,8 @@ public class ChessGameFrame extends AbstractGameFrame
 	private boolean isPlayerToPlay;
 	private boolean isWhite;
 	private List< Point > movableCells = new ArrayList< Point >();
+	private List< Point > targetCells = new ArrayList< Point >();
+	private Point cellSelected = null;
 	
 	//private List< GraphicalItem > chessPieces = new ArrayList< GraphicalItem >();
 	
@@ -220,6 +222,41 @@ public class ChessGameFrame extends AbstractGameFrame
 				}
 			}
 		}
+		else if ( action.compareTo( MessageType.MessagePlayerTargetCells ) == 0 )
+		{
+			if ( isPlayerToPlay == true )
+			{
+				int size = Integer.parseInt(splitted[4]);
+				targetCells.clear();
+				for (int i = 0; i < size; i++ )
+				{
+					targetCells.add( new Point( Integer.parseInt(splitted[5 + i * 2]), Integer.parseInt(splitted[6 + i * 2]) ) );
+				}
+			}
+		}
+		else if ( action.compareTo( MessageType.MessageUpdatePieceInformation ) == 0 )
+		{
+			ChessPieceItem piece = gamePanel.findChessPieceAt( Integer.parseInt(splitted[ 4 ]), Integer.parseInt(splitted[ 5 ]) );
+			if ( piece != null )
+			{
+				boolean isAlive = Boolean.parseBoolean(splitted[8]);
+				piece.getModel().update( Integer.parseInt(splitted[ 6 ]), Integer.parseInt(splitted[ 7 ]), isAlive );
+				
+				if ( isAlive == false )
+				{
+					if ( isPlayerToPlay == isWhite )
+					{
+						piece.setDisplayer( blackTakenDisplayer );
+					}
+					else
+					{
+						piece.setDisplayer( whiteTakenDisplayer );
+					}
+				}
+			}
+		}
+		
+		
 	}
 
 	public void mouseClickOnCell( int x, int y )
@@ -228,31 +265,74 @@ public class ChessGameFrame extends AbstractGameFrame
 		{
 			if ( x >= 0 && y >= 0 && x < 8 && y < 8 )
 			{
-				// TODO manage already selected cell
-				validCellModel.setCoord( x, y );
-				invalidCellModel.setCoord( x, y );
-				
-				boolean found = false;
-				for ( Point p : movableCells )
+				if ( cellSelected != null )
 				{
-					if ( p.x == x && p.y == y )
+					if ( cellSelected.x == x && cellSelected.y == y )
 					{
-						found = true;
-						break;
+						// unselect
+						cellSelected = null;
+						validCellModel.setCoord( x, y );
+						validCellModel.setVisible(false);
+						
+						invalidCellModel.setVisible(false);
+						selectedCellModel.setVisible(false);
+						
 					}
-				}
-				
-				if ( found == true )
-				{
-					selectedCellModel.setVisible(true);
-					
-					validCellModel.setVisible(false);
-					invalidCellModel.setVisible(false);
+					else
+					{
+						boolean found = false;
+						for ( Point p : targetCells )
+						{
+							if ( p.x == x && p.y == y )
+							{
+								found = true;
+								break;
+							}
+						}
+						
+						if ( found == true )
+						{
+							// a valid move, send it to the server
+							targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGamePlayerMovePiece + " " + gameId + " " + cellSelected.x + " " + cellSelected.y + " " + x + " " + y );
+							targetWriter.flush();
+							
+							// reset information
+							validCellModel.setVisible(false);
+							invalidCellModel.setVisible(false);
+							selectedCellModel.setVisible(false);
+							cellSelected = null;
+						}
+					}
 				}
 				else
 				{
-					validCellModel.setVisible(false);
-					invalidCellModel.setVisible(true);
+					// check if the current cell is selectable
+					boolean found = false;
+					for ( Point p : movableCells )
+					{
+						if ( p.x == x && p.y == y )
+						{
+							found = true;
+							break;
+						}
+					}
+					
+					// if it is, select it
+					if ( found == true )
+					{
+						cellSelected  = new Point( x, y );
+						
+						// select the cell
+						selectedCellModel.setCoord( x, y );
+						selectedCellModel.setVisible(true);
+
+						validCellModel.setVisible(false);
+						invalidCellModel.setVisible(false);
+						
+						// ask for target cells to the server
+						targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGamePlayerAskTargetCells + " " + gameId + " " + x + " " + y );
+						targetWriter.flush();
+					}
 				}
 			}
 		}
@@ -268,12 +348,26 @@ public class ChessGameFrame extends AbstractGameFrame
 				invalidCellModel.setCoord( x, y );
 	
 				boolean found = false;
-				for ( Point p : movableCells )
+				if ( cellSelected != null )
 				{
-					if ( p.x == x && p.y == y )
+					for ( Point p : targetCells )
 					{
-						found = true;
-						break;
+						if ( p.x == x && p.y == y )
+						{
+							found = true;
+							break;
+						}
+					}
+				}
+				else
+				{
+					for ( Point p : movableCells )
+					{
+						if ( p.x == x && p.y == y )
+						{
+							found = true;
+							break;
+						}
 					}
 				}
 				

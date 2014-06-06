@@ -64,4 +64,9 @@ public class ChessPieceItem extends GraphicalItem
 	{
 		return model.getState();
 	}
+
+	public ChessPieceModel getModel() 
+	{
+		return model;
+	}
 }

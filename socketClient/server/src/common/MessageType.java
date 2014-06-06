@@ -20,6 +20,9 @@ public class MessageType {
 	public static final String MessagePlayerToPlay = "UPDATE_PLAYER_TO_PLAY";
 	public static final String MessageMoveInvalid = "MOVE_INVALID";
 	public static final String MessagePlayerMovablePieces = "MOVABLE_PIECES";
+	public static final String MessagePlayerTargetCells = "TARGET_CELLS";
+	public static final String MessagePlayerAskTargetCells = "ASK_TARGET_CELLS";
+	public static final String MessagePlayerMovePiece = "MOVE_PIECE";
 	
 	public static final String MessageLogin = "LOGIN";
 	public static final String MessageLoginAsked = MessageLogin + "_" + MessageAsked; 
@@ -55,6 +58,9 @@ public class MessageType {
 	public static final String MessageGamePlayerToPlay = MessageGame + " " + MessagePlayerToPlay;
 	public static final String MessageGameMoveInvalid = MessageGame + " " + MessageMoveInvalid;
 	public static final String MessageGamePlayerMovablePieces = MessageGame + " " + MessagePlayerMovablePieces;
+	public static final String MessageGamePlayerTargetCells = MessageGame + " " + MessagePlayerTargetCells;
+	public static final String MessageGamePlayerAskTargetCells = MessageGame + " " + MessagePlayerAskTargetCells;
+	public static final String MessageGamePlayerMovePiece = MessageGame + " " + MessagePlayerMovePiece;
 	
 
 }

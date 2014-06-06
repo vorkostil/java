@@ -1,11 +1,14 @@
 package game.chess.panel;
 
 import game.chess.ChessGameFrame;
+import game.chess.item.ChessPieceItem;
 import graphic.GraphicalEnvironment;
+import graphic.GraphicalItem;
 import helper.DataRepository;
 
 import java.awt.MediaTracker;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 
@@ -40,6 +43,34 @@ public class ChessMainPanel extends GraphicalEnvironment
 			public void mouseDragged(MouseEvent arg0) {
 			}
 		});
+		
+		addMouseListener( new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				if ( arg0.getX() >= 0 )
+				{
+					mainFrame.mouseClickOnCell( (arg0.getX() - 95) / 64, 7 - arg0.getY() / 64 );
+				}
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+			}
+		});
 	}
 	
 	public void setStartSoon() 
@@ -48,5 +79,25 @@ public class ChessMainPanel extends GraphicalEnvironment
 
 	public void setStart() 
 	{
+	}
+
+	public ChessPieceItem findChessPieceAt(int x, int y) 
+	{
+		for ( GraphicalItem gItem : graphicalItems )
+		{
+			try
+			{
+				ChessPieceItem item = (ChessPieceItem)gItem; 
+				if ( item.getX() == x && item.getY() == y )
+				{
+					return item;
+				}
+			}
+			catch (ClassCastException e)
+			{
+				// not a chess piece, take the other
+			}
+		}
+		return null;
 	}
 }

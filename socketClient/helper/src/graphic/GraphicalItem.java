@@ -232,6 +232,12 @@ public abstract class GraphicalItem
 		}
 		return null;
 	}
+
+	// change the current displayer
+	public void setDisplayer(AbstractDisplayer displayer) 
+	{
+		displayer_ = displayer;
+	}
 	
 	/* return a text to display default return EMPTY_STRING
 	 **/ 

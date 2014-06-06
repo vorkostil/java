@@ -83,7 +83,7 @@ public abstract class GraphicalEnvironment extends JPanel
 	
 	Image backgroundImage = null;
 	List< List< GraphicalItem > > graphicalItemLayers = new ArrayList< List< GraphicalItem > >();
-	List< GraphicalItem > graphicalItems = new ArrayList< GraphicalItem >();
+	protected List< GraphicalItem > graphicalItems = new ArrayList< GraphicalItem >();
 
 	public GraphicalEnvironment( DataInformation datas, MediaTracker tracker, int tempo ) 
 	{

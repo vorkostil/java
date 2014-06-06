@@ -15,7 +15,7 @@ class ClientListener implements Runnable
 	
 	private BufferedReader reader = null;
 	
-	private boolean debug = false;
+	private boolean debug = true;
 	
 	public ClientListener( Socket socket, 
 						   String login,

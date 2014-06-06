@@ -19,7 +19,7 @@ public class ChessGameServer extends AbstractGame
 	
 	private static final String CREATE_UPDATE_PIECE_INFORMATION_MESSAGE( String id, ChessPiece piece )
 	{
-		return MessageType.MessageSystem + " " + MessageType.MessageGameUpdatePieceInformation + " " + id + " " + piece.toString();
+		return MessageType.MessageSystem + " " + MessageType.MessageGameUpdatePieceInformation + " " + id + " " + piece.getX() + " " + piece.getY();
 	}
 	
 	private static final String CREATE_PLAYER_TURN_TO_PLAY(String id, boolean whiteToPlay ) 
@@ -33,6 +33,16 @@ public class ChessGameServer extends AbstractGame
 		for ( ChessPiece piece : movable )
 		{
 			msg += " " + piece.getX() + " " + piece.getY();
+		}
+		return msg;
+	}
+
+	private static final String CREATE_PLAYER_TARGET_CELLS( String id, List<Point> cells ) 
+	{
+		String msg = MessageType.MessageSystem + " " + MessageType.MessageGamePlayerTargetCells + " " + id + " " + cells.size();
+		for ( Point cell : cells )
+		{
+			msg += " " + (int)cell.getX() + " " + (int)cell.getY();
 		}
 		return msg;
 	}
@@ -106,8 +116,14 @@ public class ChessGameServer extends AbstractGame
 		sendOpenMessageToPlayers();
 	}
 	
-	public void movePiece( String player, int x0, int y0, int x1, int y1 )
+	public void movePiece( int x0, int y0, int x1, int y1 )
 	{
+		String player = playerBlack;
+		if ( whiteToPlay == true )
+		{
+			player = playerWhite;
+		}
+		
 		if ( isMoveValid( x0, y0, x1, y1 ) == false )
 		{
 			connectionManager.forwardToClient( player, MessageType.MessageSystem + " " + MessageType.MessageGameMoveInvalid + " " + id);
@@ -141,11 +157,11 @@ public class ChessGameServer extends AbstractGame
 				eatedPiece.modifyStatus( -1, -1, false );
 
 				// send the eated piece message
-				forwardMessageToAllPlayer( messageEated + " " + eatedPiece.toString() );
+				forwardMessageToAllPlayer( messageEated + " " + eatedPiece.getX() + " " + eatedPiece.getY() + " " + eatedPiece.isAlive() );
 			}
 			
 			// send the moved piece message to clients
-			forwardMessageToAllPlayer( messageMove + " " + movedPiece.toString() );
+			forwardMessageToAllPlayer( messageMove + " " + movedPiece.getX() + " " + movedPiece.getY() + " " + movedPiece.isAlive() );
 			
 			// check if the game is finish
 			String winner = null;
@@ -267,10 +283,17 @@ public class ChessGameServer extends AbstractGame
 					// move the W tower to its new position
 					String message = CREATE_UPDATE_PIECE_INFORMATION_MESSAGE( id, tower );
 					
+					// update the board
+					setPieceAt( tower.getX(), tower.getY(), null );
+					
+					// move the piece
 					tower.modifyStatus( 3, 0, true );
-
+					
+					// update the board
+					setPieceAt( tower.getX(), tower.getY(), tower );
+					
 					// send the tower message
-					forwardMessageToAllPlayer( message + " " + tower.toString() );
+					forwardMessageToAllPlayer( message + " " + tower.getX() + " " + tower.getY() + " " + tower.isAlive());
 				}
 				// check if it move from 2 to the E
 				else if (  ( x0 == 4 )
@@ -280,10 +303,17 @@ public class ChessGameServer extends AbstractGame
 					// move the W tower to its new position
 					String message = CREATE_UPDATE_PIECE_INFORMATION_MESSAGE( id, tower );
 					
+					// update the board
+					setPieceAt( tower.getX(), tower.getY(), null );
+					
+					// move the piece
 					tower.modifyStatus( 5, 0, true );
 
+					// update the board
+					setPieceAt( tower.getX(), tower.getY(), tower );
+					
 					// send the tower message
-					forwardMessageToAllPlayer( message + " " + tower.toString() );
+					forwardMessageToAllPlayer( message + " " + tower.getX() + " " + tower.getY() + " " + tower.isAlive() );
 				}
 			}
 			// or a black king on it's base line
@@ -300,10 +330,17 @@ public class ChessGameServer extends AbstractGame
 					// move the W tower to its new position
 					String message = CREATE_UPDATE_PIECE_INFORMATION_MESSAGE( id, tower );
 					
+					// update the board
+					setPieceAt( tower.getX(), tower.getY(), null );
+					
+					// move the piece
 					tower.modifyStatus( 3, 7, true );
 
+					// update the board
+					setPieceAt( tower.getX(), tower.getY(), tower );
+					
 					// send the eated piece message
-					forwardMessageToAllPlayer( message + " " + tower.toString() );
+					forwardMessageToAllPlayer( message + " " + tower.getX() + " " + tower.getY() + " " + tower.isAlive() );
 				}
 				// check if it move from 2 to the E
 				else if (  ( x0 == 4 )
@@ -313,10 +350,17 @@ public class ChessGameServer extends AbstractGame
 					// move the W tower to its new position
 					String message = CREATE_UPDATE_PIECE_INFORMATION_MESSAGE( id, tower );
 					
+					// update the board
+					setPieceAt( tower.getX(), tower.getY(), null );
+					
+					// move the piece
 					tower.modifyStatus( 5, 7, true );
 
+					// update the board
+					setPieceAt( tower.getX(), tower.getY(), tower );
+					
 					// send the eated piece message
-					forwardMessageToAllPlayer( message + " " + tower.toString() );
+					forwardMessageToAllPlayer( message + " " + tower.getX() + " " + tower.getY() + " " + tower.isAlive() );
 				}
 			}
 		}
@@ -338,7 +382,15 @@ public class ChessGameServer extends AbstractGame
 			lastMoveUnlockEnPassant = -1;
 		}
 		
+		// update the board
+		setPieceAt( from.getX(), from.getY(), null );
+		
+		// move the piece
 		from.modifyStatus( x1, y1, true );
+		
+		// update the board
+		setPieceAt( from.getX(), from.getY(), from );
+		
 		return to;
 	}
 
@@ -364,7 +416,7 @@ public class ChessGameServer extends AbstractGame
 		return false;
 	}
 
-	// return the piece at position x,y if nay null if none or out of bounds 
+	// return the piece at position x,y if return null if none or out of bounds 
 	public ChessPiece pieceAt( int x, int y ) 
 	{
 		if (  isCellInBoard( x, y ) == false  )
@@ -372,6 +424,15 @@ public class ChessGameServer extends AbstractGame
 			return null;
 		}
 		return board[ y * 8 + x ];
+	}
+	
+	// change the board contents at position x,y 
+	public void setPieceAt( int x, int y, ChessPiece piece) 
+	{
+		if (  isCellInBoard( x, y ) == true )
+		{
+			board[ y * 8 + x ] = piece;
+		}
 	}
 	
 	// check if white or black are in chess mat
@@ -468,6 +529,38 @@ public class ChessGameServer extends AbstractGame
 	@Override
 	public void manageSpecificMessage(String command) 
 	{
+		String[] splitted = command.split( " " );
+		String action = splitted[2]; 
+//		String gameId = splitted[3]; 
+		
+		if ( action.compareTo( MessageType.MessagePlayerAskTargetCells ) == 0 )
+		{
+			manageAskTargetCells( Integer.parseInt( splitted[ 4 ] ), Integer.parseInt( splitted[ 5 ] ) ); 
+		}
+		else if ( action.compareTo( MessageType.MessagePlayerMovePiece ) == 0 )
+		{
+			movePiece( Integer.parseInt( splitted[ 4 ] ), Integer.parseInt( splitted[ 5 ] ), Integer.parseInt( splitted[ 6 ] ), Integer.parseInt( splitted[ 7 ] ) );
+		}
+	}
+
+	private void manageAskTargetCells(int x, int y) 
+	{
+		ChessPiece piece = pieceAt( x, y );
+		if ( piece != null )
+		{
+			List< Point > cells = piece.availableMove( this );
+			
+			if ( whiteToPlay == true )
+			{
+				// send the movable pieces to the player
+				connectionManager.forwardToClient( playerWhite, CREATE_PLAYER_TARGET_CELLS( id, cells ) );
+			}
+			else
+			{
+				// send the movable pieces to the player
+				connectionManager.forwardToClient( playerBlack, CREATE_PLAYER_TARGET_CELLS( id, cells ) );
+			}
+		}
 	}
 
 	@Override

@@ -9,7 +9,6 @@ class ChessPiece
 	/**
 	 * 
 	 */
-	private ChessGameServer chessGameServer;
 	public static final int PEON_ID = 0;
 	public static final int TOWER_ID = 1;
 	public static final int HORSE_ID = 2;
@@ -159,13 +158,13 @@ class ChessPiece
 			// prise en passant
 			if (  ( y == 4 )
 				&&( x - 1 >= 0 )
-				&&( this.chessGameServer.lastMoveUnlockEnPassant == x - 1 )  )
+				&&( chess.lastMoveUnlockEnPassant == x - 1 )  )
 			{
 				result.add( new Point( x - 1, y - 1 ) );
 			}
 			if (  ( y == 4 )
 				&&( x + 1 < 8 )
-				&&( this.chessGameServer.lastMoveUnlockEnPassant == x + 1 )  )
+				&&( chess.lastMoveUnlockEnPassant == x + 1 )  )
 			{
 				result.add( new Point( x + 1, y - 1 ) );
 			}
@@ -656,5 +655,10 @@ class ChessPiece
 	public int getKind() 
 	{
 		return kind;
+	}
+
+	public boolean isAlive() 
+	{
+		return alive;
 	}
 }

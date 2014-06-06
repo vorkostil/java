@@ -7,11 +7,12 @@ import java.awt.Image;
 
 import visitor.AbstractDisplayer;
 
-public class ChessPieceTakenDisplayer extends AbstractDisplayer {
-
-
+public class ChessPieceTakenDisplayer extends AbstractDisplayer 
+{
 	private int deltaX;
 	private int deltaY;
+	
+	private int factor = 32;
 	
 	public ChessPieceTakenDisplayer(int deltaX, int deltaY) 
 	{
@@ -27,7 +28,7 @@ public class ChessPieceTakenDisplayer extends AbstractDisplayer {
 		Image image = item.getImage(); 
 		if (image != null) 
 		{
-			g.drawImage( image, item.getX() - x, item.getY() - y, null );
+			g.drawImage( image, factor + deltaX - x, factor + deltaY - y, null );
 		}
 	}
 

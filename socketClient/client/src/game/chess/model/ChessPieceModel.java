@@ -33,5 +33,12 @@ public class ChessPieceModel
 		}
 		return TAKEN;
 	}
+
+	public void update(int x, int y, boolean alive) 
+	{
+		this.x = x;
+		this.y = y;
+		this.taken = !alive;
+	}
 	
 }
