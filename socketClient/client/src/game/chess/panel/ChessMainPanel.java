@@ -85,17 +85,13 @@ public class ChessMainPanel extends GraphicalEnvironment
 	{
 		for ( GraphicalItem gItem : graphicalItems )
 		{
-			try
+			if ( gItem instanceof ChessPieceItem )
 			{
 				ChessPieceItem item = (ChessPieceItem)gItem; 
 				if ( item.getX() == x && item.getY() == y )
 				{
 					return item;
 				}
-			}
-			catch (ClassCastException e)
-			{
-				// not a chess piece, take the other
 			}
 		}
 		return null;

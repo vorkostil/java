@@ -438,6 +438,11 @@ public class ChessGameServer extends AbstractGame
 	// check if white or black are in chess mat
 	private boolean chessMatOccurs( ChessPiece kingToCheck ) 
 	{
+		if ( kingToCheck.isAlive() == false )
+		{
+			return true;
+		}
+		
 		for ( int dx = -1; dx < 2; dx++ )
 		{
 			for ( int dy = -1; dy < 2; dy ++ )

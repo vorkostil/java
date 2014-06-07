@@ -270,7 +270,7 @@ class ChessPiece
 		
 		// compute west cells
 		d = -1;
-		while (  ( x + d > 0 )
+		while (  ( x + d >= 0 )
 			   &&( ( currentPiece = chess.pieceAt( x + d, y ) ) == null )  )
 		{
 			result.add( new Point( x + d, y ) );
@@ -300,7 +300,7 @@ class ChessPiece
 		
 		// compute south cells
 		d = -1;
-		while (  ( y + d > 0 )
+		while (  ( y + d >= 0 )
 			   &&( ( currentPiece = chess.pieceAt( x, y + d ) ) == null )  )
 		{
 			result.add( new Point( x, y + d ) );
@@ -340,8 +340,8 @@ class ChessPiece
 		
 		// compute south west cells
 		d = -1;
-		while (  ( x + d > 0 )
-			   &&( y + d > 0 )
+		while (  ( x + d >= 0 )
+			   &&( y + d >= 0 )
 			   &&( ( currentPiece = chess.pieceAt( x + d, y +d ) ) == null )  )
 		{
 			result.add( new Point( x + d, y + d ) );
@@ -356,7 +356,7 @@ class ChessPiece
 		
 		// compute north west cells
 		d = 1;
-		while (  ( x - d > 0 )
+		while (  ( x - d >= 0 )
 			   &&( y + d < 8 )
 			   &&( ( currentPiece = chess.pieceAt( x - d, y + d ) ) == null )  )
 		{
@@ -373,7 +373,7 @@ class ChessPiece
 		// compute south est cells
 		d = -1;
 		while (  ( x - d < 8 )
-			   &&( y + d > 0 )
+			   &&( y + d >= 0 )
 			   &&( ( currentPiece = chess.pieceAt( x - d, y + d ) ) == null )  )
 		{
 			result.add( new Point( x - d, y + d ) );
@@ -413,8 +413,8 @@ class ChessPiece
 		
 		// compute south west cells
 		d = -1;
-		while (  ( x + d > 0 )
-			   &&( y + d > 0 )
+		while (  ( x + d >= 0 )
+			   &&( y + d >= 0 )
 			   &&( ( currentPiece = chess.pieceAt( x + d, y +d ) ) == null )  )
 		{
 			result.add( new Point( x + d, y + d ) );
@@ -429,7 +429,7 @@ class ChessPiece
 		
 		// compute north west cells
 		d = 1;
-		while (  ( x - d > 0 )
+		while (  ( x - d >= 0 )
 			   &&( y + d < 8 )
 			   &&( ( currentPiece = chess.pieceAt( x - d, y + d ) ) == null )  )
 		{
@@ -477,8 +477,8 @@ class ChessPiece
 		
 		// compute south west cells
 		d = -1;
-		while (  ( x + d > 0 )
-			   &&( y + d > 0 )
+		while (  ( x + d >= 0 )
+			   &&( y + d >= 0 )
 			   &&( ( currentPiece = chess.pieceAt( x + d, y +d ) ) == null )  )
 		{
 			result.add( new Point( x + d, y + d ) );
@@ -493,7 +493,7 @@ class ChessPiece
 		
 		// compute north west cells
 		d = 1;
-		while (  ( x - d > 0 )
+		while (  ( x - d >= 0 )
 			   &&( y + d < 8 )
 			   &&( ( currentPiece = chess.pieceAt( x - d, y + d ) ) == null )  )
 		{
@@ -510,7 +510,7 @@ class ChessPiece
 		// compute south est cells
 		d = -1;
 		while (  ( x - d < 8 )
-			   &&( y + d > 0 )
+			   &&( y + d >= 0 )
 			   &&( ( currentPiece = chess.pieceAt( x - d, y + d ) ) == null )  )
 		{
 			result.add( new Point( x - d, y + d ) );
@@ -523,6 +523,66 @@ class ChessPiece
 			result.add( new Point( x - d, y + d ) );
 		}
 
+		// compute east cells
+		d = 1;
+		while (  ( x + d < 8 )
+			   &&( ( currentPiece = chess.pieceAt( x + d, y ) ) == null )  )
+		{
+			result.add( new Point( x + d, y ) );
+			d++;
+		}
+		// including a cell containing an adversary piece
+		if (  ( currentPiece != null )
+			&&( isWhite != currentPiece.isWhite )  )
+		{
+			result.add( new Point( x + d, y ) );
+		}
+		
+		// compute west cells
+		d = -1;
+		while (  ( x + d >= 0 )
+			   &&( ( currentPiece = chess.pieceAt( x + d, y ) ) == null )  )
+		{
+			result.add( new Point( x + d, y ) );
+			d--;
+		}
+		// including a cell containing an adversary piece
+		if (  ( currentPiece != null )
+			&&( isWhite != currentPiece.isWhite )  )
+		{
+			result.add( new Point( x + d, y ) );
+		}
+		
+		// compute north cells
+		d = 1;
+		while (  ( y + d < 8 )
+			   &&( ( currentPiece = chess.pieceAt( x, y + d ) ) == null )  )
+		{
+			result.add( new Point( x, y + d ) );
+			d++;
+		}
+		// including a cell containing an adversary piece
+		if (  ( currentPiece != null )
+			&&( isWhite != currentPiece.isWhite )  )
+		{
+			result.add( new Point( x, y +d ) );
+		}
+		
+		// compute south cells
+		d = -1;
+		while (  ( y + d >= 0 )
+			   &&( ( currentPiece = chess.pieceAt( x, y + d ) ) == null )  )
+		{
+			result.add( new Point( x, y + d ) );
+			d--;
+		}
+		// including a cell containing an adversary piece
+		if (  ( currentPiece != null )
+			&&( isWhite != currentPiece.isWhite )  )
+		{
+			result.add( new Point( x, y + d ) );
+		}
+		
 		return result;
 	}
 
@@ -546,8 +606,8 @@ class ChessPiece
 						&&( y + dy < 8)  )
 					{
 						if (  (  ( ( currentPiece = chess.pieceAt(x + dx, y + dy) ) == null )
-							   ||( isWhite != currentPiece.isWhite )  )
-							&&( chess.cellIsNotDangerous( isWhite, x + dx, y + dy ) == true )  )
+							   ||( isWhite != currentPiece.isWhite )  )  )
+//							&&( chess.cellIsNotDangerous( isWhite, x + dx, y + dy ) == true )  ) // don't check the threat as don't have the opponent threat cells 
 						{
 							result.add( new Point( x + dx, y + dy ) );
 						}
@@ -570,10 +630,10 @@ class ChessPiece
 					// no pieces on the path and the cells start, walk, end are note dangerous
 					if (  ( chess.pieceAt( 1, 0) == null )
 						&&( chess.pieceAt( 2, 0) == null )
-						&&( chess.pieceAt( 3, 0) == null )
-						&&( chess.cellIsNotDangerous( isWhite, 2, 0) == true)
-						&&( chess.cellIsNotDangerous( isWhite, 3, 0) == true)
-						&&( chess.cellIsNotDangerous( isWhite, 4, 0) == true)  )
+						&&( chess.pieceAt( 3, 0) == null )  )
+//						&&( chess.cellIsNotDangerous( isWhite, 2, 0) == true)
+//						&&( chess.cellIsNotDangerous( isWhite, 3, 0) == true)
+//						&&( chess.cellIsNotDangerous( isWhite, 4, 0) == true)  )
 					{
 						result.add( new Point( 2, 0 ) );
 					}
@@ -585,10 +645,10 @@ class ChessPiece
 				{
 					// no pieces on the path and the cells start, walk, end are note dangerous
 					if (  ( chess.pieceAt( 5, 0) == null )
-						&&( chess.pieceAt( 6, 0) == null )
-						&&( chess.cellIsNotDangerous( isWhite, 4, 0) == true)
-						&&( chess.cellIsNotDangerous( isWhite, 5, 0) == true)
-						&&( chess.cellIsNotDangerous( isWhite, 6, 0) == true)  )
+						&&( chess.pieceAt( 6, 0) == null )  )
+//						&&( chess.cellIsNotDangerous( isWhite, 4, 0) == true)
+//						&&( chess.cellIsNotDangerous( isWhite, 5, 0) == true)
+//						&&( chess.cellIsNotDangerous( isWhite, 6, 0) == true)  )
 					{
 						result.add( new Point( 6, 0 ) );
 					}
@@ -608,10 +668,10 @@ class ChessPiece
 					// no pieces on the path and the cells start, walk, end are note dangerous
 					if (  ( chess.pieceAt( 1, 7) == null )
 						&&( chess.pieceAt( 2, 7) == null )
-						&&( chess.pieceAt( 3, 7) == null )
-						&&( chess.cellIsNotDangerous( isWhite, 2, 7) == true)
-						&&( chess.cellIsNotDangerous( isWhite, 3, 7) == true)
-						&&( chess.cellIsNotDangerous( isWhite, 4, 7) == true)  )
+						&&( chess.pieceAt( 3, 7) == null )  )
+//						&&( chess.cellIsNotDangerous( isWhite, 2, 7) == true)
+//						&&( chess.cellIsNotDangerous( isWhite, 3, 7) == true)
+//						&&( chess.cellIsNotDangerous( isWhite, 4, 7) == true)  )
 					{
 						result.add( new Point( 2, 7 ) );
 					}
@@ -623,10 +683,10 @@ class ChessPiece
 				{
 					// no pieces on the path and the cells start, walk, end are note dangerous
 					if (  ( chess.pieceAt( 5, 7) == null )
-						&&( chess.pieceAt( 6, 7) == null )
-						&&( chess.cellIsNotDangerous( isWhite, 4, 7) == true)
-						&&( chess.cellIsNotDangerous( isWhite, 5, 7) == true)
-						&&( chess.cellIsNotDangerous( isWhite, 6, 7) == true)  )
+						&&( chess.pieceAt( 6, 7) == null )  )
+//						&&( chess.cellIsNotDangerous( isWhite, 4, 7) == true)
+//						&&( chess.cellIsNotDangerous( isWhite, 5, 7) == true)
+//						&&( chess.cellIsNotDangerous( isWhite, 6, 7) == true)  )
 					{
 						result.add( new Point( 6, 7 ) );
 					}
