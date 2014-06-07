@@ -8,8 +8,6 @@ import game.tron.displayer.TronPlayerPanelDisplayer;
 import game.tron.item.TronPlayerItem;
 import game.tron.model.TronPlayerModel;
 import game.tron.panel.TronMainPanel;
-import game.tron.panel.TronMiniMapPanel;
-import game.tron.panel.TronPlayerPanel;
 import graphic.GraphicalEnvironment;
 import graphic.GraphicalEnvironment.ImageLevel;
 
@@ -22,13 +20,12 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.Box;
 import javax.swing.JOptionPane;
-import javax.swing.border.EtchedBorder;
 
 import main.listener.ClosingMessageListener;
 
 import common.MessageType;
+import displayer.AbstractDisplayer;
 
 
 /*
@@ -43,8 +40,6 @@ public class TronGameFrame extends AbstractGameFrame
 	private static final String TRON_CONFIG_PATH = "resources/config/tron.cfg";
 	private static final String BLUE_PLAYER_GRAPHICAL_CONFIGURATION = "blue_player_configuration";
 	private static final String RED_PLAYER_GRAPHICAL_CONFIGURATION = "red_player_configuration";
-	private static final String BLUE_PLAYER_MINIMAP_CONFIGURATION = "blue_player_minimap_configuration";
-	private static final String RED_PLAYER_MINIMAP_CONFIGURATION = "red_player_minimap_configuration";
 	
 	private TronMainPanel gamePanel = null;
 
@@ -97,7 +92,7 @@ public class TronGameFrame extends AbstractGameFrame
 		
 		// characteristics of the frame
 		this.setTitle( "Tron");
-		this.setSize( TronMainPanel.frameSize + 7, TronMainPanel.frameSize + 29 + TronMiniMapPanel.frameSize); // add the border to the size and the padding
+		this.setSize( TronMainPanel.frameWidth + 7, TronMainPanel.frameHeight + 29 ); // add the border to the size and the padding
 		this.setLocationRelativeTo( null );
 		this.setResizable( false );
 		this.addWindowListener( new ClosingMessageListener( targetWriter, MessageType.MessageSystem + " " + MessageType.MessageGameClose + " " + gameId ) );
@@ -115,79 +110,48 @@ public class TronGameFrame extends AbstractGameFrame
 		
 		// create the main panel
 		gamePanel = new TronMainPanel( repository, tracker, GraphicalEnvironment.TEMPO_60_HZ );
-		gamePanel.setBorder( new EtchedBorder( EtchedBorder.RAISED ) );
-
-		TronMainDisplayer mainPanelDisplayer = new TronMainDisplayer();
 		
-		// add the gItem to the panel
-		gamePanel.addItem( new TronPlayerItem( bluePlayerModel, 
-											   mainPanelDisplayer, 
-											   repository.getData( BLUE_PLAYER_GRAPHICAL_CONFIGURATION ), 
-											   tracker, 
-											   ImageLevel.ENVIRONMENT_IMAGE.index() ), 
-											   GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
-		gamePanel.addItem( new TronPlayerItem( redPlayerModel, 
-											   mainPanelDisplayer, 
-											   repository.getData( RED_PLAYER_GRAPHICAL_CONFIGURATION ), 
-											   tracker, 
-											   ImageLevel.ENVIRONMENT_IMAGE.index() ), 
-											   GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+		// create and associate the displayer
+		gamePanel.addLayer( TronMainDisplayer.NAME, new TronMainDisplayer(0,64) );
+		gamePanel.addLayer( TronMiniMapDisplayer.NAME, new TronMiniMapDisplayer(0,0) );
+		gamePanel.addLayer( "BLUE" + TronPlayerPanelDisplayer.NAME, new TronPlayerPanelDisplayer(65,0) );
+		gamePanel.addLayer( "RED" + TronPlayerPanelDisplayer.NAME, new TronPlayerPanelDisplayer(280,0) );
 		
-		// create the minimap panel
-		TronMiniMapPanel miniMapPanel = new TronMiniMapPanel( repository, tracker, GraphicalEnvironment.TEMPO_60_HZ );
-		miniMapPanel.setBorder( new EtchedBorder( EtchedBorder.RAISED ) );
+		// create the players and add them to their displayer / layer 
+		gamePanel.createStartText(repository);
+		TronPlayerItem blueItem = new TronPlayerItem( bluePlayerModel, 
+													  repository.getData( BLUE_PLAYER_GRAPHICAL_CONFIGURATION ), 
+													  tracker, 
+													  ImageLevel.ENVIRONMENT_IMAGE.index() );
+		TronPlayerItem redItem = new TronPlayerItem( redPlayerModel, 
+													 repository.getData( RED_PLAYER_GRAPHICAL_CONFIGURATION ), 
+													 tracker, 
+													 ImageLevel.ENVIRONMENT_IMAGE.index() );
 		
-		// create the visitor of the miniPanel
-		TronMiniMapDisplayer minimapDisplayer = new TronMiniMapDisplayer();
+		gamePanel.addItem( blueItem, 
+						   TronMainDisplayer.NAME, 
+						   AbstractDisplayer.FIRST_LAYER_LEVEL_TO_DRAW );  
+		gamePanel.addItem( redItem,
+				   		   TronMainDisplayer.NAME,
+				   		   GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+		gamePanel.addItem( blueItem, 
+				           TronMiniMapDisplayer.NAME, 
+						   AbstractDisplayer.FIRST_LAYER_LEVEL_TO_DRAW );  
+		gamePanel.addItem( redItem,
+						   TronMiniMapDisplayer.NAME,
+				   		   GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+		gamePanel.addItem( blueItem, 
+				           "BLUE" + TronPlayerPanelDisplayer.NAME, 
+						   AbstractDisplayer.FIRST_LAYER_LEVEL_TO_DRAW );  
+		gamePanel.addItem( redItem,
+						   "RED" + TronPlayerPanelDisplayer.NAME,
+				   		   GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
 		
-		// add the gItem to the panel
-		miniMapPanel.addItem( new TronPlayerItem( bluePlayerModel, 
-												  minimapDisplayer, 
-												  repository.getData( BLUE_PLAYER_MINIMAP_CONFIGURATION ), 
-												  tracker,
-												  ImageLevel.ENVIRONMENT_IMAGE.index() ), 
-												  GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
-		miniMapPanel.addItem( new TronPlayerItem( redPlayerModel, 
-												  minimapDisplayer, 
-												  repository.getData( RED_PLAYER_MINIMAP_CONFIGURATION ), 
-												  tracker, 
-												  ImageLevel.ENVIRONMENT_IMAGE.index() ), 
-												  GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
-		
-		// create the visitor of the miniPanel
-		TronPlayerPanelDisplayer playerDisplayer = new TronPlayerPanelDisplayer();
-		
-		// create the blue panel
-		TronPlayerPanel bluePlayerPanel = new TronPlayerPanel( repository, tracker, GraphicalEnvironment.TEMPO_60_HZ );
-		bluePlayerPanel.setBorder( new EtchedBorder( EtchedBorder.RAISED ) );
-		
-		// add the gItem to the panel
-		bluePlayerPanel.addItem( new TronPlayerItem( bluePlayerModel, 
-													 playerDisplayer, 
-													 repository.getData( BLUE_PLAYER_GRAPHICAL_CONFIGURATION ), 
-													 tracker,
-													 ImageLevel.ENVIRONMENT_IMAGE.index() ), 
-													 GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
-		// create the blue panel
-		TronPlayerPanel redPlayerPanel = new TronPlayerPanel( repository, tracker, GraphicalEnvironment.TEMPO_60_HZ );
-		redPlayerPanel.setBorder( new EtchedBorder( EtchedBorder.RAISED ) );
-		
-		redPlayerPanel.addItem( new TronPlayerItem( redPlayerModel, 
-													playerDisplayer, 
-													repository.getData( RED_PLAYER_GRAPHICAL_CONFIGURATION ), 
-													tracker, 
-													ImageLevel.ENVIRONMENT_IMAGE.index() ), 
-													GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
-
+		gamePanel.computeDisplayableItems();
+	
 		// create the panel structure on screen
-		Box infoPanel = Box.createHorizontalBox();
-		infoPanel.add( miniMapPanel );
-		infoPanel.add( bluePlayerPanel );
-		infoPanel.add( redPlayerPanel );
-		
 		this.setLayout( new BorderLayout() );
 		this.getContentPane().add( gamePanel, BorderLayout.CENTER );
-		this.getContentPane().add( infoPanel, BorderLayout.NORTH );
 
 		// display itself
 		this.setVisible( true );

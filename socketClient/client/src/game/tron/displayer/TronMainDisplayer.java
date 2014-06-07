@@ -10,23 +10,38 @@ import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.util.List;
 
-import visitor.AbstractDisplayer;
+import displayer.AbstractDisplayer;
+
 
 public class TronMainDisplayer extends AbstractDisplayer {
 
-	@Override
-	public void draw(GraphicalItem item, Graphics g, int x, int y, int width,int height) 
+	public final static String NAME = "TronMainDisplayer";
+	
+	private int deltaX;
+	private int deltaY;
+	
+	public TronMainDisplayer(int deltaX, int deltaY) 
 	{
-		if ( item.isVisible() == true )
+		this.deltaX = deltaX;
+		this.deltaY = deltaY;
+	}
+	
+	@Override
+	public synchronized void render( Graphics g ) 
+	{
+		for ( GraphicalItem item : getDisplayableItems() )
 		{
 			// draw image or place holder
 			Image image = item.getImage(); 
 			if (image != null) 
 			{
-				g.drawImage( image, item.getX() - x, item.getY() - y, null );
+				g.drawImage( image, item.getX() + deltaX , item.getY() + deltaY, null );
 			}
-			
-			drawPath( (TronPlayerItem) item, g);
+
+			if ( item instanceof TronPlayerItem )
+			{
+				drawPath( (TronPlayerItem) item, g);
+			}
 		}
 	}
 	
@@ -45,20 +60,20 @@ public class TronMainDisplayer extends AbstractDisplayer {
 				{
 					for ( int d = -1; d < 2; d++ )
 					{
-						g.drawLine( (int) (path.get( i ).getX() * TronMainPanel.gridPadding + TronMainPanel.framePadding) + d, 
-									(int) (path.get( i ).getY() * TronMainPanel.gridPadding + TronMainPanel.framePadding), 
-									(int) (path.get( i + 1 ).getX() * TronMainPanel.gridPadding + TronMainPanel.framePadding + d), 
-									(int) (path.get( i + 1 ).getY() * TronMainPanel.gridPadding + TronMainPanel.framePadding) );
+						g.drawLine( (int) (path.get( i ).getX() * TronMainPanel.gridPadding + TronMainPanel.framePadding) + d + deltaX, 
+									(int) (path.get( i ).getY() * TronMainPanel.gridPadding + TronMainPanel.framePadding) + deltaY, 
+									(int) (path.get( i + 1 ).getX() * TronMainPanel.gridPadding + TronMainPanel.framePadding + d + deltaX), 
+									(int) (path.get( i + 1 ).getY() * TronMainPanel.gridPadding + TronMainPanel.framePadding + deltaY) );
 					}
 				}
 				else
 				{
 					for ( int d = -1; d < 2; d++ )
 					{
-						g.drawLine( (int) (path.get( i ).getX() * TronMainPanel.gridPadding + TronMainPanel.framePadding), 
-									(int) (path.get( i ).getY() * TronMainPanel.gridPadding + TronMainPanel.framePadding) + d, 
-									(int) (path.get( i + 1 ).getX() * TronMainPanel.gridPadding + TronMainPanel.framePadding), 
-									(int) (path.get( i + 1 ).getY() * TronMainPanel.gridPadding + TronMainPanel.framePadding + d) );
+						g.drawLine( (int) (path.get( i ).getX() * TronMainPanel.gridPadding + TronMainPanel.framePadding) + deltaX, 
+									(int) (path.get( i ).getY() * TronMainPanel.gridPadding + TronMainPanel.framePadding) + d + deltaY, 
+									(int) (path.get( i + 1 ).getX() * TronMainPanel.gridPadding + TronMainPanel.framePadding) + deltaX, 
+									(int) (path.get( i + 1 ).getY() * TronMainPanel.gridPadding + TronMainPanel.framePadding + d + deltaY) );
 					}
 				}
 			}
@@ -67,20 +82,20 @@ public class TronMainDisplayer extends AbstractDisplayer {
 			{
 				for ( int d = -1; d < 2; d++ )
 				{
-					g.drawLine( (int) (path.get( path.size() - 1 ).getX() * TronMainPanel.gridPadding + TronMainPanel.framePadding) + d, 
-								(int) (path.get( path.size() - 1 ).getY() * TronMainPanel.gridPadding + TronMainPanel.framePadding), 
-								player.getX() + player.getDeltaImage() + d, 
-								player.getY() + player.getDeltaImage() );
+					g.drawLine( (int) (path.get( path.size() - 1 ).getX() * TronMainPanel.gridPadding + TronMainPanel.framePadding) + d + deltaX, 
+								(int) (path.get( path.size() - 1 ).getY() * TronMainPanel.gridPadding + TronMainPanel.framePadding + deltaY), 
+								player.getX() + player.getDeltaImage() + d + deltaX, 
+								player.getY() + player.getDeltaImage() + deltaY );
 				}
 			}
 			else
 			{
 				for ( int d = -1; d < 2; d++ )
 				{
-					g.drawLine( (int) (path.get( path.size() - 1 ).getX() * TronMainPanel.gridPadding + TronMainPanel.framePadding), 
-								(int) (path.get( path.size() - 1 ).getY() * TronMainPanel.gridPadding + TronMainPanel.framePadding) + d, 
-								player.getX() + player.getDeltaImage(), 
-								player.getY() + player.getDeltaImage() + d );
+					g.drawLine( (int) (path.get( path.size() - 1 ).getX() * TronMainPanel.gridPadding + TronMainPanel.framePadding) + deltaX, 
+								(int) (path.get( path.size() - 1 ).getY() * TronMainPanel.gridPadding + TronMainPanel.framePadding) + d + deltaY, 
+								player.getX() + player.getDeltaImage() + deltaX, 
+								player.getY() + player.getDeltaImage() + d + deltaY );
 				}
 			}
 		}

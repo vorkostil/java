@@ -5,9 +5,12 @@ import graphic.GraphicalItem;
 import java.awt.Graphics;
 import java.awt.Image;
 
-import visitor.AbstractDisplayer;
+import displayer.AbstractDisplayer;
+
 
 public class ChessMainDisplayer extends AbstractDisplayer {
+
+	public static final String NAME = "ChessMainDisplayer";
 
 	private int factor = 64;
 	
@@ -22,17 +25,15 @@ public class ChessMainDisplayer extends AbstractDisplayer {
 
 
 	@Override
-	public void draw(GraphicalItem item, Graphics g, int x, int y, int width, int height) 
+	public synchronized void render( Graphics g ) 
 	{
-		if ( item.isVisible() == true )
+		for ( GraphicalItem item : getDisplayableItems() )
 		{
-			// draw image or place holder
 			Image image = item.getImage(); 
 			if (image != null) 
 			{
-				g.drawImage( image, item.getX() * factor + deltaX - x , 448 - (item.getY() * factor + deltaY - y), null );
+				g.drawImage( image, item.getX() * factor + deltaX, 448 - (item.getY() * factor + deltaY), null );
 			}
 		}
 	}
-
 }

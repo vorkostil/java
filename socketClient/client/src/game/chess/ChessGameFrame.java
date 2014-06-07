@@ -6,7 +6,6 @@ import game.chess.displayer.ChessPieceTakenDisplayer;
 import game.chess.displayer.ChessPlayDisplayer;
 import game.chess.item.CellItem;
 import game.chess.item.ChessPieceItem;
-import game.chess.item.PlayItem;
 import game.chess.model.CellModel;
 import game.chess.model.ChessPieceModel;
 import game.chess.panel.ChessMainPanel;
@@ -23,9 +22,9 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import main.listener.ClosingMessageListener;
-import visitor.AbstractDisplayer;
 
 import common.MessageType;
+import displayer.AbstractDisplayer;
 
 @SuppressWarnings("serial")
 public class ChessGameFrame extends AbstractGameFrame 
@@ -71,36 +70,36 @@ public class ChessGameFrame extends AbstractGameFrame
 	
 		// create the main panel
 		gamePanel = new ChessMainPanel( this, repository, tracker, GraphicalEnvironment.TEMPO_60_HZ );
-
+		gamePanel.addLayer( ChessMainDisplayer.NAME, mainDisplayer );
+		gamePanel.addLayer( "WHITE" + ChessPieceTakenDisplayer.NAME, whiteTakenDisplayer );
+		gamePanel.addLayer( "BLACK" + ChessPieceTakenDisplayer.NAME, blackTakenDisplayer );
+		gamePanel.addLayer( ChessPlayDisplayer.NAME, playDisplayer );
+		
 		// create the cell's model 
 		gamePanel.addItem( new CellItem( validCellModel,
-						   				 mainDisplayer,
 						   				 repository.getData( "valid_cell_configuration" ),
 						   				 tracker,
 						   				 ImageLevel.ENVIRONMENT_IMAGE.index() ),
+						   ChessMainDisplayer.NAME,
 						   GraphicalEnvironment.LAST_LAYER_LEVEL_TO_DRAW );
 		gamePanel.addItem( new CellItem( invalidCellModel,
-						   				 mainDisplayer,
 						   				 repository.getData( "invalid_cell_configuration" ),
 						   				 tracker,
 						   				 ImageLevel.ENVIRONMENT_IMAGE.index() ),
+						   ChessMainDisplayer.NAME,
 						   GraphicalEnvironment.LAST_LAYER_LEVEL_TO_DRAW );
 		gamePanel.addItem( new CellItem( selectedCellModel,
-						   				 mainDisplayer,
 						   				 repository.getData( "selected_cell_configuration" ),
 						   				 tracker,
 						   				 ImageLevel.ENVIRONMENT_IMAGE.index() ),
-						   GraphicalEnvironment.LAST_LAYER_LEVEL_TO_DRAW );
-
-		gamePanel.addItem( new PlayItem(playDisplayer,
-						   				null,
-						   				tracker,
-						   				ImageLevel.ENVIRONMENT_IMAGE.index() ),
+						   ChessMainDisplayer.NAME,
 						   GraphicalEnvironment.LAST_LAYER_LEVEL_TO_DRAW );
 						   
 		validCellModel.setVisible(false);
 		invalidCellModel.setVisible(false);
 		selectedCellModel.setVisible(false);
+		
+		gamePanel.computeDisplayableItems();
 		
 		// attach the panel
 		this.setLayout( new BorderLayout() );
@@ -191,11 +190,11 @@ public class ChessGameFrame extends AbstractGameFrame
 			try 
 			{
 				ChessPieceItem pieceItem = new ChessPieceItem( new ChessPieceModel(x,y),
-															   mainDisplayer,
 															   repository.getData( color + "_" + strKind[ kind ] + "_configuration" ),
 															   tracker,
 															   ImageLevel.ENVIRONMENT_IMAGE.index() );
 				gamePanel.addItem( pieceItem,
+								   ChessMainDisplayer.NAME,
 								   GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
 			} 
 			catch (IOException e) 
@@ -244,19 +243,19 @@ public class ChessGameFrame extends AbstractGameFrame
 				
 				if ( isAlive == false )
 				{
+					mainDisplayer.removeItem(piece, AbstractDisplayer.FIRST_LAYER_LEVEL_TO_DRAW);
 					if ( isPlayerToPlay == isWhite )
 					{
-						piece.setDisplayer( blackTakenDisplayer );
+						blackTakenDisplayer.addItem(piece, AbstractDisplayer.FIRST_LAYER_LEVEL_TO_DRAW);
 					}
 					else
 					{
-						piece.setDisplayer( whiteTakenDisplayer );
+						whiteTakenDisplayer.addItem(piece, AbstractDisplayer.FIRST_LAYER_LEVEL_TO_DRAW);
 					}
 				}
 			}
 		}
-		
-		
+		gamePanel.computeDisplayableItems();
 	}
 
 	public void mouseClickOnCell( int x, int y )
@@ -336,6 +335,7 @@ public class ChessGameFrame extends AbstractGameFrame
 				}
 			}
 		}
+		gamePanel.computeDisplayableItems();
 	}
 	
 	public void mouseMoveOnCell(int x, int y) 
@@ -388,5 +388,6 @@ public class ChessGameFrame extends AbstractGameFrame
 				invalidCellModel.setVisible(false);
 			}
 		}
+		gamePanel.computeDisplayableItems();
 	}
 }

@@ -8,18 +8,15 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.io.IOException;
 
-import visitor.AbstractDisplayer;
-
 public class TronStartText extends GraphicalItem 
 {
 	private boolean isVisible = false;
 	
-	public TronStartText( AbstractDisplayer displayer,
-						  DataInformation dataInformation, 
+	public TronStartText( DataInformation dataInformation, 
 						  MediaTracker mediaTracker,
 						  int levelId ) throws IOException 
 	{
-		super(displayer, dataInformation, mediaTracker, levelId);
+		super(dataInformation, mediaTracker, levelId);
 	}
 
 	@Override

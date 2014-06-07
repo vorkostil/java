@@ -5,10 +5,12 @@ import graphic.GraphicalItem;
 import java.awt.Graphics;
 import java.awt.Image;
 
-import visitor.AbstractDisplayer;
+import displayer.AbstractDisplayer;
+
 
 public class ChessPieceTakenDisplayer extends AbstractDisplayer 
 {
+	public static final String NAME = "ChessPieceTakenDisplayer";
 	private int deltaX;
 	private int deltaY;
 	
@@ -16,19 +18,34 @@ public class ChessPieceTakenDisplayer extends AbstractDisplayer
 	
 	public ChessPieceTakenDisplayer(int deltaX, int deltaY) 
 	{
+		super();
+		
 		this.deltaX = deltaX;
 		this.deltaY = deltaY;
 	}
 
 
 	@Override
-	public void draw(GraphicalItem item, Graphics g, int x, int y, int width, int height) 
+	public synchronized void render( Graphics g ) 
 	{
-		// draw image or place holder
-		Image image = item.getImage(); 
-		if (image != null) 
+		int x = 0;
+		int y = 0;
+		for ( GraphicalItem item : getDisplayableItems() )
 		{
-			g.drawImage( image, factor + deltaX - x, factor + deltaY - y, null );
+			Image image = item.getImage(); 
+			if (image != null) 
+			{
+				g.drawImage( image, ( x * factor ) + deltaX + 16, ( y * factor ) + deltaY, null );
+				if ( y < 7 )
+				{
+					y++;
+				}
+				else
+				{
+					y = 0;
+					x++;
+				}
+			}
 		}
 	}
 

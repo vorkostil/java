@@ -3,7 +3,6 @@ package graphic;
 import helper.DataRepository.DataInformation;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.MediaTracker;
 import java.awt.Polygon;
@@ -16,8 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
-
-import visitor.AbstractDisplayer;
 
 /* Abstract class for item animated or not which need to be displayed on the layer of a graphical environment
  * 
@@ -49,7 +46,6 @@ public abstract class GraphicalItem
 	
 	protected static final Polygon emptyPolygon = new Polygon();
 	
-	private AbstractDisplayer displayer_ = null;
 	private Color color_ = Color.BLACK;
 	private Map< String, List< Image > > images_ = new HashMap< String, List< Image > >();
 	private Map< String, Integer> delays_ = new HashMap< String, Integer >();
@@ -64,12 +60,10 @@ public abstract class GraphicalItem
 	 * 
 	 * 
 	 * */
-	public GraphicalItem( AbstractDisplayer displayer, 
-						  DataInformation dataInformation, 
+	public GraphicalItem( DataInformation dataInformation, 
 						  MediaTracker mediaTracker,
 						  int levelId ) throws IOException 
 	{
-		displayer_ = displayer;
 		if ( dataInformation == null )
 		{
 			color_ = Color.BLACK;
@@ -140,13 +134,6 @@ public abstract class GraphicalItem
 				}
 			}
 		}
-	}
-	
-	public void draw( Graphics g, 
-					  int x, int y, 
-					  int width, int height ) 
-	{
-		displayer_.draw( this, g, x, y, width, height );
 	}
 	
 	public boolean isPolygonPartInScreen( Rectangle rect )
@@ -233,12 +220,6 @@ public abstract class GraphicalItem
 		return null;
 	}
 
-	// change the current displayer
-	public void setDisplayer(AbstractDisplayer displayer) 
-	{
-		displayer_ = displayer;
-	}
-	
 	/* return a text to display default return EMPTY_STRING
 	 **/ 
 	public String getText()

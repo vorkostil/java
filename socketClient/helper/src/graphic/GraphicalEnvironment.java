@@ -8,10 +8,15 @@ import java.awt.MediaTracker;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
+
+import displayer.AbstractDisplayer;
+
 
 /* This class described an environment to display, it means a list of graphical element
  * those element can be mobile or not
@@ -80,22 +85,24 @@ public abstract class GraphicalEnvironment extends JPanel
 	// first, consider 5 levels of layer
 	public final static int FIRST_LAYER_LEVEL_TO_DRAW = 0;
 	public final static int LAST_LAYER_LEVEL_TO_DRAW = 4;
-	
+
+	// the image to display in the background as first image
+	// assuming that his image is not modifiable
+	// for a moving background, create a specific displayer
 	Image backgroundImage = null;
-	List< List< GraphicalItem > > graphicalItemLayers = new ArrayList< List< GraphicalItem > >();
+	
+	// the list of displayer, each will be called when rendering the scene
+	// no overlapping displayer or beware the side effects
+	protected Map< String, AbstractDisplayer> displayers = new HashMap< String, AbstractDisplayer >();
+	
+	// the list of gItems available
 	protected List< GraphicalItem > graphicalItems = new ArrayList< GraphicalItem >();
 
+	// default ctor, prepare the background and start the displaying
 	public GraphicalEnvironment( DataInformation datas, MediaTracker tracker, int tempo ) 
 	{
 		this.tempo = tempo;
 		this.tracker = tracker;
-		
-		for ( int level = FIRST_LAYER_LEVEL_TO_DRAW;
-			  level < LAST_LAYER_LEVEL_TO_DRAW + 1; 
-			  level++ )
-		{
-			graphicalItemLayers.add( new ArrayList< GraphicalItem >() );			
-		}
 		
 		String backgroundFileName = datas.getStringValue( BACKGROUND_IMAGE_PATH );
 		try 
@@ -125,15 +132,58 @@ public abstract class GraphicalEnvironment extends JPanel
 		}
 	}
 
-	public synchronized boolean addItem( GraphicalItem item, int layerLevel )
+	public void addLayer(String name, AbstractDisplayer displayer) 
 	{
-		if (  ( layerLevel >= FIRST_LAYER_LEVEL_TO_DRAW )
-			&&( layerLevel < LAST_LAYER_LEVEL_TO_DRAW + 1 )  )
+		if ( displayers.containsKey( name ) == false )
 		{
-			graphicalItemLayers.get( layerLevel ).add( item );
-			graphicalItems.add( item );
+			displayers.put(name, displayer);
+		}
+	}
+	
+	public void computeDisplayableItems() 
+	{
+		for ( AbstractDisplayer displayer : displayers.values() )
+		{
+			displayer.computeDisplayableItems();
+		}
+	}
+	
+	// return true if the item has been added to a displayer
+	public synchronized boolean addItem( GraphicalItem item, String layerName, int layerLevel )
+	{
+		graphicalItems.add( item );
+		return addItemInDisplayer( item, layerName, layerLevel );
+	}
+	
+	private boolean addItemInDisplayer(GraphicalItem item, String layerName, int layerLevel) 
+	{
+		if ( displayers.containsKey(layerName) == true)
+		{
+			return displayers.get(layerName).addItem(item, layerLevel);
 		}
 		return false;
+	}
+
+	private boolean removeItemInDisplayer(GraphicalItem item, String layerName, int layerLevel) 
+	{
+		if ( displayers.containsKey(layerName) == true)
+		{
+			return displayers.get(layerName).removeItem(item, layerLevel);
+		}
+		return false;
+	}
+
+	public synchronized boolean moveItemDisplayer( GraphicalItem item, String layerNameFrom, int layerLevelFrom, String layerNameTo, int layerLevelTo )
+	{
+		boolean success = true;
+		if (  ( displayers.containsKey(layerNameFrom) == true)
+			&&( displayers.containsKey(layerNameTo) == true)  )
+		{
+			success &= removeItemInDisplayer(item, layerNameFrom, layerLevelFrom);
+			success &= addItemInDisplayer(item, layerNameTo, layerLevelTo);
+		}
+			
+		return success;
 	}
 	
 	public MediaTracker getTracker()
@@ -154,25 +204,19 @@ public abstract class GraphicalEnvironment extends JPanel
 		}
 	}
 
-	protected synchronized void drawLayers(Graphics g, int x, int y, int width, int height) 
-	{
-		// draw the images
-		for ( int level = FIRST_LAYER_LEVEL_TO_DRAW;
-				  level < LAST_LAYER_LEVEL_TO_DRAW + 1; 
-				  level++ )
-		{
-			for ( GraphicalItem item : graphicalItemLayers.get( level ) ) 
-			{
-				item.draw( g, x, y, width, height );
-			}
-		}
-	}
-
 	protected void drawBackGround( Graphics g )
 	{
 		if ( backgroundImage != null )
 		{
 			g.drawImage( backgroundImage, 0, 0, viewMaxWidth, viewMaxHeight, 0, 0, viewMaxWidth, viewMaxHeight, null);
+		}
+	}
+
+	protected void drawDisplayer( Graphics g )
+	{
+		for ( AbstractDisplayer displayer : displayers.values() )
+		{
+			displayer.render(g);
 		}
 	}
 	
@@ -193,7 +237,7 @@ public abstract class GraphicalEnvironment extends JPanel
 		// backward drawing of the components, from brackground to foreground
 		processVisibleElement();
 		drawBackGround( buffer );
-		drawLayers( buffer, 0, 0, viewMaxWidth, viewMaxHeight );
+		drawDisplayer( buffer );
 		
 		// double buffering display
 		g.drawImage( image, 0, 0, this);

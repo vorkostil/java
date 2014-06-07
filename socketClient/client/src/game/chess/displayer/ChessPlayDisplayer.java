@@ -1,14 +1,15 @@
 package game.chess.displayer;
 
-import graphic.GraphicalItem;
-
 import java.awt.Color;
 import java.awt.Graphics;
 
-import visitor.AbstractDisplayer;
+import displayer.AbstractDisplayer;
+
 
 public class ChessPlayDisplayer extends AbstractDisplayer {
 
+	public static final String NAME = "ChessPlayDisplayer";
+	
 	private int deltaX;
 	private int deltaY;
 	private boolean isWhiteToPlay = true;
@@ -23,15 +24,8 @@ public class ChessPlayDisplayer extends AbstractDisplayer {
 
 
 	@Override
-	public void draw(GraphicalItem item, Graphics g, int x, int y, int width, int height) 
+	public synchronized void render(Graphics g) 
 	{
-//		// draw image or place holder
-//		Image image = item.getImage(); 
-//		if (image != null) 
-//		{
-//			g.drawImage( image, item.getX() - x, item.getY() - y, null );
-//		}
-
 		g.setColor( Color.BLACK );
 		if ( isWhiteToPlay == true )
 		{

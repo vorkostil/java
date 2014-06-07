@@ -15,7 +15,7 @@ public class SocketListenerClientSide implements Runnable {
 	private Socket listenSocket = null;
 	private BufferedReader reader = null;
 	private GraphicalClient gClient = null;
-	private boolean debug = true;
+	private boolean debug = false;
 	
 	public SocketListenerClientSide( Socket socket, GraphicalClient gClient ) throws IOException
 	{

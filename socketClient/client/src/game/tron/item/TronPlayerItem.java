@@ -7,10 +7,7 @@ import helper.DataRepository.DataInformation;
 
 import java.awt.MediaTracker;
 import java.awt.Polygon;
-import java.awt.Rectangle;
 import java.io.IOException;
-
-import visitor.AbstractDisplayer;
 
 public class TronPlayerItem extends GraphicalItem 
 {
@@ -18,12 +15,11 @@ public class TronPlayerItem extends GraphicalItem
 	private int deltaImage = 0;
 	
 	public TronPlayerItem( TronPlayerModel model,
-					   	   AbstractDisplayer displayer,
 					   	   DataInformation dataInformation, 
 					   	   MediaTracker mediaTracker,
 					   	   int levelId ) throws IOException 
 	{
-		super( displayer, dataInformation, mediaTracker, levelId );
+		super( dataInformation, mediaTracker, levelId );
 		
 		this.model = model;
 		this.currentState_ = model.getState();
@@ -58,13 +54,6 @@ public class TronPlayerItem extends GraphicalItem
 		return emptyPolygon;
 	}
 
-	@Override
-	public boolean isPolygonPartInScreen(Rectangle rect)
-	{
-		// always need to draw it
-		return true;
-	}
-	
 	/* return the current state of the object default is DEFAULT_STATE
 	 * this state will be mainly used to retrieve the image to display
 	 * */

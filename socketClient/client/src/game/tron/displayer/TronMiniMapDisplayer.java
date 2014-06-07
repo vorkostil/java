@@ -2,21 +2,40 @@ package game.tron.displayer;
 
 import game.tron.item.TronPlayerItem;
 import game.tron.model.TronPlayerModel;
-import game.tron.panel.TronMiniMapPanel;
 import graphic.GraphicalItem;
 
 import java.awt.Graphics;
 import java.awt.geom.Point2D;
 import java.util.List;
 
-import visitor.AbstractDisplayer;
+import displayer.AbstractDisplayer;
+
 
 public class TronMiniMapDisplayer extends AbstractDisplayer {
 
-	@Override
-	public void draw(GraphicalItem item, Graphics g, int x, int y, int width, int height) 
+	public static final String NAME = "TronMiniMapDisplayer";
+
+	private static final int gridPadding = 4;
+	
+	private int deltaX;
+	private int deltaY;
+	
+	public TronMiniMapDisplayer(int deltaX, int deltaY) 
 	{
-		drawPath( (TronPlayerItem) item, g);
+		this.deltaX = deltaX;
+		this.deltaY = deltaY;
+	}
+	
+	@Override
+	public void render( Graphics g ) 
+	{
+		for ( GraphicalItem item : getDisplayableItems() )
+		{
+			if ( item instanceof TronPlayerItem )
+			{
+				drawPath( (TronPlayerItem) item, g);
+			}
+		}
 	}
 	
 	private void drawPath( TronPlayerItem player, Graphics g) 
@@ -29,16 +48,16 @@ public class TronMiniMapDisplayer extends AbstractDisplayer {
 			g.setColor( player.getColor() );
 			for ( int i = 0; i < path.size() - 1; i++ )
 			{
-				g.drawLine( (int) (path.get( i ).getX() * TronMiniMapPanel.gridPadding + 1 ), 
-							(int) (path.get( i ).getY() * TronMiniMapPanel.gridPadding + 1 ), 
-							(int) (path.get( i + 1 ).getX() * TronMiniMapPanel.gridPadding + 1 ), 
-							(int) (path.get( i + 1 ).getY() * TronMiniMapPanel.gridPadding + 1 ) );
+				g.drawLine( (int) (path.get( i ).getX() * gridPadding + 1 + deltaX ), 
+							(int) (path.get( i ).getY() * gridPadding + 1 + deltaY ), 
+							(int) (path.get( i + 1 ).getX() * gridPadding + 1 + deltaX ), 
+							(int) (path.get( i + 1 ).getY() * gridPadding + 1 + deltaY ) );
 			}
 			
-			g.drawLine( (int) (path.get( path.size() - 1 ).getX() * TronMiniMapPanel.gridPadding + 1 ), 
-						(int) (path.get( path.size() - 1 ).getY() * TronMiniMapPanel.gridPadding + 1 ), 
-						player.getModel().getGridX() * TronMiniMapPanel.gridPadding + 1, 
-						player.getModel().getGridY() * TronMiniMapPanel.gridPadding + 1 );
+			g.drawLine( (int) (path.get( path.size() - 1 ).getX() * gridPadding + 1 + deltaX ), 
+						(int) (path.get( path.size() - 1 ).getY() * gridPadding + 1 + deltaY ), 
+						player.getModel().getGridX() * gridPadding + 1 + deltaX, 
+						player.getModel().getGridY() * gridPadding + 1 + deltaY );
 		}
 	}
 

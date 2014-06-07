@@ -9,19 +9,16 @@ import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.io.IOException;
 
-import visitor.AbstractDisplayer;
-
 public class CellItem extends GraphicalItem 
 {
 	private CellModel model;
 	
 	public CellItem( CellModel model,
-					 AbstractDisplayer displayer,
 					 DataInformation dataInformation, 
 					 MediaTracker mediaTracker,
 					 int levelId ) throws IOException 
 	{
-		super(displayer, dataInformation, mediaTracker, levelId);
+		super(dataInformation, mediaTracker, levelId);
 		this.model = model;
 	}
 
