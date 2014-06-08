@@ -85,5 +85,7 @@ public abstract class AbstractDisplayer
 		return false;
 	}
 	
+	abstract public boolean contains(int x, int y);
+	
 	abstract public void render(Graphics g);
 }

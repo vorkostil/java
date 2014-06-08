@@ -49,4 +49,11 @@ public class ChessPieceTakenDisplayer extends AbstractDisplayer
 		}
 	}
 
+	@Override
+	public boolean contains(int x, int y) 
+	{
+		// has this displayer will never trigger mouse action
+		return true;
+	}
+
 }

@@ -5,7 +5,6 @@ import graphic.GraphicalItem;
 import helper.DataRepository.DataInformation;
 
 import java.awt.MediaTracker;
-import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.io.IOException;
 
@@ -41,15 +40,8 @@ public class CellItem extends GraphicalItem
 	}
 
 	@Override
-	public Polygon getPolygonModel() 
+	public Rectangle getBoundingBox() 
 	{
-		return emptyPolygon;
-	}
-
-
-	@Override
-	public boolean isPolygonPartInScreen(Rectangle rect)
-	{
-		return true;
+		return emptyBoundingBox;
 	}
 }

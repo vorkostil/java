@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 
+
 import common.MessageType;
 
 class ClientConnection implements Runnable {
@@ -29,8 +30,9 @@ class ClientConnection implements Runnable {
 		{
 			this.writer = new PrintWriter( this.client.getOutputStream() );
 			this.reader = new BufferedReader( new InputStreamReader( this.client.getInputStream() ) );
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} 
+		catch (IOException e) 
+		{
 			e.printStackTrace();
 		}
 	}

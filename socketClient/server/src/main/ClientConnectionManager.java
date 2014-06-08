@@ -1,8 +1,7 @@
 package main;
 
-import game.AbstractGame;
+import game.AbstractGameServer;
 import game.ChessGameServer;
-import game.TronGameServer;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -11,9 +10,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import server.TronGameServer;
+
+import network.ConnectionServer;
+
 import common.MessageType;
 
-public class ClientConnectionManager implements Runnable {
+public class ClientConnectionManager implements Runnable, ConnectionServer  {
 
    private ServerSocket socketserver;
    private int currentIdClient = 0;
@@ -21,7 +24,7 @@ public class ClientConnectionManager implements Runnable {
    private int maxClient = 0;
    private List< ClientConnection > clients = new ArrayList< ClientConnection >();
    
-	HashMap< String, AbstractGame > games = new HashMap< String, AbstractGame >();
+	HashMap< String, AbstractGameServer > games = new HashMap< String, AbstractGameServer >();
 
 	public ClientConnectionManager(ServerSocket s, int maxClient) 
 	{
@@ -65,7 +68,7 @@ public class ClientConnectionManager implements Runnable {
 		currentClientSize--;
 		clients.remove( client );
 		List< String > gameToClose = new ArrayList< String >();
-		for ( AbstractGame game : games.values() )
+		for ( AbstractGameServer game : games.values() )
 		{
 			if ( game.containsPlayer( client.getLogin() ) == true )
 			{
@@ -81,14 +84,6 @@ public class ClientConnectionManager implements Runnable {
 		clientListChanged();
 	}
 
-	public synchronized void forwardToClients( String str )
-	{
-		for ( ClientConnection client : clients )
-		{
-			client.forwardMessage ( str );
-		}
-	}
-
 	public void clientListChanged() 
 	{
 		String clientList = new String();
@@ -99,7 +94,15 @@ public class ClientConnectionManager implements Runnable {
 		forwardToClients( MessageType.MessageSystem + " " + MessageType.MessageContactListSnapshot + " " + clientList );
 	}
 
-	public void forwardToClient(String name, String command) 
+	public synchronized void forwardToClients( String str )
+	{
+		for ( ClientConnection client : clients )
+		{
+			client.forwardMessage ( str );
+		}
+	}
+	
+	public synchronized void forwardToClient(String name, String command) 
 	{
 		for ( ClientConnection client : clients )
 		{
@@ -131,7 +134,7 @@ public class ClientConnectionManager implements Runnable {
 	{
 		if ( games.containsKey( gameId ) == true )
 		{
-			AbstractGame game = games.get( gameId );
+			AbstractGameServer game = games.get( gameId );
 			game.setReady( player );
 		}
 	}
@@ -140,7 +143,7 @@ public class ClientConnectionManager implements Runnable {
 	{
 		if ( games.containsKey( gameId ) == true )
 		{
-			AbstractGame game = games.get( gameId );
+			AbstractGameServer game = games.get( gameId );
 			game.manageSpecificMessage( command );
 		}
 	}
@@ -149,7 +152,7 @@ public class ClientConnectionManager implements Runnable {
 	{
 		if ( games.containsKey( gameId ) == true )
 		{
-			AbstractGame game = games.get( gameId );
+			AbstractGameServer game = games.get( gameId );
 			games.remove( gameId );
 			
 			game.stop();

@@ -1,6 +1,6 @@
 package game.chess;
 
-import game.AbstractGameFrame;
+import game.AbstractGameClient;
 import game.chess.displayer.ChessMainDisplayer;
 import game.chess.displayer.ChessPieceTakenDisplayer;
 import game.chess.displayer.ChessPlayDisplayer;
@@ -11,23 +11,24 @@ import game.chess.model.ChessPieceModel;
 import game.chess.panel.ChessMainPanel;
 import graphic.GraphicalEnvironment;
 import graphic.GraphicalEnvironment.ImageLevel;
+import graphic.listener.ClosingMessageListener;
 
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import main.listener.ClosingMessageListener;
+import network.client.ConnectionClient;
 
 import common.MessageType;
+
 import displayer.AbstractDisplayer;
 
 @SuppressWarnings("serial")
-public class ChessGameFrame extends AbstractGameFrame 
+public class ChessGameFrame extends AbstractGameClient 
 {
 	private static final String WHITE = "white";
 	private static final String BLACK = "black";
@@ -53,27 +54,26 @@ public class ChessGameFrame extends AbstractGameFrame
 	
 	//private List< GraphicalItem > chessPieces = new ArrayList< GraphicalItem >();
 	
-	public ChessGameFrame( PrintWriter writer, 
+	public ChessGameFrame( ConnectionClient cClient, 
 		  	  			   String gameID, 
-		  	  			   String name, 
 		  	  			   String blackPlayerName, 
 		  	  			   String whitePlayerName ) throws IOException 
 	{
-		super(writer,gameID,name,CHESS_CONFIG_PATH);
+		super(cClient,gameID,CHESS_CONFIG_PATH);
 		
 		// characteristics of the frame
-		this.setTitle( "Chess, playing as " + name );
+		this.setTitle( "Chess, playing as " + connectionClient.getLogin() );
 		this.setSize( ChessMainPanel.frameWidth + 7, ChessMainPanel.frameHeight + 29 ); // add the border to the size and the padding
 		this.setLocationRelativeTo( null );
 		this.setResizable( false );
-		this.addWindowListener( new ClosingMessageListener( targetWriter, MessageType.MessageSystem + " " + MessageType.MessageGameClose + " " + gameId ) );
+		this.addWindowListener( new ClosingMessageListener( connectionClient, MessageType.MessageSystem + " " + MessageType.MessageGameClose + " " + gameId ) );
 	
 		// create the main panel
 		gamePanel = new ChessMainPanel( this, repository, tracker, GraphicalEnvironment.TEMPO_60_HZ );
-		gamePanel.addLayer( ChessMainDisplayer.NAME, mainDisplayer );
-		gamePanel.addLayer( "WHITE" + ChessPieceTakenDisplayer.NAME, whiteTakenDisplayer );
-		gamePanel.addLayer( "BLACK" + ChessPieceTakenDisplayer.NAME, blackTakenDisplayer );
-		gamePanel.addLayer( ChessPlayDisplayer.NAME, playDisplayer );
+		gamePanel.addDisplayer( ChessMainDisplayer.NAME, mainDisplayer );
+		gamePanel.addDisplayer( "WHITE" + ChessPieceTakenDisplayer.NAME, whiteTakenDisplayer );
+		gamePanel.addDisplayer( "BLACK" + ChessPieceTakenDisplayer.NAME, blackTakenDisplayer );
+		gamePanel.addDisplayer( ChessPlayDisplayer.NAME, playDisplayer );
 		
 		// create the cell's model 
 		gamePanel.addItem( new CellItem( validCellModel,
@@ -112,7 +112,7 @@ public class ChessGameFrame extends AbstractGameFrame
 		playDisplayer.setWhitePlayer( whitePlayerName );
 		
 		String player = "You play as ";
-		if ( getLogin().compareTo( blackPlayerName ) == 0 )
+		if ( connectionClient.getLogin().compareTo( blackPlayerName ) == 0 )
 		{
 			player += " BLACK\n";
 			isWhite = false;
@@ -130,13 +130,12 @@ public class ChessGameFrame extends AbstractGameFrame
 											JOptionPane.YES_NO_OPTION, 
 											JOptionPane.QUESTION_MESSAGE ) == JOptionPane.OK_OPTION)
 		{
-			targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameReady + " " + gameId + " " + getLogin() );
+			connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameReady + " " + gameId + " " + connectionClient.getLogin() );
 		}
 		else
 		{
-			targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGameClose );
+			connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameClose );
 		}
-		targetWriter.flush();
 	}
 
 	@Override
@@ -152,7 +151,7 @@ public class ChessGameFrame extends AbstractGameFrame
 	@Override
 	public void end(String winner) 
 	{
-		if ( getLogin().compareTo( winner ) == 0 )
+		if ( connectionClient.getLogin().compareTo( winner ) == 0 )
 		{
 			JOptionPane.showMessageDialog(this, "You WIN", "Game finish, " + winner + " wins", JOptionPane.INFORMATION_MESSAGE );
 		}
@@ -292,8 +291,7 @@ public class ChessGameFrame extends AbstractGameFrame
 						if ( found == true )
 						{
 							// a valid move, send it to the server
-							targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGamePlayerMovePiece + " " + gameId + " " + cellSelected.x + " " + cellSelected.y + " " + x + " " + y );
-							targetWriter.flush();
+							connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGamePlayerMovePiece + " " + gameId + " " + cellSelected.x + " " + cellSelected.y + " " + x + " " + y );
 							
 							// reset information
 							validCellModel.setVisible(false);
@@ -329,8 +327,7 @@ public class ChessGameFrame extends AbstractGameFrame
 						invalidCellModel.setVisible(false);
 						
 						// ask for target cells to the server
-						targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageGamePlayerAskTargetCells + " " + gameId + " " + x + " " + y );
-						targetWriter.flush();
+						connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGamePlayerAskTargetCells + " " + gameId + " " + x + " " + y );
 					}
 				}
 			}

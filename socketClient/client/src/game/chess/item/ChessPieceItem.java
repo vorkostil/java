@@ -5,7 +5,6 @@ import graphic.GraphicalItem;
 import helper.DataRepository.DataInformation;
 
 import java.awt.MediaTracker;
-import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.io.IOException;
 
@@ -41,18 +40,11 @@ public class ChessPieceItem extends GraphicalItem
 	}
 
 	@Override
-	public Polygon getPolygonModel() 
+	public Rectangle getBoundingBox() 
 	{
-		return emptyPolygon;
+		return emptyBoundingBox;
 	}
 
-
-	@Override
-	public boolean isPolygonPartInScreen(Rectangle rect)
-	{
-		return true;
-	}
-	
 	/* return the current state of the object default is DEFAULT_STATE
 	 * this state will be mainly used to retrieve the image to display
 	 * */

@@ -5,7 +5,6 @@ import helper.DataRepository.DataInformation;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.MediaTracker;
-import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
@@ -14,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 
 /* Abstract class for item animated or not which need to be displayed on the layer of a graphical environment
@@ -44,7 +44,7 @@ public abstract class GraphicalItem
 	
 	public static final String DEFAULT_STATE = "DEFAULT";
 	
-	protected static final Polygon emptyPolygon = new Polygon();
+	protected static final Rectangle emptyBoundingBox = new Rectangle();
 	
 	private Color color_ = Color.BLACK;
 	private Map< String, List< Image > > images_ = new HashMap< String, List< Image > >();
@@ -55,6 +55,9 @@ public abstract class GraphicalItem
 	private int delay_ = 0;
 	private long currentTime_ = 0;
 	private boolean hasImage = false;
+	
+	private int imageWidth = -1;
+	private int imageHeight = -1;
 	
 	/* Sample of configuration file associated
 	 * 
@@ -88,11 +91,22 @@ public abstract class GraphicalItem
 						int frameSize = dataInformation.getIntegerValue( FRAME_SIZE_GETTER( state ) );
 						for ( int i = 0; i < frameSize;++i) 
 						{
-							Image image = ImageIO.read( new File( dataInformation.getStringValue( FRAME_PATH_GETTER( state, i ) ) ) );
-							if ( image != null )
+							try
 							{
-								mediaTracker.addImage( image, levelId );
-								images_.get( state ).add( image );
+								Image image = ImageIO.read( new File( dataInformation.getStringValue( FRAME_PATH_GETTER( state, i ) ) ) );
+								if ( image != null )
+								{
+									imageWidth = image.getWidth( null );
+									imageHeight = image.getHeight( null );
+									
+									mediaTracker.addImage( image, levelId );
+									images_.get( state ).add( image );
+								}
+							}
+							catch (IIOException e)
+							{
+								System.out.println("Uanble to read the image '" + dataInformation.getStringValue( FRAME_PATH_GETTER( state, i ) ) + "': " + e.getMessage() );
+								hasImage = false;
 							}
 						}
 						// awful method to store the delay between frame
@@ -111,11 +125,22 @@ public abstract class GraphicalItem
 					}
 					else 
 					{ 
-						Image image = ImageIO.read( new File( dataInformation.getStringValue( IMAGE_PATH_GETTER( state ) ) ) );
-						if ( image != null )
+						try
 						{
-							mediaTracker.addImage( image, levelId );
-							images_.get(state).add(image);
+							Image image = ImageIO.read( new File( dataInformation.getStringValue( IMAGE_PATH_GETTER( state ) ) ) );
+							if ( image != null )
+							{
+								imageWidth = image.getWidth( null );
+								imageHeight = image.getHeight( null );
+								
+								mediaTracker.addImage( image, levelId );
+								images_.get(state).add(image);
+							}
+						}
+						catch (IIOException e)
+						{
+							System.out.println("Uanble to read the image '" + dataInformation.getStringValue( IMAGE_PATH_GETTER( state ) ) + "': " + e.getMessage() );
+							hasImage = false;
 						}
 					}
 				}
@@ -124,33 +149,39 @@ public abstract class GraphicalItem
 			//-------------------------------------
 			else if ( dataInformation.contains( IMAGE_PATH ) == true ) 
 			{
-				hasImage = true;
-				Image image = ImageIO.read( new File( dataInformation.getStringValue( IMAGE_PATH ) ) );
-				if (image != null)
+				try
 				{
-					mediaTracker.addImage( image, levelId );
-					images_.put( DEFAULT_STATE, new ArrayList< Image >() );
-					images_.get( DEFAULT_STATE ).add( image );
+					hasImage = true;
+					Image image = ImageIO.read( new File( dataInformation.getStringValue( IMAGE_PATH ) ) );
+					if (image != null)
+					{
+						imageWidth = image.getWidth( null );
+						imageHeight = image.getHeight( null );
+						
+						mediaTracker.addImage( image, levelId );
+						images_.put( DEFAULT_STATE, new ArrayList< Image >() );
+						images_.get( DEFAULT_STATE ).add( image );
+					}
+				}
+				catch (IIOException e)
+				{
+					hasImage = false;
+					System.out.println("Uanble to read the image '" + dataInformation.getStringValue( IMAGE_PATH ) + "': " + e.getMessage() );
 				}
 			}
 		}
 	}
 	
-	public boolean isPolygonPartInScreen( Rectangle rect )
+	public int getImageWidth()
 	{
-		for ( int i = 0; i < getPolygonModel().npoints - 1; ++i )
-		{
-			if ( rect.intersectsLine( getPolygonModel().xpoints[i], 
-									  getPolygonModel().ypoints[i],
-									  getPolygonModel().xpoints[i+1], 
-									  getPolygonModel().ypoints[i+1] ) == true )
-			{
-				return true;
-			}
-		}
-		return false;
+		return imageWidth;
 	}
-
+	
+	public int getImageHeight()
+	{
+		return imageHeight;
+	}
+	
 	public Color getColor() 
 	{
 		return color_;
@@ -220,6 +251,11 @@ public abstract class GraphicalItem
 		return null;
 	}
 
+	public boolean contains(int x, int y) 
+	{
+		return getBoundingBox().contains(x,y);
+	}
+	
 	/* return a text to display default return EMPTY_STRING
 	 **/ 
 	public String getText()
@@ -233,6 +269,31 @@ public abstract class GraphicalItem
 	public String getState()
 	{
 		return DEFAULT_STATE;
+	}
+	
+	// behavior when mouse left the item zone
+	public void mouseLeftItem(int x, int y, boolean leftButtonIsUp, boolean rightButtonIsUp ) 
+	{
+	}
+	
+	// behavior when mouse enter the item zone
+	public void mouseEnterItem(int x, int y, boolean leftButtonIsUp, boolean rightButtonIsUp ) 
+	{
+	}
+	
+	// behavior when mouse pressed on the item zone
+	public void mousePressedItem(int x, int y, boolean leftButtonIsUp, boolean rightButtonIsUp ) 
+	{
+	}
+	
+	// behavior when mouse release on the item zone
+	public void mouseReleasedItem(int x, int y, boolean leftButtonIsUp, boolean rightButtonIsUp ) 
+	{
+	}
+	
+	// behavior when activation of the item is asked
+	public void activate(boolean leftButtonIsUp, boolean rightButtonIsUp ) 
+	{
 	}
 	
 	/* return the X coordinate of the item used to draw it on the screen
@@ -249,8 +310,8 @@ public abstract class GraphicalItem
 	 **/ 
 	abstract public boolean isVisible(); 
 
-	/* return the polygon structure used to described the object on screen
+	/* return the AABB of the item
+	 * SHALL NOT return NULL
 	 * */
-	abstract public Polygon getPolygonModel();
-
+	abstract public Rectangle getBoundingBox();
 }

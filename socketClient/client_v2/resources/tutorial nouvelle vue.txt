@@ -1,0 +1,15 @@
+Création d'une nouvelle vue
+	1> créer une Frame dérivant de JFrame
+	2> variable membre
+		- un DataRepository pour manipuler les informations en provenance d'un fichier de config
+		- un MediaTracker pour stocker les images utiliser par les éléments de la vue
+		- un Displayer dérivant de AbstractDisplayer pour afficher les éléments
+		- un GraphicalEnvironment pour stocker les éléments graphiques de la vue
+	3> ctor
+		- peupler le repository à partir d'un fichier de config au format
+			objet.variable = value
+		- créer le displayer
+		- créer le panel
+		- associer le tout (displayerr <--> panel <--> frame)
+		- afficher la vue via un setVisible
+		

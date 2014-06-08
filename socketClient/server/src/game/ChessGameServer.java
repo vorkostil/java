@@ -8,7 +8,7 @@ import main.ClientConnectionManager;
 
 import common.MessageType;
 
-public class ChessGameServer extends AbstractGame
+public class ChessGameServer extends AbstractGameServer
 {
 	public static final String NAME = "Chess";
 
@@ -126,7 +126,7 @@ public class ChessGameServer extends AbstractGame
 		
 		if ( isMoveValid( x0, y0, x1, y1 ) == false )
 		{
-			connectionManager.forwardToClient( player, MessageType.MessageSystem + " " + MessageType.MessageGameMoveInvalid + " " + id);
+			connectionServer.forwardToClient( player, MessageType.MessageSystem + " " + MessageType.MessageGameMoveInvalid + " " + id);
 		}
 		else
 		{
@@ -184,7 +184,7 @@ public class ChessGameServer extends AbstractGame
 			{
 				System.out.println( "Game " + id + " end, winner is " + winner );
 				forwardMessageToAllPlayer( MessageType.MessageSystem + " " + MessageType.MessageGameEnd + " " + id + " " + winner );
-				connectionManager.closeGame( id );
+				connectionServer.closeGame( id );
 			}
 			else
 			{
@@ -220,7 +220,7 @@ public class ChessGameServer extends AbstractGame
 			}
 			
 			// and then, send the movable pieces to the player
-			connectionManager.forwardToClient( playerWhite, CREATE_PLAYER_MOVABLE_PIECES( id, movable ) );
+			connectionServer.forwardToClient( playerWhite, CREATE_PLAYER_MOVABLE_PIECES( id, movable ) );
 		}
 		else
 		{
@@ -237,7 +237,7 @@ public class ChessGameServer extends AbstractGame
 			}
 			
 			// and then, send the movable pieces to the player
-			connectionManager.forwardToClient( playerBlack, CREATE_PLAYER_MOVABLE_PIECES( id, movable ) );
+			connectionServer.forwardToClient( playerBlack, CREATE_PLAYER_MOVABLE_PIECES( id, movable ) );
 		}
 	}
 
@@ -558,12 +558,12 @@ public class ChessGameServer extends AbstractGame
 			if ( whiteToPlay == true )
 			{
 				// send the movable pieces to the player
-				connectionManager.forwardToClient( playerWhite, CREATE_PLAYER_TARGET_CELLS( id, cells ) );
+				connectionServer.forwardToClient( playerWhite, CREATE_PLAYER_TARGET_CELLS( id, cells ) );
 			}
 			else
 			{
 				// send the movable pieces to the player
-				connectionManager.forwardToClient( playerBlack, CREATE_PLAYER_TARGET_CELLS( id, cells ) );
+				connectionServer.forwardToClient( playerBlack, CREATE_PLAYER_TARGET_CELLS( id, cells ) );
 			}
 		}
 	}

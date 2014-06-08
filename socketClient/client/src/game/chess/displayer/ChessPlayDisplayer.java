@@ -61,4 +61,11 @@ public class ChessPlayDisplayer extends AbstractDisplayer {
 		this.whitePlayerName = whitePlayerName;
 	}
 
+	@Override
+	public boolean contains(int x, int y) 
+	{
+		// has this displayer will never trigger mouse action
+		return true;
+	}
+
 }

@@ -1,12 +1,13 @@
 package frame;
 
+import graphic.listener.ClosingMessageListener;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.PrintWriter;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -20,26 +21,26 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
 import main.GraphicalClient;
-import main.listener.ClosingMessageListener;
+import network.client.ConnectionClient;
 
 import common.MessageType;
 
 @SuppressWarnings("serial")
 public class PeerToPeerCommunicationFrame extends JFrame 
 {
-	String targetName = null;
-	String login = null;
-	PrintWriter targetWriter = null;
-	GraphicalClient father = null;
+	String targetName;
+	GraphicalClient father;
+	ConnectionClient connectionClient;
 	
 	JTextField textEdition = new JTextField();
 	JTextPane chatArea = new JTextPane();
 	
-	public PeerToPeerCommunicationFrame( GraphicalClient gClient, String source, String name, PrintWriter writer ) 
-	{
-		targetWriter = writer;
+    public PeerToPeerCommunicationFrame( GraphicalClient gClient,
+										 ConnectionClient cClient, 
+										 String name ) 
+    {
+		this.connectionClient = cClient;
 		targetName = name;
-		login = source;
 		father = gClient;
 		
 		// characteristics of the frame
@@ -47,8 +48,8 @@ public class PeerToPeerCommunicationFrame extends JFrame
 		this.setSize( 400, 320 );
 		this.setLocationRelativeTo( null );
 
-		this.addWindowListener( new ClosingMessageListener( targetWriter, 
-															MessageType.MessageSystem + " " + MessageType.MessageCommunicationSpecificClose + " " + targetName + " " + login ) ); 
+		this.addWindowListener( new ClosingMessageListener( connectionClient, 
+															MessageType.MessageSystem + " " + MessageType.MessageCommunicationSpecificClose + " " + targetName ) ); 
 		
 		// associate a BorderLayout (simplest one)
 		this.setLayout( new BorderLayout() );
@@ -62,13 +63,8 @@ public class PeerToPeerCommunicationFrame extends JFrame
 					String message = textEdition.getText();
 					textEdition.setText( "" );
 					
-					if  ( targetWriter != null )
-					{
-						targetWriter.println( MessageType.MessageSystem + " " + MessageType.MessageCommunicationSpecific + " " + targetName + " " + login + " " + message );
-						appendToChatArea( login + "> " +  message + "\n", GraphicalClient.normalFont, GraphicalClient.normalColor );
-						
-						targetWriter.flush();
-					}
+					connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageCommunicationSpecific + " " + targetName + " " + connectionClient.getLogin() + " " + message );
+					appendToChatArea( connectionClient.getLogin() + "> " +  message + "\n", GraphicalClient.normalFont, GraphicalClient.normalColor );
 				}
 			}
 
@@ -91,9 +87,12 @@ public class PeerToPeerCommunicationFrame extends JFrame
 		
 		// display itself
 		this.setVisible(true);
+		
+		// send the connected message
+		connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageCommunicationSpecificOpen + " " + name + " " + connectionClient.getLogin() );
 	}
-	
-    public void appendToChatArea(String msg, Font f, Color c)
+
+	public void appendToChatArea(String msg, Font f, Color c)
     {
         StyleContext sc = StyleContext.getDefaultStyleContext();
         AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, c);

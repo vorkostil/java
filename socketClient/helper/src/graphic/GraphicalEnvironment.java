@@ -56,8 +56,8 @@ public abstract class GraphicalEnvironment extends JPanel
 	Graphics buffer = null;
 
 	private MediaTracker tracker = null;
-	private int viewMaxWidth = 0;
-	private int viewMaxHeight = 0;
+	public int viewMaxWidth = 0;
+	public int viewMaxHeight = 0;
 
 	// used for the rendering of the environment
 	private int tempo = -1; // 60Hz
@@ -132,7 +132,7 @@ public abstract class GraphicalEnvironment extends JPanel
 		}
 	}
 
-	public void addLayer(String name, AbstractDisplayer displayer) 
+	public void addDisplayer(String name, AbstractDisplayer displayer) 
 	{
 		if ( displayers.containsKey( name ) == false )
 		{

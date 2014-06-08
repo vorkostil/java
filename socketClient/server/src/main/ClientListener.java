@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
+
 import common.MessageType;
 
 class ClientListener implements Runnable 
@@ -47,7 +48,7 @@ class ClientListener implements Runnable
 						System.out.println( clientLogin + "> " + command );
 					}
 					
-					if (  ( splitted.length > 2 )
+					if (  ( splitted.length >= 2 )
 						&&( splitted[1].compareTo( MessageType.MessageClose ) == 0 )  )
 					{
 						break;

@@ -9,8 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -31,21 +29,26 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 
-import main.listener.ClientNameMouseListener;
+import server.TronGameServer;
 
+import client.TronGameClient;
+
+import main.listener.ClientNameMouseListener;
+import network.client.AbstractSocketListenerClientSide;
+import network.client.ConnectionClient;
+import network.client.ConnectionInfo;
+import network.client.ConnectionObserver;
+
+import common.ConnectionDialog;
 import common.MessageType;
 
-import frame.ConnectionDialog;
-import frame.ConnectionInfo;
 import frame.PeerToPeerCommunicationFrame;
-import game.AbstractGameFrame;
+import game.AbstractGameClient;
 import game.ChessGameServer;
-import game.TronGameServer;
 import game.chess.ChessGameFrame;
-import game.tron.TronGameFrame;
 
 @SuppressWarnings("serial")
-public class GraphicalClient extends JFrame 
+public class GraphicalClient extends JFrame implements ConnectionObserver
 {
 	public static final Font errorFont = new Font( "Default", Font.BOLD, 12);
 	public static final Font normalFont = new Font( "Default", Font.PLAIN, 12);
@@ -65,17 +68,10 @@ public class GraphicalClient extends JFrame
 	JMenuItem menuItemDisconnect = new JMenuItem( "Disconnect" );
 	
 	HashMap< String, PeerToPeerCommunicationFrame > directCommunications = new HashMap< String, PeerToPeerCommunicationFrame >();
-	HashMap< String, AbstractGameFrame > games = new HashMap< String, AbstractGameFrame >();
-	
-	public enum State { WAITING_FOR_SERVER, WAITING_FOR_LOGIN, CONNECTED, DURING_LOGIN };
-				 
-	boolean isConnected = false;
-	State currentState = State.WAITING_FOR_SERVER;
+	HashMap< String, AbstractGameClient > games = new HashMap< String, AbstractGameClient >();
 
-	Socket socket = null;
-	PrintWriter writer = null;
-	ConnectionInfo info = null;
-	String login = null;
+	// Network relevant information
+	ConnectionClient connectionClient;
 	
 	public GraphicalClient()
 	{
@@ -101,15 +97,9 @@ public class GraphicalClient extends JFrame
 					String message = textEdition.getText();
 					textEdition.setText( "" );
 					
-					if (  ( writer != null )
-						&&( currentState == State.CONNECTED )  )
+					if ( connectionClient.sendMessageIfConnected(message) == false )
 					{
-						writer.println( message );
-						writer.flush();
-					}
-					else
-					{
-						appendToChatArea( "|local|" + message + "\n", normalFont, normalColor );
+						appendToChatArea( "|local|" + message, normalFont, normalColor );
 					}
 				}
 			}
@@ -122,6 +112,7 @@ public class GraphicalClient extends JFrame
 			public void keyTyped(KeyEvent e) {
 			}
 		});
+		
 		textEdition.setBorder( new EtchedBorder( EtchedBorder.RAISED ) );
 		
 		clientScrollPane.setPreferredSize( new Dimension( 128, 320 ) );
@@ -151,7 +142,7 @@ public class GraphicalClient extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				ConnectionDialog dialog = new ConnectionDialog(null, "Connection", true);
-				info = dialog.showConnectionDialog();
+				ConnectionInfo info = dialog.showConnectionDialog();
 				if (  ( info != null )
 					&&( info.isValid() == true )  )
 				{
@@ -178,19 +169,7 @@ public class GraphicalClient extends JFrame
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if ( writer != null )
-				{
-					for ( String name : directCommunications.keySet() )
-					{
-						writer.println( MessageType.MessageSystem + " " + MessageType.MessageCommunicationSpecific + " " + MessageType.MessageClose + " " + name );
-						writer.flush();
-					}
-					writer.println( MessageType.MessageSystem + " " + MessageType.MessageClose );
-					writer.flush();
-					
-					socket = null;
-					writer = null;
-				}
+				closeConnection();
 			}
 		});
 		menuItemQuit.addActionListener( new ActionListener() {
@@ -202,8 +181,8 @@ public class GraphicalClient extends JFrame
 			}
 		});
 
-		menuItemConnect.setEnabled( currentState == State.WAITING_FOR_SERVER );
-		menuItemDisconnect.setEnabled( ( currentState != State.WAITING_FOR_SERVER ) );
+		menuItemConnect.setEnabled( true );
+		menuItemDisconnect.setEnabled( false );
 		
 		menuConnection.add( menuItemConnect );
 		menuConnection.add( menuItemDisconnect );
@@ -212,65 +191,24 @@ public class GraphicalClient extends JFrame
 		menuBar.add( menuConnection );
 	}
 
-	public void changeCurrentState( State newState )
+	protected void closeConnection() 
 	{
-		currentState = newState;
-		if ( currentState == State.WAITING_FOR_SERVER )
+		if ( connectionClient != null )
 		{
-			if ( socket != null )
+			for ( String name : directCommunications.keySet() )
 			{
-				try {
-					socket.close();
-				} catch (IOException e) {
-					appendToChatArea( "socket can not be closed as the link is already broken", errorFont, errorColor);
-				}
-				socket = null;
+				connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageCommunicationSpecific + " " + MessageType.MessageClose + " " + name );
 			}
-			writer = null;
-			updateContactList( new String[] {} );
-			closeAllGames();
+			connectionClient.closeConnection();
 		}
-		menuItemConnect.setEnabled( currentState == State.WAITING_FOR_SERVER );
-		menuItemDisconnect.setEnabled( ( currentState != State.WAITING_FOR_SERVER ) );
 	}
-	
-	public State getCurrentState()
-	{
-		return currentState;
-	}
-	
+
 	public void launchConnection( ConnectionInfo info ) throws UnknownHostException, IOException, InterruptedException 
 	{
-		if ( socket == null )
-		{
-			try
-			{
-				socket = new Socket( info.getServer(), 
-									 Integer.parseInt( info.getPort() ) );
-				
-				changeCurrentState( State.WAITING_FOR_LOGIN );
-				appendToChatArea( "Socket client accepted on " + socket.getLocalSocketAddress() + " waiting for server interaction\n", serverFont, serverColor );
-				
-				writer = new PrintWriter( socket.getOutputStream() );
-				
-				// launch the connection thread
-				Thread client = new Thread( new ServerLoginConnection( socket, 
-																	   this, 
-																	   info ) );
-				client.setName( "Connection" );
-				client.start();
-			}
-			catch (NumberFormatException e)
-			{
-				appendToChatArea( "Invalid server information\n", errorFont, errorColor );
-			}
-			catch (ConnectException e)
-			{
-				appendToChatArea( "No server found\n", errorFont, errorColor );
-			}
-		}
+		connectionClient = new ConnectionClient( this );
+		connectionClient.launchConnection( info );
 	}
-	
+
     public void appendToChatArea(String msg, Font f, Color c)
     {
         StyleContext sc = StyleContext.getDefaultStyleContext();
@@ -284,7 +222,7 @@ public class GraphicalClient extends JFrame
 
         try 
         {
-			chatArea.getDocument().insertString( chatArea.getDocument().getLength(), msg, aset );
+			chatArea.getDocument().insertString( chatArea.getDocument().getLength(), msg + "\n", aset );
 			chatArea.setCaretPosition( chatArea.getDocument().getLength() );
 		} 
         catch (BadLocationException e) 
@@ -298,19 +236,11 @@ public class GraphicalClient extends JFrame
 		clientName.setListData( names );
 	}
 
-	public void setLogin(String login) 
-	{
-		this.login  = login;
-		this.setTitle( "Chat as " + login );
-	}
-
 	public void addDirectCommunication(String name) 
 	{
 		if ( directCommunications.containsKey( name ) == false )
 		{
-			directCommunications.put( name, new PeerToPeerCommunicationFrame( this, login, name, writer ) );
-			writer.println( MessageType.MessageSystem + " " + MessageType.MessageCommunicationSpecificOpen + " " + name + " " + login );
-			writer.flush();
+			directCommunications.put( name, new PeerToPeerCommunicationFrame( this, connectionClient, name ) );
 		}
 	}
 
@@ -318,7 +248,7 @@ public class GraphicalClient extends JFrame
 	{
 		if ( directCommunications.containsKey( name ) == true )
 		{
-			appendToChatArea( "Direct communication close with " + name + "\n", serverFont, serverColor);
+			appendToChatArea( "Direct communication close with " + name, serverFont, serverColor);
 			if ( destroy == true )
 				((PeerToPeerCommunicationFrame) directCommunications.get( name )).dispose();
 			directCommunications.remove( name );
@@ -329,7 +259,7 @@ public class GraphicalClient extends JFrame
 	{
 		if ( directCommunications.containsKey( name ) == true )
 		{
-			((PeerToPeerCommunicationFrame) directCommunications.get( name )).appendToChatArea( name + "> " + msg + "\n", normalFont, normalColor);
+			((PeerToPeerCommunicationFrame) directCommunications.get( name )).appendToChatArea( name + "> " + msg, normalFont, normalColor);
 		}
 	}
 
@@ -337,16 +267,16 @@ public class GraphicalClient extends JFrame
 	{
 		if ( directCommunications.containsKey( name ) == false )
 		{
-			appendToChatArea( "Direct communication open with " + name + "\n", serverFont, serverColor);
-			directCommunications.put( name, new PeerToPeerCommunicationFrame( this, login, name, writer ) );
+			appendToChatArea( "Direct communication open with " + name, serverFont, serverColor);
+			directCommunications.put( name, new PeerToPeerCommunicationFrame( this, connectionClient, name ) );
 		}
 	}
 
 	public void closeAllGames() 
 	{
-		for ( AbstractGameFrame game : games.values() )
+		for ( AbstractGameClient game : games.values() )
 		{
-			appendToChatArea( "Game close with id: " + game.getId() + "\n", serverFont, serverColor);
+			appendToChatArea( "Game close with id: " + game.getId(), serverFont, serverColor);
 			game.dispose();
 			games.remove( game.getId() );
 		}
@@ -356,7 +286,7 @@ public class GraphicalClient extends JFrame
 	{
 		if ( games.containsKey( gameId ) == true )
 		{
-			appendToChatArea( "Game close with id: " + gameId + "\n", serverFont, serverColor);
+			appendToChatArea( "Game close with id: " + gameId, serverFont, serverColor);
 			if ( destroy == true )
 				games.get( gameId ).dispose();
 			games.remove( gameId );
@@ -367,16 +297,16 @@ public class GraphicalClient extends JFrame
 	{
 		if ( games.containsKey( gameId ) == false )
 		{
-			appendToChatArea( "Game " + gameName + " open with id: " + gameId + "\n", serverFont, serverColor);
+			appendToChatArea( "Game " + gameName + " open with id: " + gameId, serverFont, serverColor);
 			try 
 			{
 				if ( gameName.compareTo( TronGameServer.NAME ) == 0 )
 				{
-					games.put( gameId, new TronGameFrame( writer, gameId, login, playerBlue, playerRed ) );
+					games.put( gameId, new TronGameClient( connectionClient, gameId, playerBlue, playerRed ) );
 				}
 				else if ( gameName.compareTo( ChessGameServer.NAME ) == 0 )
 				{
-					games.put( gameId, new ChessGameFrame( writer, gameId, login, playerBlue, playerRed ) );
+					games.put( gameId, new ChessGameFrame( connectionClient, gameId, playerBlue, playerRed ) );
 				}
 			} 
 			catch (IOException e) 
@@ -415,8 +345,7 @@ public class GraphicalClient extends JFrame
 
 	public void askForGameTo( String opponentName, String gameName) 
 	{
-		writer.println( MessageType.MessageSystem + " " + MessageType.MessageGameAsked + " " + opponentName + " " + gameName );
-		writer.flush();
+		connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameAsked + " " + opponentName + " " + gameName );
 	}
 
 	public void askForGameFrom( String opponentName, String gameName) 
@@ -425,13 +354,11 @@ public class GraphicalClient extends JFrame
 		
 		if ( response == JOptionPane.OK_OPTION)
 		{
-			writer.println( MessageType.MessageSystem + " " + MessageType.MessageGameAccepted + " " + opponentName + " " + gameName );
-			writer.flush();
+			connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameAccepted + " " + opponentName + " " + gameName );
 		}
 		else
 		{
-			writer.println( MessageType.MessageSystem + " " + MessageType.MessageGameRefused + " " + opponentName );
-			writer.flush();
+			connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameRefused + " " + opponentName );
 		}
 	}
 	
@@ -457,13 +384,49 @@ public class GraphicalClient extends JFrame
 		return clientName;
 	}
 
-	public String getLogin() 
-	{
-		return login;
-	}
-
 	public JScrollPane getClientScrollPane() 
 	{
 		return clientScrollPane;
+	}
+
+	@Override
+	public void raiseAlert(String message) 
+	{
+		appendToChatArea(message, errorFont, errorColor);
+	}
+
+	@Override
+	public void raiseInfo(String message) 
+	{
+		appendToChatArea(message, serverFont, serverColor);
+	}
+
+	@Override
+	public void serverDisconnection() 
+	{
+		updateContactList( new String[] {} );
+		closeAllGames();
+	}
+
+	@Override
+	public void connectionStatusChange( network.client.ConnectionClient.State currentState ) 
+	{
+		menuItemConnect.setEnabled( currentState == network.client.ConnectionClient.State.WAITING_FOR_SERVER );
+		menuItemDisconnect.setEnabled( ( currentState != network.client.ConnectionClient.State.WAITING_FOR_SERVER ) );
+	}
+
+	@Override
+	public AbstractSocketListenerClientSide createSocketListener(Socket socket) throws IOException 
+	{
+		return new SocketListenerClientSide(this, socket, connectionClient);
+	}
+
+	public String getLogin() 
+	{
+		if ( connectionClient != null )
+		{
+			return connectionClient.getLogin();
+		}
+		return null;
 	}
 }
