@@ -45,7 +45,7 @@ public abstract class AbstractDisplayer
 		
 	}
 
-	public void computeDisplayableItems()
+	public synchronized void computeDisplayableItems()
 	{
 		displayableItems.clear();
 		for ( int layerLevel = FIRST_LAYER_LEVEL_TO_DRAW; layerLevel <= LAST_LAYER_LEVEL_TO_DRAW; layerLevel++ )
@@ -63,7 +63,7 @@ public abstract class AbstractDisplayer
 		}
 	}
 	
-	public List< GraphicalItem > getDisplayableItems()
+	public synchronized List< GraphicalItem > getDisplayableItems()
 	{
 		return displayableItems;
 	}

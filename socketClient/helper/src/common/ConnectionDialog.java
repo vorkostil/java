@@ -1,5 +1,7 @@
 package common;
 
+import helper.DataRepository.DataInformation;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -18,6 +20,11 @@ import network.client.ConnectionInfo;
 
 @SuppressWarnings("serial")
 public class ConnectionDialog extends JDialog {
+	private static final String SERVER_NAME_KEY = "server_name";
+	private static final String SERVER_HOST_KEY = "server_host";
+	private static final String SERVER_LOGIN_KEY = "server_login";
+	private static final String SERVER_PASSWD_KEY = "server_passwd";
+
 	private ConnectionInfo info = new ConnectionInfo();
 	
 	private JLabel serverLabel;
@@ -29,6 +36,11 @@ public class ConnectionDialog extends JDialog {
 	private JTextField portText;
 	private JTextField loginText;
 	private JTextField passwdText;
+
+	private String registerServerName = "192.168.1.76";
+	private String registerServerHost = "8001";
+	private String registerLogin = "";
+	private String registerPasswd = "";
 	
 	public ConnectionDialog( JFrame parent,
 							 String title,
@@ -45,6 +57,30 @@ public class ConnectionDialog extends JDialog {
 		this.init();
 	}
 
+	public void setDataInformation( DataInformation connectionInformation )
+	{
+		if ( connectionInformation.contains( SERVER_NAME_KEY ) == true )
+		{
+			registerServerName = connectionInformation.getStringValue( SERVER_NAME_KEY );
+		    serverText.setText( registerServerName );
+		}
+		if ( connectionInformation.contains( SERVER_HOST_KEY ) == true )
+		{
+			registerServerHost = connectionInformation.getStringValue( SERVER_HOST_KEY );
+		    portText.setText( registerServerHost );
+		}
+		if ( connectionInformation.contains( SERVER_LOGIN_KEY ) == true )
+		{
+			registerLogin = connectionInformation.getStringValue( SERVER_LOGIN_KEY );
+		    loginText.setText( registerLogin );
+		}
+		if ( connectionInformation.contains( SERVER_PASSWD_KEY ) == true )
+		{
+			registerPasswd = connectionInformation.getStringValue( SERVER_PASSWD_KEY );
+		    passwdText.setText( registerPasswd );
+		}
+	}
+	
 	public ConnectionInfo showConnectionDialog()
 	{
 	    this.setVisible(true);      
@@ -60,12 +96,12 @@ public class ConnectionDialog extends JDialog {
 		
 	    serverText = new JTextField();
 	    serverText.setPreferredSize(new Dimension(100, 25));
-	    serverText.setText( "192.168.1.76" );
+	    serverText.setText( registerServerName );
 	    serverLabel = new JLabel("server:");
 	    
 	    portText = new JTextField();
 	    portText.setPreferredSize(new Dimension(100, 25));
-	    portText.setText( "8001" );
+	    portText.setText( registerServerHost );
 	    portLabel = new JLabel("port:");
 	    
 	    serverPanel.add(serverLabel);
@@ -79,11 +115,13 @@ public class ConnectionDialog extends JDialog {
 		loginPanel.setBorder(BorderFactory.createTitledBorder("Login info"));
 		
 	    loginText = new JTextField();
+	    loginText.setText( registerLogin );
 	    loginText.setPreferredSize(new Dimension(100, 25));
 	    loginLabel = new JLabel("login:");
 	    loginText.requestFocusInWindow();
 	    
 	    passwdText = new JTextField();
+	    passwdText.setText( registerPasswd );
 	    passwdText.setPreferredSize(new Dimension(100, 25));
 	    passwdLabel = new JLabel("passwd:");
 	    

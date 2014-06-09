@@ -1,7 +1,6 @@
 package main;
 
 import game.AbstractGameServer;
-import game.ChessGameServer;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -10,9 +9,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import server.TronGameServer;
-
 import network.ConnectionServer;
+import server.ChessGameServer;
+import server.TronGameServer;
 
 import common.MessageType;
 

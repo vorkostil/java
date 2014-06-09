@@ -1,5 +1,7 @@
 package network.client;
 
+import game.AbstractGameClientFrame;
+
 import java.io.IOException;
 import java.net.Socket;
 
@@ -22,4 +24,9 @@ public interface ConnectionObserver {
 	// call to get the socket listener used when a line is received
 	abstract AbstractSocketListenerClientSide createSocketListener(Socket socket) throws IOException;
 
+	// manage message explicitly marked as GAME
+	abstract void manageGameMessage(String[] messageComponents);
+
+	// the game manager require a game given its name through the connection client components
+	abstract AbstractGameClientFrame requireGame(String gameName) throws IOException;
 }

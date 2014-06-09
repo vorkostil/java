@@ -1,10 +1,14 @@
 package network.client;
 
+import game.AbstractGameClientFrame;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 import common.MessageType;
 
@@ -21,6 +25,9 @@ public class ConnectionClient
 	private PrintWriter writer;
 	ConnectionInfo info;
 	String login;
+	
+	// store the list of connected people
+	List< String > clients = new ArrayList< String >();
 	
 	public ConnectionClient( ConnectionObserver observer )
 	{
@@ -159,5 +166,29 @@ public class ConnectionClient
 	public String getLogin() 
 	{
 		return login;
+	}
+
+	public void clientListChange(String[] newClients) 
+	{
+		clients.clear();
+		for ( String client : newClients )
+		{
+			clients.add(client);
+		}
+	}
+
+	public List< String > getClientList() 
+	{
+		return clients;
+	}
+
+	public void forwardGameMessage(String[] splitted) 
+	{
+		observer.manageGameMessage( splitted );
+	}
+
+	public AbstractGameClientFrame requireGame(String gameName) throws IOException 
+	{
+		return observer.requireGame(gameName);
 	}
 }

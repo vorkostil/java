@@ -1,9 +1,9 @@
 package client;
 
-import game.AbstractGameClient;
+import game.AbstractGameClientFrame;
 import graphic.GraphicalEnvironment;
 import graphic.GraphicalEnvironment.ImageLevel;
-import graphic.listener.ClosingMessageListener;
+import graphic.listener.ClosingGameMessageListener;
 import helper.DataRepository.DataInformation;
 
 import java.awt.BorderLayout;
@@ -16,14 +16,13 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import network.client.ConnectionClient;
 import client.displayer.TronMainDisplayer;
 import client.displayer.TronMiniMapDisplayer;
 import client.displayer.TronPlayerPanelDisplayer;
 import client.item.TronPlayerItem;
 import client.model.TronPlayerModel;
 import client.panel.TronMainPanel;
-
-import network.client.ConnectionClient;
 
 import common.MessageType;
 
@@ -37,7 +36,7 @@ import displayer.AbstractDisplayer;
  *		gestion des commandes via forward au Server
  * */
 @SuppressWarnings("serial")
-public class TronGameClient extends AbstractGameClient 
+public class TronGameClient extends AbstractGameClientFrame 
 {
 	private static final String TRON_CONFIG_PATH = "../tron/resources/config/tron.cfg";
 	
@@ -97,26 +96,20 @@ public class TronGameClient extends AbstractGameClient
 		}
 	};
 	
-	public TronGameClient( ConnectionClient connectionClient, 
-						   String gameId,
-						   String bluePlayerName, 
-						   String redPlayerName) throws IOException 
+	public TronGameClient() throws IOException 
 	{
-		super( connectionClient, gameId, TRON_CONFIG_PATH );
+		super( TRON_CONFIG_PATH );
 		
 		// characteristics of the frame
 		this.setTitle( "Tron");
 		this.setSize( TronMainPanel.frameWidth + 7, TronMainPanel.frameHeight + 29 ); // add the border to the size and the padding
 		this.setLocationRelativeTo( null );
 		this.setResizable( false );
-		this.addWindowListener( new ClosingMessageListener( connectionClient, MessageType.MessageSystem + " " + MessageType.MessageGameClose + " " + gameId ) );
 		this.addKeyListener( movementKeyListener );
 	
 
 		// get the game and player information
 		DataInformation gameInformation = repository.getData( GAME_CONFIGURATION );
-		DataInformation bluePlayerInformation = repository.getData( BLUE_PLAYER_CONFIGURATION );
-		DataInformation redPlayerInformation = repository.getData( RED_PLAYER_CONFIGURATION );
 		
 		// store information about the game
 		gridSize = gameInformation.getIntegerValue( GRID_SIZE );
@@ -126,16 +119,8 @@ public class TronGameClient extends AbstractGameClient
 		downDirection = gameInformation.getIntegerValue( DOWN_VALUE );
 		
 		// create the player's model 
-		bluePlayerModel = new TronPlayerModel( this,
-											   bluePlayerName,
-											   bluePlayerInformation.getIntegerValue( START_X ), 
-											   bluePlayerInformation.getIntegerValue( START_Y ),
-											   bluePlayerInformation.getIntegerValue( START_DIR ) );
-		redPlayerModel = new TronPlayerModel( this,
-											  redPlayerName,
-										   	  redPlayerInformation.getIntegerValue( START_X ), 
-										   	  redPlayerInformation.getIntegerValue( START_Y ),
-										   	  redPlayerInformation.getIntegerValue( START_DIR ) );
+		bluePlayerModel = null;
+		redPlayerModel = null;
 		
 		// create the main panel
 		gamePanel = new TronMainPanel( repository, tracker, GraphicalEnvironment.TEMPO_60_HZ );
@@ -148,34 +133,6 @@ public class TronGameClient extends AbstractGameClient
 		
 		// create the players and add them to their displayer / layer 
 		gamePanel.createStartText(repository);
-		TronPlayerItem blueItem = new TronPlayerItem( bluePlayerModel, 
-													  bluePlayerInformation, 
-													  tracker, 
-													  ImageLevel.ENVIRONMENT_IMAGE.index() );
-		TronPlayerItem redItem = new TronPlayerItem( redPlayerModel, 
-													 redPlayerInformation, 
-													 tracker, 
-													 ImageLevel.ENVIRONMENT_IMAGE.index() );
-		
-		gamePanel.addItem( blueItem, 
-						   TronMainDisplayer.NAME, 
-						   AbstractDisplayer.FIRST_LAYER_LEVEL_TO_DRAW );  
-		gamePanel.addItem( redItem,
-				   		   TronMainDisplayer.NAME,
-				   		   GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
-		gamePanel.addItem( blueItem, 
-				           TronMiniMapDisplayer.NAME, 
-						   AbstractDisplayer.FIRST_LAYER_LEVEL_TO_DRAW );  
-		gamePanel.addItem( redItem,
-						   TronMiniMapDisplayer.NAME,
-				   		   GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
-		gamePanel.addItem( blueItem, 
-				           "BLUE" + TronPlayerPanelDisplayer.NAME, 
-						   AbstractDisplayer.FIRST_LAYER_LEVEL_TO_DRAW );  
-		gamePanel.addItem( redItem,
-						   "RED" + TronPlayerPanelDisplayer.NAME,
-				   		   GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
-		
 		gamePanel.computeDisplayableItems();
 	
 		// create the panel structure on screen
@@ -184,31 +141,6 @@ public class TronGameClient extends AbstractGameClient
 
 		// display itself
 		this.setVisible( true );
-		
-		
-		String player = "You play as ";
-		if ( connectionClient.getLogin().compareTo( bluePlayerName ) == 0 )
-		{
-			player += " BLUE\n";
-		}
-		else
-		{
-			player += " RED\n";
-		}
-		
-		// ask for ready
-		if ( JOptionPane.showConfirmDialog( null, 
-											player + "are you ready to play ?", 
-											"Game launch", 
-											JOptionPane.YES_NO_OPTION, 
-											JOptionPane.QUESTION_MESSAGE ) == JOptionPane.OK_OPTION)
-		{
-			connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameReady + " " + gameId + " " + connectionClient.getLogin() );
-		}
-		else
-		{
-			connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameClose );
-		}
 	}
 
 	public void ready(String name) 
@@ -238,33 +170,145 @@ public class TronGameClient extends AbstractGameClient
 		gamePanel.setStartSoon();
 	}
 
-	public void forwardMessage(String line) 
+	@Override
+	public void setConnectionClient( ConnectionClient connectionClient )
 	{
-		String[] splitted = line.split(" ");
-		String action = splitted[ 2 ];
+		super.setConnectionClient(connectionClient);
+		this.addWindowListener( new ClosingGameMessageListener( this ) );
+	}
+	
+	@Override
+	public void addPlayer(String playerName) 
+	{
+		if ( bluePlayerModel == null )
+		{
+			try 
+			{
+				DataInformation bluePlayerInformation = repository.getData( BLUE_PLAYER_CONFIGURATION );
+				bluePlayerModel = new TronPlayerModel( this,
+													   playerName,
+													   bluePlayerInformation.getIntegerValue( START_X ), 
+													   bluePlayerInformation.getIntegerValue( START_Y ),
+													   bluePlayerInformation.getIntegerValue( START_DIR ) );
+				TronPlayerItem blueItem = new TronPlayerItem( bluePlayerModel, 
+															  bluePlayerInformation, 
+															  tracker, 
+															  ImageLevel.ENVIRONMENT_IMAGE.index() );
+				gamePanel.addItem( blueItem, 
+								   TronMainDisplayer.NAME, 
+								   AbstractDisplayer.FIRST_LAYER_LEVEL_TO_DRAW );  
+				gamePanel.addItem( blueItem, 
+						           TronMiniMapDisplayer.NAME, 
+								   AbstractDisplayer.FIRST_LAYER_LEVEL_TO_DRAW );  
+				gamePanel.addItem( blueItem, 
+						           "BLUE" + TronPlayerPanelDisplayer.NAME, 
+								   AbstractDisplayer.FIRST_LAYER_LEVEL_TO_DRAW );
+
+				gamePanel.computeDisplayableItems();
+				
+				// ask for readiness
+				if ( connectionClient.getLogin().compareTo( playerName ) == 0 )
+				{
+					if ( JOptionPane.showConfirmDialog( null, 
+														"You play as blue\nare you ready ?", 
+														"Game launch", 
+														JOptionPane.YES_NO_OPTION, 
+														JOptionPane.QUESTION_MESSAGE ) == JOptionPane.OK_OPTION)
+					{
+						readyToPlay();
+					}
+					else
+					{
+						closeGame();
+					}
+				}
+			} 
+			catch (IOException e) 
+			{
+				connectionClient.forwardAlert( "Something bad happens during blue player creation: " + e.getMessage() );
+			}
+		}
+		else if ( redPlayerModel == null )
+		{
+			try 
+			{
+				DataInformation redPlayerInformation = repository.getData( RED_PLAYER_CONFIGURATION );
+				redPlayerModel = new TronPlayerModel( this,
+													  playerName,
+												   	  redPlayerInformation.getIntegerValue( START_X ), 
+												   	  redPlayerInformation.getIntegerValue( START_Y ),
+												   	  redPlayerInformation.getIntegerValue( START_DIR ) );
+				TronPlayerItem redItem = new TronPlayerItem( redPlayerModel, 
+															 redPlayerInformation, 
+															 tracker, 
+															 ImageLevel.ENVIRONMENT_IMAGE.index() );
+				gamePanel.addItem( redItem,
+				   		   		   TronMainDisplayer.NAME,
+				   		   		   GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+				gamePanel.addItem( redItem,
+								   TronMiniMapDisplayer.NAME,
+						   		   GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+				gamePanel.addItem( redItem,
+								   "RED" + TronPlayerPanelDisplayer.NAME,
+						   		   GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+				
+				gamePanel.computeDisplayableItems();
+				
+				// ask for readiness
+				if ( connectionClient.getLogin().compareTo( playerName ) == 0 )
+				{
+					if ( JOptionPane.showConfirmDialog( null, 
+														"You play as red\nare you ready ?", 
+														"Game launch", 
+														JOptionPane.YES_NO_OPTION, 
+														JOptionPane.QUESTION_MESSAGE ) == JOptionPane.OK_OPTION)
+					{
+						readyToPlay();
+					}
+					else
+					{
+						closeGame();
+					}
+				}
+			} 
+			catch (IOException e) 
+			{
+				connectionClient.forwardAlert( "Something bad happens during blue player creation: " + e.getMessage() );
+			}
+		}
+		else
+		{
+			connectionClient.forwardAlert( "Too many players added, player " + playerName + " is dropped." );
+		}
+	}
+
+	@Override
+	public void handleServerMessage(String[] messageComponents) 
+	{
+		String action = messageComponents[ 2 ];
 		
 		if ( action.compareTo( MessageType.MessageUpdatePosition ) == 0 )
 		{
-			double bX 	= java.lang.Double.parseDouble( splitted[ 4 ] );
-			double bY 	= java.lang.Double.parseDouble( splitted[ 5 ] );
-			int bD 		= Integer.parseInt( splitted[ 6 ] );
-			int bS 		= Integer.parseInt( splitted[ 7 ] );
+			double bX 	= java.lang.Double.parseDouble( messageComponents[ 4 ] );
+			double bY 	= java.lang.Double.parseDouble( messageComponents[ 5 ] );
+			int bD 		= Integer.parseInt( messageComponents[ 6 ] );
+			int bS 		= Integer.parseInt( messageComponents[ 7 ] );
 			List< Point2D > bP = new ArrayList< Point2D >();  
 			for ( int i = 0; i < bS; i++ )
 			{
-				bP.add( new Point2D.Double( java.lang.Double.parseDouble( splitted[ 8 + i * 2 ] ),
-											java.lang.Double.parseDouble( splitted[ 9 + i * 2 ] ) ) );
+				bP.add( new Point2D.Double( java.lang.Double.parseDouble( messageComponents[ 8 + i * 2 ] ),
+											java.lang.Double.parseDouble( messageComponents[ 9 + i * 2 ] ) ) );
 			}
 			
-			double rX 	= java.lang.Double.parseDouble( splitted[ 8 + bS * 2 ] );
-			double rY 	= java.lang.Double.parseDouble( splitted[ 9 + bS * 2 ] );
-			int rD 		= Integer.parseInt( splitted[ 10 + bS * 2 ] );
-			int rS 		= Integer.parseInt( splitted[ 11 + bS * 2 ] );
+			double rX 	= java.lang.Double.parseDouble( messageComponents[ 8 + bS * 2 ] );
+			double rY 	= java.lang.Double.parseDouble( messageComponents[ 9 + bS * 2 ] );
+			int rD 		= Integer.parseInt( messageComponents[ 10 + bS * 2 ] );
+			int rS 		= Integer.parseInt( messageComponents[ 11 + bS * 2 ] );
 			List< Point2D > rP = new ArrayList< Point2D >();  
 			for ( int i = 0; i < rS; i++ )
 			{
-				rP.add( new Point2D.Double( java.lang.Double.parseDouble( splitted[ 12 + bS * 2 + i * 2] ),
-											java.lang.Double.parseDouble( splitted[ 13 + bS * 2 + i * 2] ) ) );
+				rP.add( new Point2D.Double( java.lang.Double.parseDouble( messageComponents[ 12 + bS * 2 + i * 2] ),
+											java.lang.Double.parseDouble( messageComponents[ 13 + bS * 2 + i * 2] ) ) );
 			}
 
 			// forward player position update

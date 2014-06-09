@@ -61,6 +61,8 @@ public class MessageType {
 	public static final String MessageGamePlayerTargetCells = MessageGame + " " + MessagePlayerTargetCells;
 	public static final String MessageGamePlayerAskTargetCells = MessageGame + " " + MessagePlayerAskTargetCells;
 	public static final String MessageGamePlayerMovePiece = MessageGame + " " + MessagePlayerMovePiece;
+
+	public static final String MessageGameSoloGameOpponent = "SOLO_OPPONENT";
 	
 
 }

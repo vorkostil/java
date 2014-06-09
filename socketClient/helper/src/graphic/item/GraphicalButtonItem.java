@@ -91,6 +91,11 @@ public class GraphicalButtonItem extends GraphicalItem {
 	{
 		model.activate(leftButtonIsUp, rightButtonIsUp);
 	}
+
+	public AbstractButtonModel getModel() 
+	{
+		return model;
+	}
 	
 	
 }
