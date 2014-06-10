@@ -1,15 +1,110 @@
-Création d'une nouvelle vue
-	1> créer une Frame dérivant de JFrame
-	2> variable membre
-		- un DataRepository pour manipuler les informations en provenance d'un fichier de config
-		- un MediaTracker pour stocker les images utiliser par les éléments de la vue
-		- un Displayer dérivant de AbstractDisplayer pour afficher les éléments
-		- un GraphicalEnvironment pour stocker les éléments graphiques de la vue
-	3> ctor
-		- peupler le repository à partir d'un fichier de config au format
-			objet.variable = value
-		- créer le displayer
-		- créer le panel
-		- associer le tout (displayerr <--> panel <--> frame)
-		- afficher la vue via un setVisible
+Tuto nouveau jeu
+1> Créer l'arborescence suivante de package
+	- server			pour la partie server en java si il y a lieu
+	- client			pour la partie client en java
+		- displayer		pour les différents displayer permettant de dessiner les info
+		- item			pour les graphicalItem spécifique
+		- model			pour les models associé au graphical item (ou a la vue principale)
+		- panel			pour le graphical environement (vue principale)
 		
+2> lier le projet au projet helper
+
+3> Créer la frame principale
+	la faire dériver de AbstractGameClientFrame <quote>public class GameFrame extends AbstractGameClientFrame</quote>
+	
+	champs minimal 
+		la vue principale 
+		le displayer principal
+		le chemin pour le fichier de config
+		
+	dans le ctor
+		définir les caractéristique de la frame
+		<quote>
+		// characteristics of the frame
+		this.setTitle( "Game title" );
+		</quote>
+		
+		créer le main displayer et le main panel
+		<quote>
+		// create the main panel
+		mainDisplayer = new MainViewDisplayer();
+		displayPanel = new MainView( repository, tracker, GraphicalEnvironment.TEMPO_60_HZ );
+		displayPanel.addDisplayer( MainViewDisplayer.NAME, mainDisplayer );
+
+		// add the panel to the view
+		this.setContentPane( displayPanel );
+		</quote>
+		
+		finaliser les charactéristiques de la vue
+		<quote>
+		// change the size of the frame to match the display
+		this.setSize( displayPanel.viewMaxWidth + 7, displayPanel.viewMaxHeight + 29 ); // add the border to the size and the padding
+		this.setLocationRelativeTo( null );
+		this.setResizable( false );
+		</quote>
+		
+		ajouter les éléments statique comme les boutons, label etc...
+		<quote>
+		// add the element in the view
+		addStaticElement();
+		</quote>
+		
+		et valider le status des éléments pour le rendu graphique
+		<quote>
+		// initialize the state of the visible items
+		displayPanel.computeDisplayableItems();
+		</quote>
+		
+4> Ajout des éléments statiques (et des éléments de manière générale)
+	pour un bouton par exemple
+	<quote>
+		// create a button
+		xxxButton = new GraphicalButtonItem( new XXXButtonModel( this,
+																 repository.getData( XXX_BUTTON_CONFIG ) ),
+												 repository.getData( XXX_BUTTON_CONFIG ), 
+												 tracker, 
+												 ImageLevel.ENVIRONMENT_IMAGE.index() );
+		displayPanel.addItem( xxxButton,
+				 			  MainViewDisplayer.NAME,
+							  AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
+	</quote>
+	- creation du mode du bouton (princpalement pour le callAction callback permettant de réagir sur le déflenchement du bouton)
+	- creation de l'élement grpahique représentant le bouton
+		les caractéristique minimale en config dépende du type d'élément créer
+	- ajout de l'élément dans le mainPanel avec le displayer associé ainsi que le Zbuffer de display
+	
+5> création du main displayer
+	créer un displayer héritant de AbstractDisplayer
+	<quote>public class GraphMainDisplayer extends AbstractDisplayer </quote>
+	
+	la fonction contains permet de définir si le point est dans le displayer ou non (pour les interactions souris)
+	
+	la fonction render permet de faire un rendu spécifique des éléments graphiques
+	au minimum, elle affiche les objets visible
+	<quote>
+		for ( GraphicalItem item : getDisplayableItems() )
+		{
+			Image image = item.getImage(); 
+			if (image != null) 
+			{
+				g.drawImage( image, item.getX(), item.getY(), null );
+			}
+		}
+	</quote>
+	
+6> création du main panel
+	créer un mainpanel héritant de graphical environment
+	<quote>public class GraphMainPanel extends GraphicalEnvironment </quote>
+	
+	dans le ctor, au minimum faire passer la DataInformation contenant le chemin vers l'image de background
+	<quote>
+		graphical_configuration.entity_kind = graphical_configuration
+		graphical_configuration.background_image_path = ../graphDisplay/resources/pictures/background.png
+	</quote>
+	
+7> création des models
+	créer les model, dérivant de la static element nécessaire
+	<quote>public class SetStartButtonModel extends AbstractStateButtonModel</quote>
+	
+8> création des items (pour les éléments non statiques)
+	

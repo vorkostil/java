@@ -23,12 +23,14 @@ import network.client.ConnectionClient;
 import network.client.ConnectionInfo;
 import network.client.ConnectionObserver;
 import client.ChessGameFrame;
+import client.GraphDisplayGameFrame;
 import client.TronGameClient;
 import clientView.displayer.MainViewDisplayer;
 import clientView.model.ChessButtonModel;
 import clientView.model.ConnectButtonModel;
 import clientView.model.ConsoleButtonModel;
 import clientView.model.DisconnectButtonModel;
+import clientView.model.GraphButtonModel;
 import clientView.model.QuitButtonModel;
 import clientView.model.TronButtonModel;
 import clientView.panel.MainView;
@@ -164,7 +166,7 @@ public class GraphicalClientFrame extends JFrame implements ConnectionObserver
 		chessButton.getModel().hide();
 		
 		// create a graph button
-		graphButton = new GraphicalButtonItem( new ChessButtonModel( this,
+		graphButton = new GraphicalButtonItem( new GraphButtonModel( this,
 												 				     repository.getData( GRAPH_BUTTON ) ),
 											  repository.getData( GRAPH_BUTTON ), 
 											  tracker, 
@@ -321,6 +323,10 @@ public class GraphicalClientFrame extends JFrame implements ConnectionObserver
 		else if ( gameName.compareTo( CHESS_GAME_NAME ) == 0 )
 		{
 			return new ChessGameFrame();
+		}
+		else if ( gameName.compareTo( GRAPH_GAME_NAME ) == 0 )
+		{
+			return new GraphDisplayGameFrame();
 		}
 		return null;
 	}

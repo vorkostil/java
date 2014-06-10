@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
-
 import common.MessageType;
 
 class ClientListener implements Runnable 
@@ -16,7 +15,7 @@ class ClientListener implements Runnable
 	
 	private BufferedReader reader = null;
 	
-	private boolean debug = false;
+	private boolean debug = true;
 	
 	public ClientListener( Socket socket, 
 						   String login,
@@ -73,7 +72,17 @@ class ClientListener implements Runnable
 						String action = splitted[2]; 
 						if ( action.compareTo( MessageType.MessageAsked ) == 0 )
 						{
-							connection.getFather().forwardToClient( splitted[ 3 ], MessageType.MessageSystem + " " + MessageType.MessageGameAsked + " " + clientLogin + " " + splitted[ 4 ] );
+							// check the solo game status
+							if ( splitted[ 3 ].compareTo( MessageType.MessageGameSoloGameOpponent ) == 0 )
+							{
+								// it's a solo game, send the accepted message
+								connection.getFather().beginSoloGame( clientLogin, splitted[ 4 ] );
+							}
+							else
+							{
+								// at least one player to ask for a game
+								connection.getFather().forwardToClient( splitted[ 3 ], MessageType.MessageSystem + " " + MessageType.MessageGameAsked + " " + clientLogin + " " + splitted[ 4 ] );
+							}
 						}
 						else if ( action.compareTo( MessageType.MessageRefused ) == 0 )
 						{

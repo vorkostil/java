@@ -17,6 +17,8 @@ import common.MessageType;
 
 public class ClientConnectionManager implements Runnable, ConnectionServer  {
 
+   private static final String GRAPH_DISPLAYER_NAME = "Graph";
+   
    private ServerSocket socketserver;
    private int currentIdClient = 0;
    private int currentClientSize = 0;
@@ -125,6 +127,19 @@ public class ClientConnectionManager implements Runnable, ConnectionServer  {
 			else if ( gameKind.compareTo( ChessGameServer.NAME ) == 0 )
 			{
 				games.put( gameId, new ChessGameServer( player, login, gameId, this ) );
+			}
+		}
+	}
+	
+	public void beginSoloGame( String login, String gameKind ) 
+	{
+		String gameId = gameKind + "_SOLO_" + login;
+		if ( games.containsKey( gameId ) == false )
+		{
+			if ( gameKind.compareTo( GRAPH_DISPLAYER_NAME ) == 0 )
+			{
+				// send the open game message
+				forwardToClient( login, MessageType.MessageSystem + " " + MessageType.MessageGameOpen + " " + gameId + " " + gameKind + " " + login + " SOLO");
 			}
 		}
 	}

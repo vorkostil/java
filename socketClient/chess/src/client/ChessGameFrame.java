@@ -53,8 +53,6 @@ public class ChessGameFrame extends AbstractGameClientFrame
 	private List< Point > targetCells = new ArrayList< Point >();
 	private Point cellSelected = null;
 	
-	//private List< GraphicalItem > chessPieces = new ArrayList< GraphicalItem >();
-	
 	public ChessGameFrame() throws IOException 
 	{
 		super( CHESS_CONFIG_PATH );
