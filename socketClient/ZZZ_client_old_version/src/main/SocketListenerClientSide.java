@@ -13,7 +13,7 @@ import common.MessageType;
 public class SocketListenerClientSide extends AbstractSocketListenerClientSide {
 
 	GraphicalClient gClient;
-	private boolean debug = false;
+	private boolean debug = true;
 	
 	public SocketListenerClientSide(GraphicalClient graphicalClient, Socket socket, ConnectionClient connectionClient) throws IOException 
 	{

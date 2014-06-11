@@ -56,6 +56,9 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 		
 		// initialize the state of the visible items
 		mainPanel.computeDisplayableItems();
+
+		// display itself
+		this.setVisible( true );
 	}
 
 	private void addStaticElement() throws IOException 

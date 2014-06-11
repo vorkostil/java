@@ -25,8 +25,15 @@ public class ClientToServerLoginConnection implements Runnable
 	public void run() {
 		try 
 		{
-			// listen on the socket waiting for a login question
+			// initialize the system connection
+			PrintWriter writer = new PrintWriter( socket.getOutputStream() );
 			BufferedReader reader = new BufferedReader( new InputStreamReader( socket.getInputStream() ) );
+			
+			// send the init message to ask the login protocol to the server
+			writer.print( MessageType.MessageInit );
+			writer.flush();
+			
+			// listen on the socket waiting for a login question
 			String line = reader.readLine();
 			while ( line.compareTo( MessageType.MessageSystem + " " + MessageType.MessageLoginAsked ) != 0 )
 			{
@@ -35,9 +42,7 @@ public class ClientToServerLoginConnection implements Runnable
 			
 			connectionClient.changeCurrentState( ConnectionClient.State.DURING_LOGIN );
 
-			PrintWriter writer = new PrintWriter( socket.getOutputStream() );
-			writer.println( connectionInfo.getLogin() );
-			writer.println( connectionInfo.getPasswd() );
+			writer.print( connectionInfo.getLogin() + "|" + connectionInfo.getPasswd() );
 			writer.flush();
 			
 			// waiting for server answer

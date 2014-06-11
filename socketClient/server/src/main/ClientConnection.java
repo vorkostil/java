@@ -70,6 +70,7 @@ class ClientConnection implements Runnable {
 			writer.println( MessageType.MessageSystem + " " + MessageType.MessageLoginAsked );
 			writer.flush();
 			
+			// TODO login|passwd instead of login + passwd on 2 read
 			login = reader.readLine();
 			String mdp = reader.readLine();
 			

@@ -70,7 +70,7 @@ public class GraphicalClient extends JFrame implements ConnectionObserver
 
 	// Network relevant information
 	ConnectionClient connectionClient;
-	private GameManager gameManager;
+	private GameManager gameManager = null;
 	
 	public GraphicalClient()
 	{
@@ -306,7 +306,10 @@ public class GraphicalClient extends JFrame implements ConnectionObserver
 	public void serverDisconnection() 
 	{
 		updateContactList( new String[] {} );
-		gameManager.closeAllGames();
+		if ( gameManager != null )
+		{
+			gameManager.closeAllGames();
+		}
 	}
 
 	@Override

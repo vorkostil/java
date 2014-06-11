@@ -95,8 +95,8 @@ public class ConnectionClient
 				
 				// launch the connection thread
 				Thread client = new Thread( new ClientToServerLoginConnection( socket, 
-																	   this, 
-																	   info ) );
+																	   		   this, 
+																	   		   info ) );
 				client.setName( "Connection" );
 				client.start();
 			} 

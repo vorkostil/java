@@ -1,6 +1,7 @@
 package common;
 
 public class MessageType {
+	public static final String MessageInit = "INIT";
 	public static final String MessageSystem = "SYSTEM";
 	
 	public static final String MessageClose = "CLOSE";
@@ -63,6 +64,4 @@ public class MessageType {
 	public static final String MessageGamePlayerMovePiece = MessageGame + " " + MessagePlayerMovePiece;
 
 	public static final String MessageGameSoloGameOpponent = "SOLO_OPPONENT";
-	
-
 }
