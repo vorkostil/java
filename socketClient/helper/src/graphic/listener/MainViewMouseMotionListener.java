@@ -1,23 +1,22 @@
-package clientView.panel.listener;
+package graphic.listener;
 
 import graphic.GraphicalItem;
+import graphic.GraphicalListeneredEnvironment;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-
-import clientView.panel.MainView;
 
 public class MainViewMouseMotionListener implements MouseMotionListener 
 {
 	/**
 	 * 
 	 */
-	private final MainView mainView;
+	private final GraphicalListeneredEnvironment mainView;
 
 	/**
 	 * @param mainView
 	 */
-	public MainViewMouseMotionListener(MainView mainView) {
+	public MainViewMouseMotionListener(GraphicalListeneredEnvironment mainView) {
 		this.mainView = mainView;
 	}
 

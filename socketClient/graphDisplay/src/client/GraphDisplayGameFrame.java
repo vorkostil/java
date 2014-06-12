@@ -1,11 +1,15 @@
 package client;
 
-import java.io.IOException;
-
 import game.AbstractGameClientFrame;
 import graphic.GraphicalEnvironment;
 import graphic.GraphicalEnvironment.ImageLevel;
 import graphic.item.GraphicalButtonItem;
+import graphic.model.AbstractStateButtonModel;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import client.displayer.GraphMainDisplayer;
 import client.model.SetBlockButtonModel;
 import client.model.SetExitButtonModel;
@@ -63,11 +67,15 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 
 	private void addStaticElement() throws IOException 
 	{
+		// create a button group
+		List< AbstractStateButtonModel > buttons = new ArrayList< AbstractStateButtonModel >();
+		
 		// create a start button
 		setStartButton = new GraphicalButtonItem( new SetStartButtonModel( repository.getData( START_BUTTON_CONFIG ) ),
-												 repository.getData( START_BUTTON_CONFIG ), 
-												 tracker, 
-												 ImageLevel.ENVIRONMENT_IMAGE.index() );
+												  repository.getData( START_BUTTON_CONFIG ), 
+												  tracker, 
+												  ImageLevel.ENVIRONMENT_IMAGE.index() );
+		buttons.add( (AbstractStateButtonModel) setStartButton.getModel() );
 		mainPanel.addItem( setStartButton,
 						   GraphMainDisplayer.NAME,
 						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
@@ -77,18 +85,25 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 												 repository.getData( EXIT_BUTTON_CONFIG ), 
 												 tracker, 
 												 ImageLevel.ENVIRONMENT_IMAGE.index() );
+		buttons.add( (AbstractStateButtonModel) setExitButton.getModel() );
 		mainPanel.addItem( setExitButton,
 						   GraphMainDisplayer.NAME,
 						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
 	
 		// create a block button
 		setBlockButton = new GraphicalButtonItem( new SetBlockButtonModel( repository.getData( BLOCK_BUTTON_CONFIG ) ),
-												 repository.getData( BLOCK_BUTTON_CONFIG ), 
-												 tracker, 
-												 ImageLevel.ENVIRONMENT_IMAGE.index() );
+												  repository.getData( BLOCK_BUTTON_CONFIG ), 
+												  tracker, 
+												  ImageLevel.ENVIRONMENT_IMAGE.index() );
+		buttons.add( (AbstractStateButtonModel) setBlockButton.getModel() );
 		mainPanel.addItem( setBlockButton,
 						   GraphMainDisplayer.NAME,
 						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
+		
+		// give the list to the model
+		((AbstractStateButtonModel)setStartButton.getModel()).setButtonList( buttons );
+		((AbstractStateButtonModel)setExitButton.getModel()).setButtonList( buttons );
+		((AbstractStateButtonModel)setBlockButton.getModel()).setButtonList( buttons );
 	}
 
 	@Override

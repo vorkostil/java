@@ -3,7 +3,6 @@ package client;
 import game.AbstractGameClientFrame;
 import graphic.GraphicalEnvironment;
 import graphic.GraphicalEnvironment.ImageLevel;
-import graphic.listener.ClosingGameMessageListener;
 
 import java.awt.BorderLayout;
 import java.awt.Point;
@@ -21,8 +20,6 @@ import client.item.ChessPieceItem;
 import client.model.CellModel;
 import client.model.ChessPieceModel;
 import client.panel.ChessMainPanel;
-
-import network.client.ConnectionClient;
 
 import common.MessageType;
 
@@ -353,13 +350,6 @@ public class ChessGameFrame extends AbstractGameClientFrame
 		gamePanel.computeDisplayableItems();
 	}
 
-	@Override
-	public void setConnectionClient( ConnectionClient connectionClient )
-	{
-		super.setConnectionClient(connectionClient);
-		this.addWindowListener( new ClosingGameMessageListener( this ) );
-	}
-	
 	@Override
 	public void addPlayer(String playerName) 
 	{

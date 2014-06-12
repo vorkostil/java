@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 
+import network.NetworkHelper;
 
 import common.MessageType;
 
@@ -39,8 +40,9 @@ class ClientConnection implements Runnable {
 	
 	public void end() throws IOException 
 	{
-		writer.println( MessageType.MessageSystem + " " + MessageType.MessageClose );
+		writer.print( MessageType.MessageSystem + " " + MessageType.MessageClose );
 		writer.flush();
+		
 		System.out.println( "Client " + numClient + " end the connection.");
 		
 		writer = null;
@@ -58,28 +60,46 @@ class ClientConnection implements Runnable {
 	{
 		if ( this.connected == true )
 		{
-			this.writer.println( str );
+			this.writer.print( str );
 			this.writer.flush();
+			try 
+			{
+				Thread.sleep( 3 );
+			} 
+			catch (InterruptedException e) 
+			{
+				System.err.println( "Error while sending a message: " + e.getMessage() );
+			}
 		}
 	}
 	
 	public void run()
 	{
 		try {
+			// wait for the init message
+			String line = NetworkHelper.fullRead( reader );
+			while ( line.compareTo( MessageType.MessageInit ) != 0 )
+			{
+				line = NetworkHelper.fullRead( reader );;
+			}
+			
 			// ask for login / mdp
-			writer.println( MessageType.MessageSystem + " " + MessageType.MessageLoginAsked );
+			writer.print( MessageType.MessageSystem + " " + MessageType.MessageLoginAsked );
 			writer.flush();
 			
-			// TODO login|passwd instead of login + passwd on 2 read
-			login = reader.readLine();
-			String mdp = reader.readLine();
+			// and wait for login / passwsd to be received
+			line = NetworkHelper.fullRead( reader );
+
+			String[] lineComponents = line.split( ":" );
+			login = lineComponents[ 0 ];
+			String mdp = lineComponents[ 1 ];
 			
 			if ( login.compareTo( mdp ) == 0 )
 			{
 				this.connected = true;
 				
 				System.out.println( "Client " + numClient + ", login accepted: " + login );
-				writer.println( MessageType.MessageSystem + " " + MessageType.MessageLoginAccepted );
+				writer.print( MessageType.MessageSystem + " " + MessageType.MessageLoginAccepted );
 				writer.flush();
 				
 				Thread listener = new Thread( new ClientListener( client,
@@ -95,7 +115,7 @@ class ClientConnection implements Runnable {
 			{
 				System.out.println( "Client " + numClient + ", login refused");
 				
-				writer.println( MessageType.MessageSystem + " " + MessageType.MessageLoginRefused );
+				writer.print( MessageType.MessageSystem + " " + MessageType.MessageLoginRefused );
 				writer.flush();
 				
 				end();
@@ -103,7 +123,7 @@ class ClientConnection implements Runnable {
 		} 
 		catch (SocketException e) 
 		{
-			System.out.println( "Client " + numClient + " has broken the link, it's sad but it's true");
+			System.err.println( "Client " + numClient + " has broken the link, it's sad but it's true");
 		} 
 		catch (IOException e) 
 		{

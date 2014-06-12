@@ -1,5 +1,6 @@
 package game;
 
+import graphic.listener.ClosingGameMessageListener;
 import helper.DataRepository;
 
 import java.awt.MediaTracker;
@@ -52,6 +53,7 @@ abstract public class AbstractGameClientFrame extends JFrame
 	public void setConnectionClient(ConnectionClient connectionClient)
 	{
 		this.connectionClient = connectionClient;
+		this.addWindowListener( new ClosingGameMessageListener( this ) );
 	}
 	
 	// send the close message to the server

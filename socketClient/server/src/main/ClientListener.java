@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
+import network.NetworkHelper;
+
 import common.MessageType;
 
 class ClientListener implements Runnable 
@@ -32,7 +34,7 @@ class ClientListener implements Runnable
 		try 
 		{
 			String command = null;
-			command = reader.readLine();
+			command = NetworkHelper.fullRead( reader );
 			while ( command != null )
 			{
 				String[] splitted = command.split( " " );
@@ -112,13 +114,13 @@ class ClientListener implements Runnable
 				{
 					connection.getFather().forwardToClients( clientLogin + "> " + command );
 				}
-				command = reader.readLine();
+				command = NetworkHelper.fullRead( reader );
 			}
 			connection.end();
 		} 
 		catch (IOException e) 
 		{
-			System.out.println( "connection broken with " + clientLogin );
+			System.err.println( "connection broken with " + clientLogin );
 			try 
 			{
 				connection.end();

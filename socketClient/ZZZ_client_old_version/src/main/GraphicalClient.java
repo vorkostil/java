@@ -201,8 +201,11 @@ public class GraphicalClient extends JFrame implements ConnectionObserver
 			}
 			
 			// close the games
-			gameManager.closeAllGames();
-			gameManager = null;
+			if ( gameManager != null )
+			{
+				gameManager.closeAllGames();
+				gameManager = null;
+			}
 			
 			// close the connection
 			connectionClient.closeConnection();

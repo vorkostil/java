@@ -33,33 +33,40 @@ public class ClientConnectionManager implements Runnable, ConnectionServer  {
 		this.maxClient = maxClient;
 	}
 	
-	public void run() {
-
-        try {
-        	while ( true ){
+	public void run() 
+	{
+        try 
+        {
+        	while ( true )
+        	{
         		if ( currentClientSize < maxClient)
         		{
         			// there is enough room in the pool, accept whatever
 					Socket socket = socketserver.accept(); // Un client se connecte on l'accepte
+					
 					currentClientSize++;
-					System.out.println("Le client id " + currentIdClient + " est connecté !");
-					ClientConnection client = new ClientConnection( socket, currentIdClient, this );
-					Thread t = new Thread( client );
+					System.out.println( "Client '" + currentIdClient + "' is now connected");
+					
+					// create the  Client connection
+					ClientConnection client = new ClientConnection( socket, 
+																	currentIdClient, 
+																	this );
+					
+					
 					System.out.println( "Client " + currentIdClient + " take a space in the pool (" +  currentClientSize + ")" );
 					currentIdClient++;
 					clients.add( client );
+					
+					// and launch the client connection listening
+					Thread t = new Thread( client );
 					t.start();
-        		}
-        		else
-        		{
-        			
         		}
         		Thread.sleep( 10 );
         	}
         
-        } catch (IOException e) {
-			e.printStackTrace();
-        } catch (InterruptedException e) {
+        } 
+        catch (IOException | InterruptedException e) 
+        {
 			e.printStackTrace();
 		}
 	}
@@ -109,7 +116,7 @@ public class ClientConnectionManager implements Runnable, ConnectionServer  {
 		{
 			if ( client.getLogin().compareTo( name ) == 0 )
 			{
-				client.forwardMessage ( command );
+				client.forwardMessage( command );
 				break;
 			}
 		}

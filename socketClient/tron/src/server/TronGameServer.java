@@ -345,7 +345,6 @@ public class TronGameServer extends AbstractGameServer
 		// send the end game signal
 		if ( winner.length() > 0 )
 		{
-			System.out.println( "Game " + id + " end, winner is " + winner );
 			sendGameEndMessage(winner);
 		}
 	}

@@ -3,7 +3,6 @@ package client;
 import game.AbstractGameClientFrame;
 import graphic.GraphicalEnvironment;
 import graphic.GraphicalEnvironment.ImageLevel;
-import graphic.listener.ClosingGameMessageListener;
 import helper.DataRepository.DataInformation;
 
 import java.awt.BorderLayout;
@@ -16,7 +15,6 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import network.client.ConnectionClient;
 import client.displayer.TronMainDisplayer;
 import client.displayer.TronMiniMapDisplayer;
 import client.displayer.TronPlayerPanelDisplayer;
@@ -170,13 +168,6 @@ public class TronGameClient extends AbstractGameClientFrame
 		gamePanel.setStartSoon();
 	}
 
-	@Override
-	public void setConnectionClient( ConnectionClient connectionClient )
-	{
-		super.setConnectionClient(connectionClient);
-		this.addWindowListener( new ClosingGameMessageListener( this ) );
-	}
-	
 	@Override
 	public void addPlayer(String playerName) 
 	{

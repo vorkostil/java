@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.SocketException;
 
+import network.NetworkHelper;
+
 public abstract class AbstractSocketListenerClientSide implements Runnable 
 {
 
@@ -27,12 +29,11 @@ public abstract class AbstractSocketListenerClientSide implements Runnable
 		// listen on the socket
 		try 
 		{
-			String line = null;
-			line = reader.readLine();
+			String line = NetworkHelper.fullRead( reader );
 			while ( line != null )
 			{
 				lineReceived( line );
-				line = reader.readLine();
+				line = NetworkHelper.fullRead( reader );
 			} 
 		} 
 		catch (SocketException e )

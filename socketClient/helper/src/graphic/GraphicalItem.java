@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 
 /* Abstract class for item animated or not which need to be displayed on the layer of a graphical environment
@@ -65,7 +64,7 @@ public abstract class GraphicalItem
 	 * */
 	public GraphicalItem( DataInformation dataInformation, 
 						  MediaTracker mediaTracker,
-						  int levelId ) throws IOException 
+						  int levelId ) 
 	{
 		if ( dataInformation == null )
 		{
@@ -103,9 +102,9 @@ public abstract class GraphicalItem
 									images_.get( state ).add( image );
 								}
 							}
-							catch (IIOException e)
+							catch (IOException e)
 							{
-								System.out.println("Uanble to read the image '" + dataInformation.getStringValue( FRAME_PATH_GETTER( state, i ) ) + "': " + e.getMessage() );
+								System.err.println("Uanble to read the image '" + dataInformation.getStringValue( FRAME_PATH_GETTER( state, i ) ) + "': " + e.getMessage() );
 								hasImage = false;
 							}
 						}
@@ -137,9 +136,9 @@ public abstract class GraphicalItem
 								images_.get(state).add(image);
 							}
 						}
-						catch (IIOException e)
+						catch (IOException e)
 						{
-							System.out.println("Uanble to read the image '" + dataInformation.getStringValue( IMAGE_PATH_GETTER( state ) ) + "': " + e.getMessage() );
+							System.err.println("Uanble to read the image '" + dataInformation.getStringValue( IMAGE_PATH_GETTER( state ) ) + "': " + e.getMessage() );
 							hasImage = false;
 						}
 					}
@@ -163,10 +162,10 @@ public abstract class GraphicalItem
 						images_.get( DEFAULT_STATE ).add( image );
 					}
 				}
-				catch (IIOException e)
+				catch (IOException e)
 				{
 					hasImage = false;
-					System.out.println("Uanble to read the image '" + dataInformation.getStringValue( IMAGE_PATH ) + "': " + e.getMessage() );
+					System.err.println("Uanble to read the image '" + dataInformation.getStringValue( IMAGE_PATH ) + "': " + e.getMessage() );
 				}
 			}
 		}

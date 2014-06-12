@@ -73,8 +73,6 @@ public class ChessGameServer extends AbstractGameServer
 	{
 		super( gameId, connectionManager );
 		
-		System.out.println( "create new chess game, white is " + playerWhiteName + " - black is " + playerBlackName );
-		
 		// create environment
 		addPlayer( playerBlack = playerBlackName );
 		addPlayer( playerWhite = playerWhiteName );
@@ -184,7 +182,6 @@ public class ChessGameServer extends AbstractGameServer
 			
 			if ( winner != null )
 			{
-				System.out.println( "Game " + id + " end, winner is " + winner );
 				forwardMessageToAllPlayer( MessageType.MessageSystem + " " + MessageType.MessageGameEnd + " " + id + " " + winner );
 				connectionServer.closeGame( id );
 			}

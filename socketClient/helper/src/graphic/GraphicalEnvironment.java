@@ -74,7 +74,7 @@ public abstract class GraphicalEnvironment extends JPanel
 				 } 
 				 catch ( Exception e ) 
 				 {
-					 System.out.println("Exception catch in the rendering thread of GraphicalEnvironment: " + e);
+					 System.err.println("Exception catch in the rendering thread of GraphicalEnvironment: " + e);
 				 } 
 			 }
 		 }
@@ -108,7 +108,6 @@ public abstract class GraphicalEnvironment extends JPanel
 		try 
 		{
 			File imageFile = new File( backgroundFileName );
-			System.out.println(imageFile.getAbsolutePath());
 			backgroundImage = ImageIO.read( imageFile );
 			if ( backgroundImage != null )
 			{
@@ -122,14 +121,10 @@ public abstract class GraphicalEnvironment extends JPanel
 			// and start the rendering thread
 			renderingThread.start();
 		} 
-		catch (IOException e) 
+		catch (IOException | InterruptedException e) 
 		{
-			System.out.println( "Could not find the image: " + backgroundFileName );
+			System.err.println( "Could not find the image: " + backgroundFileName + "> " + e.getMessage() );
 		} 
-		catch (InterruptedException e) 
-		{
-			e.printStackTrace();
-		}
 	}
 
 	public void addDisplayer(String name, AbstractDisplayer displayer) 

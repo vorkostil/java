@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import network.NetworkHelper;
+
 import common.MessageType;
 
 public class ClientToServerLoginConnection implements Runnable 
@@ -34,23 +36,23 @@ public class ClientToServerLoginConnection implements Runnable
 			writer.flush();
 			
 			// listen on the socket waiting for a login question
-			String line = reader.readLine();
+			String line = NetworkHelper.fullRead( reader );
 			while ( line.compareTo( MessageType.MessageSystem + " " + MessageType.MessageLoginAsked ) != 0 )
 			{
-				line = reader.readLine();
+				line = NetworkHelper.fullRead( reader );
 			}
 			
 			connectionClient.changeCurrentState( ConnectionClient.State.DURING_LOGIN );
 
-			writer.print( connectionInfo.getLogin() + "|" + connectionInfo.getPasswd() );
+			writer.print( connectionInfo.getLogin() + ":" + connectionInfo.getPasswd() );
 			writer.flush();
 			
 			// waiting for server answer
-			line = reader.readLine();
+			line = NetworkHelper.fullRead( reader );
 			while (  ( line.compareTo( MessageType.MessageSystem + " " + MessageType.MessageLoginAccepted ) != 0 )
 				   &&( line.compareTo( MessageType.MessageSystem + " " + MessageType.MessageLoginRefused ) != 0 )  )
 			{
-				line = reader.readLine();
+				line = NetworkHelper.fullRead( reader );
 			}
 			
 			if ( line.compareTo( MessageType.MessageSystem + " " + MessageType.MessageLoginAccepted ) == 0 )

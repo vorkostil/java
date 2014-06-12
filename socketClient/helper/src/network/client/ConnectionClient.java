@@ -121,8 +121,7 @@ public class ConnectionClient
 		if ( writer != null )
 		{
 			// send the close message
-			writer.println( MessageType.MessageSystem + " " + MessageType.MessageClose );
-			writer.flush();
+			sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageClose );
 			
 			// reset the parameters
 			socket = null;
@@ -155,7 +154,8 @@ public class ConnectionClient
 		if (  ( writer != null )
 			&&( currentState == State.CONNECTED )  )
 		{
-			writer.println( message );
+			// just send the line, not the carriage return
+			writer.print( message );
 			writer.flush();
 			
 			return true;

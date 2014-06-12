@@ -2,6 +2,8 @@ package graphic.model;
 
 import helper.DataRepository.DataInformation;
 
+import java.util.List;
+
 public abstract class AbstractStateButtonModel  extends AbstractButtonModel
 {
 	public static final String UP = "UP"; 
@@ -10,6 +12,7 @@ public abstract class AbstractStateButtonModel  extends AbstractButtonModel
 	public static final String ON_DOWN = "ON_DOWN";
 	
 	protected boolean isUp = true;
+	private List< AbstractStateButtonModel > buttons = null;
 	
 	public AbstractStateButtonModel(DataInformation data) 
 	{
@@ -79,5 +82,25 @@ public abstract class AbstractStateButtonModel  extends AbstractButtonModel
 		
 		// change the internal state
 		isUp = !isUp;
+		
+		// and reset the upStatus of the other button
+		if (  ( isUp == false )
+			&&( buttons != null )  )
+		{
+			for ( AbstractStateButtonModel model : buttons )
+			{
+				if ( model != this )
+				{
+					model.isUp = true;
+					model.changeState( AbstractStateButtonModel.UP );
+				}
+			}
+		}
 	}
+	
+	public void setButtonList( List< AbstractStateButtonModel > buttons ) 
+	{
+		this.buttons = buttons;
+	}
+	
 }

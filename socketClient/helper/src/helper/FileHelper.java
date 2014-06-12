@@ -40,9 +40,10 @@ public class FileHelper
 			in.close();
 		} 
 		catch (Exception e) 
-		{// Catch exception if any
-			System.err.println( "Error: " + e.getMessage() );
-			return null;
+		{
+			// Catch exception if any
+			System.err.println( "Error while reading file '" + fileName + "' > "+ e.getMessage() );
+			strs = null;
 		}
 		return strs;
 	}
