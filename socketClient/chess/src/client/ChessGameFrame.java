@@ -21,6 +21,7 @@ import client.model.CellModel;
 import client.model.ChessPieceModel;
 import client.panel.ChessMainPanel;
 
+import common.ChessCommonInformation;
 import common.MessageType;
 
 import displayer.AbstractDisplayer;
@@ -30,7 +31,6 @@ public class ChessGameFrame extends AbstractGameClientFrame
 {
 	private static final String WHITE = "white";
 	private static final String BLACK = "black";
-	private static final String CHESS_CONFIG_PATH = "../chess/resources/config/chess.cfg";
 	private static final String[] strKind = { "peon", "tower", "horse", "bishop", "queen", "king" };
 
 	private ChessMainPanel gamePanel = null;
@@ -52,7 +52,7 @@ public class ChessGameFrame extends AbstractGameClientFrame
 	
 	public ChessGameFrame() throws IOException 
 	{
-		super( CHESS_CONFIG_PATH );
+		super( ChessCommonInformation.CHESS_CONFIG_PATH );
 		
 		// characteristics of the frame
 		this.setTitle( "Chess" );

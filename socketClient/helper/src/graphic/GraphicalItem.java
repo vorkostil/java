@@ -241,7 +241,7 @@ public abstract class GraphicalItem
 		currentTime_ = 0;
 	}
 	
-	public Image getImage() 
+	public synchronized Image getImage() 
 	{
 		if ( hasImage == true ) 
 		{

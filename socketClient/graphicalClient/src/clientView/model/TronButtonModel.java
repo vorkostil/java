@@ -2,8 +2,9 @@ package clientView.model;
 
 import graphic.model.AbstractButtonModel;
 import helper.DataRepository.DataInformation;
-import server.TronGameServer;
 import clientView.GraphicalClientFrame;
+
+import common.TronCommonInformation;
 
 public class TronButtonModel extends AbstractButtonModel {
 
@@ -19,11 +20,11 @@ public class TronButtonModel extends AbstractButtonModel {
 	@Override
 	public void callAction() 
 	{
-		String opponent = gClient.displayOpponentChoiceDialog( TronGameServer.NAME, false );
+		String opponent = gClient.displayOpponentChoiceDialog( TronCommonInformation.GAME_NAME, false );
 		if ( opponent != null )
 		{
 			gClient.askForGameTo( opponent, 
-								  TronGameServer.NAME );
+								  TronCommonInformation.GAME_NAME );
 		}
 	}
 }

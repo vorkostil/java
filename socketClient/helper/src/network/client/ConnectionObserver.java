@@ -29,4 +29,7 @@ public interface ConnectionObserver {
 
 	// the game manager require a game given its name through the connection client components
 	abstract AbstractGameClientFrame requireGame(String gameName) throws IOException;
+
+	// the callback for login acceptation, use to register on the BBServer
+	abstract void onLoginAccepted();
 }

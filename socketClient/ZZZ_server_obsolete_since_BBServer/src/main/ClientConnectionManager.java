@@ -13,7 +13,9 @@ import network.ConnectionServer;
 import server.ChessGameServer;
 import server.TronGameServer;
 
+import common.ChessCommonInformation;
 import common.MessageType;
+import common.TronCommonInformation;
 
 public class ClientConnectionManager implements Runnable, ConnectionServer  {
 
@@ -127,11 +129,11 @@ public class ClientConnectionManager implements Runnable, ConnectionServer  {
 		String gameId = gameKind + "_" + player + "_" + login;
 		if ( games.containsKey( gameId ) == false )
 		{
-			if ( gameKind.compareTo( TronGameServer.NAME ) == 0 )
+			if ( gameKind.compareTo( TronCommonInformation.GAME_NAME ) == 0 )
 			{
 				games.put( gameId, new TronGameServer( player, login, gameId, this ) );
 			}
-			else if ( gameKind.compareTo( ChessGameServer.NAME ) == 0 )
+			else if ( gameKind.compareTo( ChessCommonInformation.GAME_NAME ) == 0 )
 			{
 				games.put( gameId, new ChessGameServer( player, login, gameId, this ) );
 			}

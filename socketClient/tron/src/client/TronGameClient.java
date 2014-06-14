@@ -23,6 +23,7 @@ import client.model.TronPlayerModel;
 import client.panel.TronMainPanel;
 
 import common.MessageType;
+import common.TronCommonInformation;
 
 import displayer.AbstractDisplayer;
 
@@ -36,21 +37,6 @@ import displayer.AbstractDisplayer;
 @SuppressWarnings("serial")
 public class TronGameClient extends AbstractGameClientFrame 
 {
-	private static final String TRON_CONFIG_PATH = "../tron/resources/config/tron.cfg";
-	
-	private static final String BLUE_PLAYER_CONFIGURATION = "blue_player_configuration";
-	private static final String RED_PLAYER_CONFIGURATION = "red_player_configuration";
-	private static final String START_X = "start_x";
-	private static final String START_Y = "start_y";
-	private static final String START_DIR = "start_direction";
-
-	private static final String GAME_CONFIGURATION = "tron_configuration";
-	private static final String GRID_SIZE = "grid_size";
-	public static final String LEFT_VALUE = "left_direction_value";
-	public static final String RIGHT_VALUE = "right_direction_value";
-	public static final String UP_VALUE = "up_direction_value";
-	public static final String DOWN_VALUE = "down_direction_value";
-	
 	private TronMainPanel gamePanel = null;
 
 	private TronPlayerModel bluePlayerModel = null;
@@ -96,7 +82,7 @@ public class TronGameClient extends AbstractGameClientFrame
 	
 	public TronGameClient() throws IOException 
 	{
-		super( TRON_CONFIG_PATH );
+		super( TronCommonInformation.TRON_CONFIG_PATH );
 		
 		// characteristics of the frame
 		this.setTitle( "Tron");
@@ -107,14 +93,14 @@ public class TronGameClient extends AbstractGameClientFrame
 	
 
 		// get the game and player information
-		DataInformation gameInformation = repository.getData( GAME_CONFIGURATION );
+		DataInformation gameInformation = repository.getData( TronCommonInformation.GAME_CONFIGURATION );
 		
 		// store information about the game
-		gridSize = gameInformation.getIntegerValue( GRID_SIZE );
-		leftDirection = gameInformation.getIntegerValue( LEFT_VALUE );
-		rightDirection = gameInformation.getIntegerValue( RIGHT_VALUE );
-		upDirection = gameInformation.getIntegerValue( UP_VALUE );
-		downDirection = gameInformation.getIntegerValue( DOWN_VALUE );
+		gridSize = gameInformation.getIntegerValue( TronCommonInformation.GRID_SIZE );
+		leftDirection = gameInformation.getIntegerValue( TronCommonInformation.LEFT_VALUE );
+		rightDirection = gameInformation.getIntegerValue( TronCommonInformation.RIGHT_VALUE );
+		upDirection = gameInformation.getIntegerValue( TronCommonInformation.UP_VALUE );
+		downDirection = gameInformation.getIntegerValue( TronCommonInformation.DOWN_VALUE );
 		
 		// create the player's model 
 		bluePlayerModel = null;
@@ -175,12 +161,12 @@ public class TronGameClient extends AbstractGameClientFrame
 		{
 			try 
 			{
-				DataInformation bluePlayerInformation = repository.getData( BLUE_PLAYER_CONFIGURATION );
+				DataInformation bluePlayerInformation = repository.getData( TronCommonInformation.BLUE_PLAYER_CONFIGURATION );
 				bluePlayerModel = new TronPlayerModel( this,
 													   playerName,
-													   bluePlayerInformation.getIntegerValue( START_X ), 
-													   bluePlayerInformation.getIntegerValue( START_Y ),
-													   bluePlayerInformation.getIntegerValue( START_DIR ) );
+													   bluePlayerInformation.getIntegerValue( TronCommonInformation.START_X ), 
+													   bluePlayerInformation.getIntegerValue( TronCommonInformation.START_Y ),
+													   bluePlayerInformation.getIntegerValue( TronCommonInformation.START_DIR ) );
 				TronPlayerItem blueItem = new TronPlayerItem( bluePlayerModel, 
 															  bluePlayerInformation, 
 															  tracker, 
@@ -223,12 +209,12 @@ public class TronGameClient extends AbstractGameClientFrame
 		{
 			try 
 			{
-				DataInformation redPlayerInformation = repository.getData( RED_PLAYER_CONFIGURATION );
+				DataInformation redPlayerInformation = repository.getData( TronCommonInformation.RED_PLAYER_CONFIGURATION );
 				redPlayerModel = new TronPlayerModel( this,
 													  playerName,
-												   	  redPlayerInformation.getIntegerValue( START_X ), 
-												   	  redPlayerInformation.getIntegerValue( START_Y ),
-												   	  redPlayerInformation.getIntegerValue( START_DIR ) );
+												   	  redPlayerInformation.getIntegerValue( TronCommonInformation.START_X ), 
+												   	  redPlayerInformation.getIntegerValue( TronCommonInformation.START_Y ),
+												   	  redPlayerInformation.getIntegerValue( TronCommonInformation.START_DIR ) );
 				TronPlayerItem redItem = new TronPlayerItem( redPlayerModel, 
 															 redPlayerInformation, 
 															 tracker, 

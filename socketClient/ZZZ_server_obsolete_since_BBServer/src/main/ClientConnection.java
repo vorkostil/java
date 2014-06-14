@@ -41,7 +41,7 @@ class ClientConnection implements Runnable {
 	public void end() throws IOException 
 	{
 		NetworkHelper.writeOnSocket( writer, 
-									 MessageType.MessageSystem + " " + MessageType.MessageClose );
+									 MessageType.MessageSystemClose );
 		
 		System.out.println( "Client " + numClient + " end the connection.");
 		
@@ -70,7 +70,7 @@ class ClientConnection implements Runnable {
 		try {
 			// wait for the init message
 			String line = NetworkHelper.readOnSocket( reader );
-			while ( line.compareTo( MessageType.MessageInit ) != 0 )
+			while ( line.compareTo( MessageType.MessageSystemInit ) != 0 )
 			{
 				line = NetworkHelper.readOnSocket( reader );;
 			}

@@ -33,11 +33,11 @@ public class ClientToServerLoginConnection implements Runnable
 			
 			// send the init message to ask the login protocol to the server
 			NetworkHelper.writeOnSocket( writer, 
-										 MessageType.MessageInit );
+										 MessageType.MessageSystemInit );
 			
 			// listen on the socket waiting for a login question
 			String line = NetworkHelper.readOnSocket( reader );
-			while ( line.compareTo( MessageType.MessageSystem + " " + MessageType.MessageLoginAsked ) != 0 )
+			while ( line.compareTo( MessageType.MessageSystemLoginAsked ) != 0 )
 			{
 				line = NetworkHelper.readOnSocket( reader );
 			}
@@ -49,13 +49,13 @@ public class ClientToServerLoginConnection implements Runnable
 			
 			// waiting for server answer
 			line = NetworkHelper.readOnSocket( reader );
-			while (  ( line.compareTo( MessageType.MessageSystem + " " + MessageType.MessageLoginAccepted ) != 0 )
-				   &&( line.compareTo( MessageType.MessageSystem + " " + MessageType.MessageLoginRefused ) != 0 )  )
+			while (  ( line.compareTo( MessageType.MessageSystemLoginAccepted ) != 0 )
+				   &&( line.compareTo( MessageType.MessageSystemLoginRefused ) != 0 )  )
 			{
 				line = NetworkHelper.readOnSocket( reader );
 			}
 			
-			if ( line.compareTo( MessageType.MessageSystem + " " + MessageType.MessageLoginAccepted ) == 0 )
+			if ( line.compareTo( MessageType.MessageSystemLoginAccepted ) == 0 )
 			{
 				connectionClient.changeCurrentState( ConnectionClient.State.CONNECTED );
 				connectionClient.setLogin( connectionInfo.getLogin() );

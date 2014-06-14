@@ -9,11 +9,10 @@ import java.awt.event.MouseListener;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import server.ChessGameServer;
-import server.TronGameServer;
-
-
 import main.GraphicalClient;
+
+import common.ChessCommonInformation;
+import common.TronCommonInformation;
 
 public class ClientNameMouseListener implements MouseListener 
 {
@@ -40,15 +39,20 @@ public class ClientNameMouseListener implements MouseListener
 		
 		tron.addActionListener( new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				gClient.askForGameTo( name, TronGameServer.NAME );
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				gClient.askForGameTo( name, 
+								      TronCommonInformation.GAME_NAME );
 			}
 		});
 		
-		chess.addActionListener( new ActionListener() {
+		chess.addActionListener( new ActionListener() 
+		{
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				gClient.askForGameTo( name, ChessGameServer.NAME );
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				gClient.askForGameTo( name, 
+									  ChessCommonInformation.GAME_NAME );
 			}
 		});
 		

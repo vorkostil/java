@@ -1,9 +1,7 @@
 package common;
 
 public class MessageType {
-	public static final String MessageInit = "INIT";
-	public static final String MessageSystem = "SYSTEM";
-	
+
 	public static final String MessageClose = "CLOSE";
 	public static final String MessageOpen = "OPEN";
 	public static final String MessageReady = "READY";
@@ -64,4 +62,16 @@ public class MessageType {
 	public static final String MessageGamePlayerMovePiece = MessageGame + " " + MessagePlayerMovePiece;
 
 	public static final String MessageGameSoloGameOpponent = "SOLO_OPPONENT";
+	
+	// new message for interaction with BackBoneServer
+	public static final String MessageSystem = "SYSTEM";
+	public static final String MessageSystemInit = MessageSystem + "_INIT_CONNECTION";
+	public static final String MessageSystemClose = MessageSystem + "_CLOSE_CONNECTION";
+	
+	public static final String MessageSystemLoginAccepted = MessageSystem + "_" + MessageLoginAccepted;
+	public static final String MessageSystemLoginRefused = MessageSystem + "_" + MessageLoginRefused;
+	public static final String MessageSystemLoginAsked = MessageSystem + "_" + MessageLoginAsked;
+	public static final String MessageSystemRegister = MessageSystem + "_" + "REGISTER";
+	public static final String RegistrationAsConsumer = "CONSUMER";
+	public static final String RegistrationAsProvider = "PROVIDER";
 }

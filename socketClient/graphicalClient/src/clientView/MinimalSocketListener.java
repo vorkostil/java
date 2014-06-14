@@ -19,31 +19,19 @@ public class MinimalSocketListener extends AbstractSocketListenerClientSide {
 	@Override
 	protected void lineReceived(String line) 
 	{
-		String[] splitted = line.split( " " );
+		// split between command and remaining message
+		String[] splitted = line.split( " ", 2 );
+		String command = splitted[ 0 ];
 		
-		// manage system message
-		if (  ( splitted.length > 1 )
-			&&( splitted[0].compareTo( MessageType.MessageSystem ) == 0 )  )
+		// close message
+		if ( command.compareTo( MessageType.MessageSystemClose ) == 0 )
 		{
-			// close message
-			if (  ( splitted.length == 2 )
-				&&( splitted[1].compareTo( MessageType.MessageClose ) == 0 )  )
-			{
-				connectionClient.closeConnection();
-			}
-			// manage the contact list modification
-			else if (  ( splitted.length == 3 )
-					&&( splitted[1].compareTo( MessageType.MessageContactListSnapshot ) == 0 )  )
-			{
-				connectionClient.clientListChange( splitted[2].split( "µ" ) );
-			}
-			// game communication
-			// formalism MESSAGE_SYSTEM GAME gameID <ACTION> <parameters> 
-			else if (  ( splitted.length > 3 )
-					 &&( splitted[1].compareTo( MessageType.MessageGame ) == 0 )  )
-			{
-				connectionClient.forwardGameMessage( splitted );
-			}
+			connectionClient.closeConnection();
+		}
+		// game message
+		else if ( command.compareTo( MessageType.MessageGame ) == 0 )
+		{
+			connectionClient.forwardGameMessage( splitted );
 		}
 	}
 }

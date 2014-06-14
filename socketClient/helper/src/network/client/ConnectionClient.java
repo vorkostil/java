@@ -123,17 +123,20 @@ public class ConnectionClient
 		if ( writer != null )
 		{
 			// send the close message
-			sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageClose );
+			sendMessageIfConnected( MessageType.MessageSystemClose );
 			
 			// reset the parameters
 			socket = null;
 			writer = null;
 		}
+		
+		changeCurrentState( State.WAITING_FOR_SERVER );
 	}
 	
 	public void setLogin(String login) 
 	{
 		this.login = login;
+		this.observer.onLoginAccepted();
 	}
 
 	public void forwardInfo(String message) 

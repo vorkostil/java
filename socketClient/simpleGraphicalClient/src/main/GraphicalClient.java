@@ -36,8 +36,11 @@ import network.client.ConnectionObserver;
 import client.ChessGameFrame;
 import client.TronGameClient;
 
+import common.ChatCommonInformation;
+import common.ChessCommonInformation;
 import common.ConnectionDialog;
 import common.MessageType;
+import common.TronCommonInformation;
 
 import frame.PeerToPeerCommunicationFrame;
 import game.AbstractGameClientFrame;
@@ -46,9 +49,6 @@ import game.GameManager;
 @SuppressWarnings("serial")
 public class GraphicalClient extends JFrame implements ConnectionObserver
 {
-	private static final String TRON_GAME_NAME = "Tron";
-	private static final String CHESS_GAME_NAME = "Chess";
-	
 	public static final Font errorFont = new Font( "Default", Font.BOLD, 12);
 	public static final Font normalFont = new Font( "Default", Font.PLAIN, 12);
 	public static final Font serverFont = new Font( "Default", Font.ITALIC, 12);
@@ -351,14 +351,24 @@ public class GraphicalClient extends JFrame implements ConnectionObserver
 	@Override
 	public AbstractGameClientFrame requireGame(String gameName) throws IOException 
 	{
-		if ( gameName.compareTo( TRON_GAME_NAME ) == 0 )
+		if ( gameName.compareTo( TronCommonInformation.GAME_NAME ) == 0 )
 		{
 			return new TronGameClient();
 		}
-		else if ( gameName.compareTo( CHESS_GAME_NAME ) == 0 )
+		else if ( gameName.compareTo( ChessCommonInformation.GAME_NAME ) == 0 )
 		{
 			return new ChessGameFrame();
 		}
 		return null;
+	}
+
+	@Override
+	public void onLoginAccepted() 
+	{
+		// send the registration
+		connectionClient.sendMessageIfConnected( MessageType.MessageSystemRegister + " " + MessageType.RegistrationAsConsumer + " " + 
+											     ChatCommonInformation.GAME_NAME + " " + 
+											     TronCommonInformation.GAME_NAME + " " +
+											     ChessCommonInformation.GAME_NAME );
 	}
 }

@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 import network.ConnectionServer;
 
 import common.MessageType;
+import common.TronCommonInformation;
 
 /*
  * 	Server part: Mfonctionel + C
@@ -26,21 +27,6 @@ import common.MessageType;
  */
 public class TronGameServer extends AbstractGameServer
 {
-	public static final String NAME = "Tron";
-	private static final String TRON_CONFIG_PATH = "../tron/resources/config/tron.cfg";
-	private static final String BLUE_PLAYER_CONFIGURATION = "blue_player_configuration";
-	private static final String RED_PLAYER_CONFIGURATION = "red_player_configuration";
-	private static final String START_X = "start_x";
-	private static final String START_Y = "start_y";
-	private static final String START_DIR = "start_direction";
-
-	private static final String GAME_CONFIGURATION = "tron_configuration";
-	private static final String GRID_SIZE = "grid_size";
-	public static final String LEFT_VALUE = "left_direction_value";
-	public static final String RIGHT_VALUE = "right_direction_value";
-	public static final String UP_VALUE = "up_direction_value";
-	public static final String DOWN_VALUE = "down_direction_value";
-	
 	// number of cell each second
 	private static double speed = 1.5;
 	private static int tempo = 25; 
@@ -106,29 +92,29 @@ public class TronGameServer extends AbstractGameServer
 
 		// get the repository
 		DataRepository repository = new DataRepository();
-		repository.addFromFile( TRON_CONFIG_PATH );
+		repository.addFromFile( TronCommonInformation.TRON_CONFIG_PATH );
 		
 		// get the game and player shared information
-		DataInformation gameInformation = repository.getData( GAME_CONFIGURATION );
-		DataInformation bluePlayerInformation = repository.getData( BLUE_PLAYER_CONFIGURATION );
-		DataInformation redPlayerInformation = repository.getData( RED_PLAYER_CONFIGURATION );
+		DataInformation gameInformation = repository.getData( TronCommonInformation.GAME_CONFIGURATION );
+		DataInformation bluePlayerInformation = repository.getData( TronCommonInformation.BLUE_PLAYER_CONFIGURATION );
+		DataInformation redPlayerInformation = repository.getData( TronCommonInformation.RED_PLAYER_CONFIGURATION );
 
 		// player's information
-		blueX = bluePlayerInformation.getIntegerValue( START_X );
-		blueY = bluePlayerInformation.getIntegerValue( START_Y );
-		redX = redPlayerInformation.getIntegerValue( START_X );
-		redY = redPlayerInformation.getIntegerValue( START_Y );
-		blueDirection = bluePlayerInformation.getIntegerValue( START_DIR );
-		redDirection = redPlayerInformation.getIntegerValue( START_DIR );
+		blueX = bluePlayerInformation.getIntegerValue( TronCommonInformation.START_X );
+		blueY = bluePlayerInformation.getIntegerValue( TronCommonInformation.START_Y );
+		redX = redPlayerInformation.getIntegerValue( TronCommonInformation.START_X );
+		redY = redPlayerInformation.getIntegerValue( TronCommonInformation.START_Y );
+		blueDirection = bluePlayerInformation.getIntegerValue( TronCommonInformation.START_DIR );
+		redDirection = redPlayerInformation.getIntegerValue( TronCommonInformation.START_DIR );
 		blueTargetDirection = blueDirection;
 		redTargetDirection = redDirection;
 
 		// game's information
-		gridSize = gameInformation.getIntegerValue( GRID_SIZE );
-		leftDirection = gameInformation.getIntegerValue( LEFT_VALUE );
-		rightDirection = gameInformation.getIntegerValue( RIGHT_VALUE );
-		upDirection = gameInformation.getIntegerValue( UP_VALUE );
-		downDirection = gameInformation.getIntegerValue( DOWN_VALUE );
+		gridSize = gameInformation.getIntegerValue( TronCommonInformation.GRID_SIZE );
+		leftDirection = gameInformation.getIntegerValue( TronCommonInformation.LEFT_VALUE );
+		rightDirection = gameInformation.getIntegerValue( TronCommonInformation.RIGHT_VALUE );
+		upDirection = gameInformation.getIntegerValue( TronCommonInformation.UP_VALUE );
+		downDirection = gameInformation.getIntegerValue( TronCommonInformation.DOWN_VALUE );
 		
 		// create the player
 		addPlayer( bluePlayer = player1 );
@@ -433,6 +419,6 @@ public class TronGameServer extends AbstractGameServer
 	@Override
 	protected String getName() 
 	{
-		return NAME;
+		return TronCommonInformation.GAME_NAME;
 	}
 }

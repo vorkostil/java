@@ -4,6 +4,8 @@ import graphic.model.AbstractButtonModel;
 import helper.DataRepository.DataInformation;
 import clientView.GraphicalClientFrame;
 
+import common.GraphCommonInformation;
+
 public class GraphButtonModel extends AbstractButtonModel {
 
 	GraphicalClientFrame gClient;
@@ -18,6 +20,6 @@ public class GraphButtonModel extends AbstractButtonModel {
 	@Override
 	public void callAction() 
 	{
-		gClient.askForSoloGame( GraphicalClientFrame.GRAPH_GAME_NAME );
+		gClient.askForSoloGame( GraphCommonInformation.GAME_NAME );
 	}
 }

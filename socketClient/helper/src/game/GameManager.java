@@ -24,6 +24,7 @@ public class GameManager
 		for ( AbstractGameClientFrame game : games.values() )
 		{
 			connectionClient.forwardInfo( "Game close with id: " + game.getId() );
+			game.closeGame();
 			game.dispose();
 			games.remove( game.getId() );
 		}

@@ -3,7 +3,7 @@ package main;
 import java.io.IOException;
 import java.net.UnknownHostException;
 
-public class MainClient {
+public class SimpleGraphicalClientMain {
 		
 	public static void main(String[] args) throws InterruptedException, UnknownHostException, IOException 
 	{

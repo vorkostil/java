@@ -35,7 +35,11 @@ import clientView.model.QuitButtonModel;
 import clientView.model.TronButtonModel;
 import clientView.panel.MainView;
 
+import common.ChatCommonInformation;
+import common.ChessCommonInformation;
+import common.GraphCommonInformation;
 import common.MessageType;
+import common.TronCommonInformation;
 
 import displayer.AbstractDisplayer;
 
@@ -43,11 +47,6 @@ import displayer.AbstractDisplayer;
 public class GraphicalClientFrame extends JFrame implements ConnectionObserver
 {
 	// the constant
-	
-	// game's name
-	private static final String TRON_GAME_NAME = "Tron";
-	private static final String CHESS_GAME_NAME = "Chess";
-	public static final String GRAPH_GAME_NAME = "Graph";
 	
 	// configuration
 	private static final String CONFIG_PATH = "resources/config/gClient.cfg";
@@ -195,14 +194,18 @@ public class GraphicalClientFrame extends JFrame implements ConnectionObserver
 
 	public void closeConnection() 
 	{
-		if ( connectionClient != null )
+		if ( gameManager != null )
 		{
 			// remove the gameManager
 			gameManager.closeAllGames();
 			gameManager = null;
-			
+		}
+		
+		if ( connectionClient != null )
+		{
 			// close the connection
 			connectionClient.closeConnection();
+			connectionClient = null;
 		}
 	}
 	
@@ -316,15 +319,15 @@ public class GraphicalClientFrame extends JFrame implements ConnectionObserver
 	@Override
 	public AbstractGameClientFrame requireGame(String gameName) throws IOException 
 	{
-		if ( gameName.compareTo( TRON_GAME_NAME ) == 0 )
+		if ( gameName.compareTo( TronCommonInformation.GAME_NAME ) == 0 )
 		{
 			return new TronGameClient();
 		}
-		else if ( gameName.compareTo( CHESS_GAME_NAME ) == 0 )
+		else if ( gameName.compareTo( ChessCommonInformation.GAME_NAME ) == 0 )
 		{
 			return new ChessGameFrame();
 		}
-		else if ( gameName.compareTo( GRAPH_GAME_NAME ) == 0 )
+		else if ( gameName.compareTo( GraphCommonInformation.GAME_NAME ) == 0 )
 		{
 			return new GraphDisplayGameFrame();
 		}
@@ -334,5 +337,16 @@ public class GraphicalClientFrame extends JFrame implements ConnectionObserver
 	public DataRepository getRepository() 
 	{
 		return repository;
+	}
+
+	@Override
+	public void onLoginAccepted() 
+	{
+		// send the registration
+		connectionClient.sendMessageIfConnected( MessageType.MessageSystemRegister + " " + MessageType.RegistrationAsConsumer + " " + 
+											     ChatCommonInformation.GAME_NAME + " " + 
+											     TronCommonInformation.GAME_NAME + " " +
+											     GraphCommonInformation.GAME_NAME + " " +
+											     ChessCommonInformation.GAME_NAME );
 	}
 }

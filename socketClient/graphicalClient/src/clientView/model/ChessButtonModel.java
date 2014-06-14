@@ -2,8 +2,9 @@ package clientView.model;
 
 import graphic.model.AbstractButtonModel;
 import helper.DataRepository.DataInformation;
-import server.ChessGameServer;
 import clientView.GraphicalClientFrame;
+
+import common.ChessCommonInformation;
 
 public class ChessButtonModel extends AbstractButtonModel {
 
@@ -19,11 +20,11 @@ public class ChessButtonModel extends AbstractButtonModel {
 	@Override
 	public void callAction() 
 	{
-		String opponent = gClient.displayOpponentChoiceDialog( ChessGameServer.NAME, false );
+		String opponent = gClient.displayOpponentChoiceDialog( ChessCommonInformation.GAME_NAME, false );
 		if ( opponent != null )
 		{
 			gClient.askForGameTo( opponent, 
-								  ChessGameServer.NAME );
+								  ChessCommonInformation.GAME_NAME );
 		}
 	}
 }
