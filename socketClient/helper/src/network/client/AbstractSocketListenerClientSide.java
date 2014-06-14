@@ -29,11 +29,11 @@ public abstract class AbstractSocketListenerClientSide implements Runnable
 		// listen on the socket
 		try 
 		{
-			String line = NetworkHelper.fullRead( reader );
+			String line = NetworkHelper.readOnSocket( reader );
 			while ( line != null )
 			{
 				lineReceived( line );
-				line = NetworkHelper.fullRead( reader );
+				line = NetworkHelper.readOnSocket( reader );
 			} 
 		} 
 		catch (SocketException e )

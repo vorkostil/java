@@ -10,6 +10,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import network.NetworkHelper;
+
 import common.MessageType;
 
 public class ConnectionClient 
@@ -154,10 +156,8 @@ public class ConnectionClient
 		if (  ( writer != null )
 			&&( currentState == State.CONNECTED )  )
 		{
-			// just send the line, not the carriage return
-			writer.print( message );
-			writer.flush();
-			
+			NetworkHelper.writeOnSocket( writer, 
+										 message );
 			return true;
 		}
 		return false;

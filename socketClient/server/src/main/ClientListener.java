@@ -34,7 +34,7 @@ class ClientListener implements Runnable
 		try 
 		{
 			String command = null;
-			command = NetworkHelper.fullRead( reader );
+			command = NetworkHelper.readOnSocket( reader );
 			while ( command != null )
 			{
 				String[] splitted = command.split( " " );
@@ -114,7 +114,7 @@ class ClientListener implements Runnable
 				{
 					connection.getFather().forwardToClients( clientLogin + "> " + command );
 				}
-				command = NetworkHelper.fullRead( reader );
+				command = NetworkHelper.readOnSocket( reader );
 			}
 			connection.end();
 		} 

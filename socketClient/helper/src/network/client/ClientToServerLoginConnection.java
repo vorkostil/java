@@ -32,27 +32,27 @@ public class ClientToServerLoginConnection implements Runnable
 			BufferedReader reader = new BufferedReader( new InputStreamReader( socket.getInputStream() ) );
 			
 			// send the init message to ask the login protocol to the server
-			writer.print( MessageType.MessageInit );
-			writer.flush();
+			NetworkHelper.writeOnSocket( writer, 
+										 MessageType.MessageInit );
 			
 			// listen on the socket waiting for a login question
-			String line = NetworkHelper.fullRead( reader );
+			String line = NetworkHelper.readOnSocket( reader );
 			while ( line.compareTo( MessageType.MessageSystem + " " + MessageType.MessageLoginAsked ) != 0 )
 			{
-				line = NetworkHelper.fullRead( reader );
+				line = NetworkHelper.readOnSocket( reader );
 			}
 			
 			connectionClient.changeCurrentState( ConnectionClient.State.DURING_LOGIN );
 
-			writer.print( connectionInfo.getLogin() + ":" + connectionInfo.getPasswd() );
-			writer.flush();
+			NetworkHelper.writeOnSocket( writer, 
+										 connectionInfo.getLogin() + ":" + connectionInfo.getPasswd() );
 			
 			// waiting for server answer
-			line = NetworkHelper.fullRead( reader );
+			line = NetworkHelper.readOnSocket( reader );
 			while (  ( line.compareTo( MessageType.MessageSystem + " " + MessageType.MessageLoginAccepted ) != 0 )
 				   &&( line.compareTo( MessageType.MessageSystem + " " + MessageType.MessageLoginRefused ) != 0 )  )
 			{
-				line = NetworkHelper.fullRead( reader );
+				line = NetworkHelper.readOnSocket( reader );
 			}
 			
 			if ( line.compareTo( MessageType.MessageSystem + " " + MessageType.MessageLoginAccepted ) == 0 )
