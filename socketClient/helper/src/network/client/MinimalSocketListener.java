@@ -1,15 +1,15 @@
-package clientView;
+package network.client;
 
 import java.io.IOException;
 import java.net.Socket;
 
 import common.MessageType;
 
-import network.client.AbstractSocketListenerClientSide;
-import network.client.ConnectionClient;
 
-public class MinimalSocketListener extends AbstractSocketListenerClientSide {
-
+public class MinimalSocketListener extends AbstractSocketListenerClientSide 
+{
+	private boolean debug = true;
+	
 	public MinimalSocketListener( Socket socket,
 								  ConnectionClient connectionClient) throws IOException
 	{
@@ -19,6 +19,12 @@ public class MinimalSocketListener extends AbstractSocketListenerClientSide {
 	@Override
 	protected void lineReceived(String line) 
 	{
+		// display it for debug purpose only
+		if ( debug )
+		{
+			connectionClient.forwardInfo( line );
+		}
+		
 		// split between command and remaining message
 		String[] splitted = line.split( " ", 2 );
 		String command = splitted[ 0 ];
@@ -31,7 +37,7 @@ public class MinimalSocketListener extends AbstractSocketListenerClientSide {
 		// game message
 		else if ( command.compareTo( MessageType.MessageGame ) == 0 )
 		{
-			connectionClient.forwardGameMessage( splitted );
+			connectionClient.handleGameMessage( splitted[ 1 ] );
 		}
 	}
 }

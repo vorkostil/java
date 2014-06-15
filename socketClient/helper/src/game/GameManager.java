@@ -19,69 +19,84 @@ public class GameManager
 		this.connectionClient = connectionClient;
 	}
 	
-	public void closeAllGames() 
+	public void closeAllGames() throws InterruptedException 
 	{
 		for ( AbstractGameClientFrame game : games.values() )
 		{
 			connectionClient.forwardInfo( "Game close with id: " + game.getId() );
-			game.closeGame();
-			game.dispose();
-			games.remove( game.getId() );
+			game.disposeView();
 		}
+		games.clear();
 	}
 
-	public void handleGameMessage(String[] messageComponents) 
+	public void handleGameMessage(String message) 
 	{
-		String action = messageComponents[ 2 ];
-		String gameId = messageComponents[ 3 ];
+		String[] splitted = message.split( " ", 2 );
+		String action = splitted[ 0 ];
+		String remain = splitted[ 1 ];
 		
 		if ( action.compareTo( MessageType.MessageClose ) == 0 )
 		{
-			closeGame( gameId, true );
+			String[] information = remain.split( " ", 2 );
+			closeGame( information[ 0 ], information[ 1 ] );
 		}
-		else if ( action.compareTo( MessageType.MessageReady ) == 0 )
+		else if ( action.compareTo( MessageType.MessageGameJoinRefused ) == 0 )
 		{
-			readyGame( gameId, messageComponents[ 4 ] );
+			String[] information = remain.split( " ", 2 );
+			closeGame( information[ 0 ], information[ 1 ] );
 		}
-		else if ( action.compareTo( MessageType.MessageStart ) == 0 )
+		else if ( action.compareTo( MessageType.MessageGameIsRefused ) == 0 )
 		{
-			startGame( gameId );
+			connectionClient.forwardAlert( remain );
 		}
-		else if ( action.compareTo( MessageType.MessageStartSoon ) == 0 )
+		else if ( action.compareTo( MessageType.MessageGameIsAccepted ) == 0 )
 		{
-			startGameSoon( gameId );
+			String[] information = remain.split( " " );
+			openGame( information[ 0 ], information[ 1 ] );
 		}
-		else if ( action.compareTo( MessageType.MessageEnd ) == 0 )
-		{
-			endGame( gameId, messageComponents[ 4 ] );
-		}
-		else if ( action.compareTo( MessageType.MessageOpen ) == 0 )
-		{
-			openGame( gameId, messageComponents[ 4 ], messageComponents[ 5 ], messageComponents[ 6 ] );
-		}
-		else if ( action.compareTo( MessageType.MessageAsked ) == 0 )
-		{
-			// in fact, gameId is the name of the asker and the fourth element is the game kind
-			askForGameFrom( gameId, messageComponents[ 4 ] );
-		}
+//		else if ( action.compareTo( MessageType.MessageReady ) == 0 )
+//		{
+//			readyGame( gameId, message[ 4 ] );
+//		}
+//		else if ( action.compareTo( MessageType.MessageStart ) == 0 )
+//		{
+//			startGame( gameId );
+//		}
+//		else if ( action.compareTo( MessageType.MessageStartSoon ) == 0 )
+//		{
+//			startGameSoon( gameId );
+//		}
+//		else if ( action.compareTo( MessageType.MessageEnd ) == 0 )
+//		{
+//			endGame( gameId, message[ 4 ] );
+//		}
+//		else if ( action.compareTo( MessageType.MessageOpen ) == 0 )
+//		{
+//			openGame( gameId, message[ 4 ], message[ 5 ], message[ 6 ] );
+//		}
+//		else if ( action.compareTo( MessageType.MessageAsked ) == 0 )
+//		{
+//			// in fact, gameId is the name of the asker and the fourth element is the game kind
+//			askForGameFrom( gameId, message[ 4 ] );
+//		}
 		else
 		{
-			forwardGameMessage( gameId, messageComponents );
+			// in a standard game message, action is the gameID
+			forwardGameMessage(  action, remain.split( " " ) );
 		}
 	}
 
-	private void closeGame( String gameId, boolean destroy) 
+	private void closeGame( String gameId, String message) 
 	{
 		if ( games.containsKey( gameId ) == true )
 		{
-			connectionClient.forwardInfo( "Game close with id: " + gameId );
-			if ( destroy == true )
-				games.get( gameId ).dispose();
+			connectionClient.forwardInfo( "Game close with id: " + gameId + " for the following reason: " + message );
+			games.get( gameId ).disposeView();
 			games.remove( gameId );
 		}
 	}
 
-	private void openGame( String gameId, String gameName, String firstPlayer, String secondPlayer ) 
+	private void openGame( String gameId, String gameName ) 
 	{
 		if ( games.containsKey( gameId ) == false )
 		{
@@ -93,10 +108,11 @@ public class GameManager
 				{
 					game.setConnectionClient( connectionClient );
 					game.setId( gameId );
-					game.addPlayer( firstPlayer );
-					game.addPlayer( secondPlayer );
 					
 					games.put( gameId, game);
+					
+					// send the join game message
+					connectionClient.sendMessageIfConnected( MessageType.MessageSystemGameJoin + " " + gameId );
 				}
 			}
 			catch (IOException e)
@@ -147,12 +163,14 @@ public class GameManager
 		}
 	}
 	
-	private void endGame( String gameId, String winner ) 
+	private void endGame( String gameId, String winner ) throws InterruptedException 
 	{
 		if ( games.containsKey( gameId ) == true )
 		{
+			connectionClient.forwardInfo( "Game (" + gameId + ") end, winner is : " + winner );
 			games.get( gameId ).end( winner );
-			closeGame(gameId, true);
+			games.get( gameId ).disposeView();
+			games.remove( gameId );
 		}
 	}
 

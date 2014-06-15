@@ -25,7 +25,7 @@ public interface ConnectionObserver {
 	abstract AbstractSocketListenerClientSide createSocketListener(Socket socket) throws IOException;
 
 	// manage message explicitly marked as GAME
-	abstract void manageGameMessage(String[] messageComponents);
+	abstract void manageGameMessage(String message);
 
 	// the game manager require a game given its name through the connection client components
 	abstract AbstractGameClientFrame requireGame(String gameName) throws IOException;

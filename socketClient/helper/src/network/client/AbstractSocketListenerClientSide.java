@@ -32,6 +32,7 @@ public abstract class AbstractSocketListenerClientSide implements Runnable
 			String line = NetworkHelper.readOnSocket( reader );
 			while ( line != null )
 			{
+				System.err.println( "message> " + line );
 				lineReceived( line );
 				line = NetworkHelper.readOnSocket( reader );
 			} 

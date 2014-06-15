@@ -122,6 +122,16 @@ public class ConnectionClient
 	{
 		if ( writer != null )
 		{
+			// wait 1 sec to let all the message be flushed
+			try 
+			{
+				Thread.sleep( 100 );
+			} 
+			catch (InterruptedException e) 
+			{
+				e.printStackTrace();
+			}
+			
 			// send the close message
 			sendMessageIfConnected( MessageType.MessageSystemClose );
 			
@@ -159,6 +169,7 @@ public class ConnectionClient
 		if (  ( writer != null )
 			&&( currentState == State.CONNECTED )  )
 		{
+			System.out.println("message sent> " + message);
 			NetworkHelper.writeOnSocket( writer, 
 										 message );
 			return true;
@@ -185,9 +196,9 @@ public class ConnectionClient
 		return clients;
 	}
 
-	public void forwardGameMessage(String[] splitted) 
+	public void handleGameMessage(String message) 
 	{
-		observer.manageGameMessage( splitted );
+		observer.manageGameMessage( message );
 	}
 
 	public AbstractGameClientFrame requireGame(String gameName) throws IOException 

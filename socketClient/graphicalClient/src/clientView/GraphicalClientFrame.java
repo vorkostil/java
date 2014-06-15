@@ -22,6 +22,7 @@ import network.client.AbstractSocketListenerClientSide;
 import network.client.ConnectionClient;
 import network.client.ConnectionInfo;
 import network.client.ConnectionObserver;
+import network.client.MinimalSocketListener;
 import client.ChessGameFrame;
 import client.GraphDisplayGameFrame;
 import client.TronGameClient;
@@ -197,7 +198,14 @@ public class GraphicalClientFrame extends JFrame implements ConnectionObserver
 		if ( gameManager != null )
 		{
 			// remove the gameManager
-			gameManager.closeAllGames();
+			try 
+			{
+				gameManager.closeAllGames();
+			} 
+			catch (InterruptedException e) 
+			{
+				e.printStackTrace();
+			}
 			gameManager = null;
 		}
 		
@@ -253,19 +261,6 @@ public class GraphicalClientFrame extends JFrame implements ConnectionObserver
 	{
 		return new MinimalSocketListener( socket, connectionClient );
 	}
-
-	// ask a game to the server, giving the opponent and the game name
-	public void askForGameTo( String opponentName, 
-							  String gameName) 
-	{
-		connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameAsked + " " + opponentName + " " + gameName );
-	}
-
-	// ask a solo game to the server (no opponent)
-	public void askForSoloGame(String gameName) 
-	{
-		connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameAsked + " " + MessageType.MessageGameSoloGameOpponent + " " + gameName );
-	}
 	
 	// display the dialog with the list of opponent
 	public String displayOpponentChoiceDialog(String gameName, boolean canPlayAgainstIA) 
@@ -311,9 +306,9 @@ public class GraphicalClientFrame extends JFrame implements ConnectionObserver
 	}
 
 	@Override
-	public void manageGameMessage(String[] messageComponents) 
+	public void manageGameMessage(String message) 
 	{
-		gameManager.handleGameMessage(messageComponents);
+		gameManager.handleGameMessage(message);
 	}
 
 	@Override
@@ -348,5 +343,25 @@ public class GraphicalClientFrame extends JFrame implements ConnectionObserver
 											     TronCommonInformation.GAME_NAME + " " +
 											     GraphCommonInformation.GAME_NAME + " " +
 											     ChessCommonInformation.GAME_NAME );
+	}
+
+
+//	// ask a game to the server, giving the opponent and the game name
+//	public void askForGameTo( String opponentName, 
+//							  String gameName) 
+//	{
+//		connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameAsked + " " + opponentName + " " + gameName );
+//	}
+//
+//	// ask a solo game to the server (no opponent)
+//	public void askForSoloGame(String gameName) 
+//	{
+//		connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameAsked + " " + MessageType.MessageGameSoloGameOpponent + " " + gameName );
+//	}
+	
+	// request a game given its name
+	public void requestGame( String gameName ) 
+	{
+		connectionClient.sendMessageIfConnected( MessageType.MessageSystemRequestGame + " " + gameName );
 	}
 }

@@ -33,6 +33,7 @@ import network.client.AbstractSocketListenerClientSide;
 import network.client.ConnectionClient;
 import network.client.ConnectionInfo;
 import network.client.ConnectionObserver;
+import network.client.MinimalSocketListener;
 import client.ChessGameFrame;
 import client.TronGameClient;
 
@@ -203,7 +204,14 @@ public class GraphicalClient extends JFrame implements ConnectionObserver
 			// close the games
 			if ( gameManager != null )
 			{
-				gameManager.closeAllGames();
+				try 
+				{
+					gameManager.closeAllGames();
+				} 
+				catch (InterruptedException e) 
+				{
+					e.printStackTrace();
+				}
 				gameManager = null;
 			}
 			
@@ -311,7 +319,14 @@ public class GraphicalClient extends JFrame implements ConnectionObserver
 		updateContactList( new String[] {} );
 		if ( gameManager != null )
 		{
-			gameManager.closeAllGames();
+			try 
+			{
+				gameManager.closeAllGames();
+			} 
+			catch (InterruptedException e) 
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -325,7 +340,8 @@ public class GraphicalClient extends JFrame implements ConnectionObserver
 	@Override
 	public AbstractSocketListenerClientSide createSocketListener(Socket socket) throws IOException 
 	{
-		return new SocketListenerClientSide(this, socket, connectionClient);
+		return new MinimalSocketListener( socket, 
+										  connectionClient );
 	}
 
 	public String getLogin() 
@@ -343,9 +359,9 @@ public class GraphicalClient extends JFrame implements ConnectionObserver
 	}
 
 	@Override
-	public void manageGameMessage(String[] messageComponents) 
+	public void manageGameMessage(String message) 
 	{
-		gameManager.handleGameMessage( messageComponents );
+		gameManager.handleGameMessage( message );
 	}
 
 	@Override

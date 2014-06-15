@@ -241,9 +241,10 @@ public abstract class GraphicalItem
 		currentTime_ = 0;
 	}
 	
-	public synchronized Image getImage() 
+	public Image getImage() 
 	{
-		if ( hasImage == true ) 
+		if (  ( hasImage == true ) 
+			&&( images_.get( currentState_ ) != null )  )
 		{
 			return images_.get( currentState_ ).get( currentFrame_ );
 		}

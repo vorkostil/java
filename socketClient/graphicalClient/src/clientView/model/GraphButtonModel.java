@@ -20,6 +20,6 @@ public class GraphButtonModel extends AbstractButtonModel {
 	@Override
 	public void callAction() 
 	{
-		gClient.askForSoloGame( GraphCommonInformation.GAME_NAME );
+		gClient.requestGame( GraphCommonInformation.GAME_NAME );
 	}
 }

@@ -23,8 +23,9 @@ public class TronButtonModel extends AbstractButtonModel {
 		String opponent = gClient.displayOpponentChoiceDialog( TronCommonInformation.GAME_NAME, false );
 		if ( opponent != null )
 		{
-			gClient.askForGameTo( opponent, 
-								  TronCommonInformation.GAME_NAME );
+// TODO use new protocol
+//			gClient.askForGameTo( opponent, 
+//								  TronCommonInformation.GAME_NAME );
 		}
 	}
 }

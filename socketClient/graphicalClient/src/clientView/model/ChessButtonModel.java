@@ -23,8 +23,9 @@ public class ChessButtonModel extends AbstractButtonModel {
 		String opponent = gClient.displayOpponentChoiceDialog( ChessCommonInformation.GAME_NAME, false );
 		if ( opponent != null )
 		{
-			gClient.askForGameTo( opponent, 
-								  ChessCommonInformation.GAME_NAME );
+// TODO use new protocol
+//			gClient.askForGameTo( opponent, 
+//								  ChessCommonInformation.GAME_NAME );
 		}
 	}
 }

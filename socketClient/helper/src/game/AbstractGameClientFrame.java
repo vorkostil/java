@@ -59,13 +59,20 @@ abstract public class AbstractGameClientFrame extends JFrame
 	// send the close message to the server
 	public void closeGame()
 	{
-		connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameClose + " " + gameId );
+		connectionClient.sendMessageIfConnected( MessageType.MessageSystemLeaveGame + " " + gameId );
+		disposeView();
 	}
 	
 	// send the ready message to the server
 	public void readyToPlay()
 	{
-		connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameReady + " " + gameId + " " + connectionClient.getLogin() );
+		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + MessageType.MessageReady + " " + connectionClient.getLogin() );
+	}
+	
+	// dispose the view
+	public void disposeView()
+	{
+		this.dispose();
 	}
 	
 	// add a player into the game
