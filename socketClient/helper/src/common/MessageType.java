@@ -80,4 +80,5 @@ public class MessageType {
 	public static final String RegistrationAsConsumer = "CONSUMER";
 	public static final String RegistrationAsProvider = "PROVIDER";
 	public static final String MessageSystemLeaveGame = MessageSystem + "_LEAVE_GAME";
+	public static final String MessageComputeDfs = "COMPUTE_DFS";
 }

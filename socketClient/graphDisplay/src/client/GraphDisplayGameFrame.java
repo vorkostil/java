@@ -13,6 +13,7 @@ import java.util.List;
 
 import client.displayer.GraphMainDisplayer;
 import client.item.GraphCellItem;
+import client.model.DfsButtonModel;
 import client.model.GraphCellModel;
 import client.model.SetBlockButtonModel;
 import client.model.SetExitButtonModel;
@@ -32,6 +33,7 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 	private static final String EXIT_BUTTON_CONFIG = "exit_button_configuration";
 	private static final String BLOCK_BUTTON_CONFIG = "block_button_configuration";
 	private static final String CELL_BUTTON_CONFIG = "cell_configuration";
+	private static final String DFS_BUTTON_CONFIG = "DFS_button_configuration";
 
 	// the cell constant 
 	public static final String EMPTY = "EMPTY";
@@ -44,6 +46,7 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 	// the network constant
 	private static final String CHANGE_CELL_STATE = "CHANGE_CELL_STATE";
 	private static final String CELL_UPDATED = "CELL_UPDATED";
+	private static final String COMPUTE_RESULT = "COMPUTE_RESULT";
 	
 	// The member
 	private GraphMainDisplayer mainDisplayer = new GraphMainDisplayer();
@@ -54,6 +57,7 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 	private GraphicalButtonItem setExitButton;
 	private GraphicalButtonItem setBlockButton;
 	private String currentStateForCell = EMPTY;
+	private GraphicalButtonItem dfsButton;
 	
 	public GraphDisplayGameFrame() throws IOException 
 	{
@@ -80,6 +84,9 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 		
 		// initialize the state of the visible items
 		mainPanel.computeDisplayableItems();
+		
+		// and initialize the entry at 0,0
+		((GraphCellItem)mainPanel.getItemAt(0, 0)).getModel().setState( START );
 
 		// display itself
 		this.setVisible( true );
@@ -123,6 +130,16 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 						   GraphMainDisplayer.NAME,
 						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
 		
+		// create a DFS button
+		dfsButton = new GraphicalButtonItem( new DfsButtonModel( this,
+																 repository.getData( DFS_BUTTON_CONFIG ) ),
+											 repository.getData( DFS_BUTTON_CONFIG ), 
+											 tracker, 
+											 ImageLevel.ENVIRONMENT_IMAGE.index() );
+		mainPanel.addItem( dfsButton,
+						   GraphMainDisplayer.NAME,
+						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
+		
 		// give the list to the model
 		((AbstractStateButtonModel)setStartButton.getModel()).setButtonList( buttons );
 		((AbstractStateButtonModel)setExitButton.getModel()).setButtonList( buttons );
@@ -135,11 +152,11 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 			for ( int x = 0; x < 32; x++ )
 			{
 				mainPanel.addItem( new GraphCellItem( new GraphCellModel( this, 
-															    x,
-															    y ),
-												 dataCell,
-												 tracker,
-												 ImageLevel.ENVIRONMENT_IMAGE.index() ),
+																    	  x,
+																          y ),
+													  dataCell,
+													  tracker,
+													  ImageLevel.ENVIRONMENT_IMAGE.index() ),
 								   GraphMainDisplayer.NAME,
 								   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
 			}
@@ -183,6 +200,39 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 				item.getModel().setState( messageComponents[ 3 ] );
 			}
 		}
+		else if ( messageComponents[ 0 ].compareTo( COMPUTE_RESULT ) == 0 )
+		{
+			setTitle( "GraphDisplay, path found = " + messageComponents[ 1 ] );
+			for ( int y = 0; y < 32; y++ )
+			{
+				for ( int x = 0; x < 32; x++ )
+				{
+					GraphCellItem item = (GraphCellItem) mainPanel.getItemAt( x * 16, y * 16 );
+					char currentChar = messageComponents[ 2 ].charAt( y * 32 + x ); 
+					switch( currentChar )
+					{
+					case '0':
+						item.getModel().setState(EMPTY);
+						break;
+					case 'S':
+						item.getModel().setState(START);
+						break;
+					case 'E':
+						item.getModel().setState(EXIT);
+						break;
+					case 'P':
+						item.getModel().setState(PATH);
+						break;
+					case 'V':
+						item.getModel().setState(VISITED);
+						break;
+					case 'X':
+						item.getModel().setState(BLOCK);
+						break;
+					}
+				}
+			}
+		}
 	}
 
 	public void requestChangeState(GraphCellModel model) 
@@ -194,6 +244,11 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 	public void setCurrentStateForCell( String state ) 
 	{
 		currentStateForCell  = state;
+	}
+
+	public void callForDfs() 
+	{
+		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageComputeDfs );
 	}
 
 }

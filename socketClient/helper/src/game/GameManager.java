@@ -1,6 +1,5 @@
 package game;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 import javax.swing.JOptionPane;
@@ -101,24 +100,14 @@ public class GameManager
 		if ( games.containsKey( gameId ) == false )
 		{
 			connectionClient.forwardInfo( "Game " + gameName + " open with id: " + gameId );
-			try
-			{
-				AbstractGameClientFrame game = connectionClient.requireGame( gameName );
-				if ( game != null )
-				{
-					game.setConnectionClient( connectionClient );
-					game.setId( gameId );
-					
-					games.put( gameId, game);
-					
-					// send the join game message
-					connectionClient.sendMessageIfConnected( MessageType.MessageSystemGameJoin + " " + gameId );
-				}
-			}
-			catch (IOException e)
-			{
-				connectionClient.forwardAlert( "Something bad happens during game creation ('" + gameName +"') > " + e.getMessage() );
-			}
+			
+			// create the game in a separate thread
+			// launch the connection thread
+			Thread gameThread = new Thread( new GameThread( gameName,
+															gameId,
+														    this ) );
+			gameThread.setName( gameId );
+			gameThread.start();
 		}
 	}
 
@@ -180,5 +169,17 @@ public class GameManager
 		{
 			games.get( gameId ).handleServerMessage( messageComponents );
 		}
+	}
+
+	public ConnectionClient getConnectionClient() 
+	{
+		return connectionClient;
+	}
+
+	public void insertGame( String gameId, 
+							AbstractGameClientFrame game ) 
+	{
+		games.put( gameId, 
+				   game );
 	}
 }

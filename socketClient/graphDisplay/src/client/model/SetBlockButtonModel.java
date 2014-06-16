@@ -9,7 +9,8 @@ public class SetBlockButtonModel extends AbstractStateButtonModel
 
 	private GraphDisplayGameFrame mainFrame;
 
-	public SetBlockButtonModel( GraphDisplayGameFrame graphDisplayGameFrame, DataInformation data) 
+	public SetBlockButtonModel( GraphDisplayGameFrame graphDisplayGameFrame, 
+								DataInformation data) 
 	{
 		super(data);
 		this.mainFrame = graphDisplayGameFrame;

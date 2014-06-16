@@ -24,6 +24,7 @@ public class NetworkHelper
 		{
 			// initialize the temporary buffer
 			charBuffer =  new char[ 1024 ];
+			charPos = 0;
 			
 			// read into the temporary buffer
 			while ( charPos < 1024 && charRead != 0 )
