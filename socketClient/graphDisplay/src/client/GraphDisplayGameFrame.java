@@ -13,8 +13,12 @@ import java.util.List;
 
 import client.displayer.GraphMainDisplayer;
 import client.item.GraphCellItem;
+import client.model.AStarButtonModel;
+import client.model.BfsButtonModel;
 import client.model.DfsButtonModel;
+import client.model.DijButtonModel;
 import client.model.GraphCellModel;
+import client.model.ResetButtonModel;
 import client.model.SetBlockButtonModel;
 import client.model.SetExitButtonModel;
 import client.model.SetStartButtonModel;
@@ -34,6 +38,12 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 	private static final String BLOCK_BUTTON_CONFIG = "block_button_configuration";
 	private static final String CELL_BUTTON_CONFIG = "cell_configuration";
 	private static final String DFS_BUTTON_CONFIG = "DFS_button_configuration";
+	private static final String BFS_BUTTON_CONFIG = "BFS_button_configuration";
+	private static final String DIJ_BUTTON_CONFIG = "DIJ_button_configuration";
+	private static final String ASTAR_BUTTON_CONFIG = "Astar_button_configuration";
+	private static final String ASTARM_BUTTON_CONFIG = "Astar_Manhattan_button_configuration";
+	private static final String ASTARME_BUTTON_CONFIG = "Astar_Manhattan_epsilon_button_configuration";
+	private static final String RESET_BUTTON_CONFIG = "reset_button_configuration";
 
 	// the cell constant 
 	public static final String EMPTY = "EMPTY";
@@ -51,13 +61,19 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 	// The member
 	private GraphMainDisplayer mainDisplayer = new GraphMainDisplayer();
 	private GraphMainPanel mainPanel;
+	private String currentStateForCell = EMPTY;
 	
 	// the static element
 	private GraphicalButtonItem setStartButton;
 	private GraphicalButtonItem setExitButton;
 	private GraphicalButtonItem setBlockButton;
-	private String currentStateForCell = EMPTY;
 	private GraphicalButtonItem dfsButton;
+	private GraphicalButtonItem bfsButton;
+	private GraphicalButtonItem dijButton;
+	private GraphicalButtonItem astarButton;
+	private GraphicalButtonItem astarMButton;
+	private GraphicalButtonItem astarMEButton;
+	private GraphicalButtonItem resetButton;
 	
 	public GraphDisplayGameFrame() throws IOException 
 	{
@@ -140,6 +156,66 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 						   GraphMainDisplayer.NAME,
 						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
 		
+		// create a BFS button
+		bfsButton = new GraphicalButtonItem( new BfsButtonModel( this,
+																 repository.getData( BFS_BUTTON_CONFIG ) ),
+											 repository.getData( BFS_BUTTON_CONFIG ), 
+											 tracker, 
+											 ImageLevel.ENVIRONMENT_IMAGE.index() );
+		mainPanel.addItem( bfsButton,
+						   GraphMainDisplayer.NAME,
+						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
+		
+		// create a Dij button
+		dijButton = new GraphicalButtonItem( new DijButtonModel( this,
+																 repository.getData( DIJ_BUTTON_CONFIG ) ),
+											 repository.getData( DIJ_BUTTON_CONFIG ), 
+											 tracker, 
+											 ImageLevel.ENVIRONMENT_IMAGE.index() );
+		mainPanel.addItem( dijButton,
+						   GraphMainDisplayer.NAME,
+						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
+		
+		// create a A* button
+		astarButton = new GraphicalButtonItem( new AStarButtonModel( this,
+																 	 repository.getData( ASTAR_BUTTON_CONFIG ) ),
+											 repository.getData( ASTAR_BUTTON_CONFIG ), 
+											 tracker, 
+											 ImageLevel.ENVIRONMENT_IMAGE.index() );
+		mainPanel.addItem( astarButton,
+						   GraphMainDisplayer.NAME,
+						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
+		
+		// create a A* manhattan button
+		astarMButton = new GraphicalButtonItem( new AStarButtonModel( this,
+																      repository.getData( ASTARM_BUTTON_CONFIG ) ),
+											 repository.getData( ASTARM_BUTTON_CONFIG ), 
+											 tracker, 
+											 ImageLevel.ENVIRONMENT_IMAGE.index() );
+		mainPanel.addItem( astarMButton,
+						   GraphMainDisplayer.NAME,
+						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
+		
+		// create a  A* manhattatn epslion button
+		astarMEButton = new GraphicalButtonItem( new AStarButtonModel( this,
+																 	   repository.getData( ASTARME_BUTTON_CONFIG ) ),
+											 repository.getData( ASTARME_BUTTON_CONFIG ), 
+											 tracker, 
+											 ImageLevel.ENVIRONMENT_IMAGE.index() );
+		mainPanel.addItem( astarMEButton,
+						   GraphMainDisplayer.NAME,
+						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
+		
+		// create a  reset button
+		resetButton = new GraphicalButtonItem( new ResetButtonModel( this,
+																 	 repository.getData( RESET_BUTTON_CONFIG ) ),
+											 repository.getData( RESET_BUTTON_CONFIG ), 
+											 tracker, 
+											 ImageLevel.ENVIRONMENT_IMAGE.index() );
+		mainPanel.addItem( resetButton,
+						   GraphMainDisplayer.NAME,
+						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
+		
 		// give the list to the model
 		((AbstractStateButtonModel)setStartButton.getModel()).setButtonList( buttons );
 		((AbstractStateButtonModel)setExitButton.getModel()).setButtonList( buttons );
@@ -161,6 +237,93 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 								   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
 			}
 		}
+	}
+	
+	@Override
+	public void handleServerMessage(String[] messageComponents) 
+	{
+		if ( messageComponents[ 0 ].compareTo( CELL_UPDATED ) == 0 )
+		{
+			GraphCellItem item = (GraphCellItem) mainPanel.getItemAt( Integer.parseInt( messageComponents[ 1 ] ) * 16, 
+								 									  Integer.parseInt( messageComponents[ 2 ] ) * 16 );
+			if ( item != null )
+			{
+				item.getModel().setState( messageComponents[ 3 ] );
+			}
+		}
+		else if ( messageComponents[ 0 ].compareTo( COMPUTE_RESULT ) == 0 )
+		{
+			int visited = 0;
+			int path = 0;
+			for ( int y = 0; y < 32; y++ )
+			{
+				for ( int x = 0; x < 32; x++ )
+				{
+					GraphCellItem item = (GraphCellItem) mainPanel.getItemAt( x * 16, y * 16 );
+					char currentChar = messageComponents[ 2 ].charAt( y * 32 + x ); 
+					switch( currentChar )
+					{
+					case '0':
+						item.getModel().setState(EMPTY);
+						break;
+					case 'S':
+						item.getModel().setState(START);
+						break;
+					case 'E':
+						item.getModel().setState(EXIT);
+						break;
+					case 'P':
+						item.getModel().setState(PATH);
+						path++;
+						break;
+					case 'V':
+						item.getModel().setState(VISITED);
+						visited++;
+						break;
+					case 'X':
+						item.getModel().setState(BLOCK);
+						break;
+					}
+				}
+			}
+			setTitle( "GraphDisplay, path found = " + messageComponents[ 1 ] + " - V: " + ( visited + path) + " - P: " +path );
+		}
+	}
+
+	public void requestChangeState(GraphCellModel model) 
+	{
+		// ask the server to change the state
+		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + CHANGE_CELL_STATE + " " + model.getX() + " " + model.getY() + " " + currentStateForCell );
+	}
+
+	public void setCurrentStateForCell( String state ) 
+	{
+		currentStateForCell  = state;
+	}
+
+	public void callForDfs() 
+	{
+		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageComputeDfs );
+	}
+
+	public void callForBfs() 
+	{
+		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageComputeBfs );
+	}
+
+	public void callForDij() 
+	{
+		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageComputeDij );
+	}
+
+	public void callForAstar(String heuristic) 
+	{
+		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageComputeAStar + " " + heuristic );
+	}
+
+	public void callForReset() 
+	{
+		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageResetPath );
 	}
 
 	@Override
@@ -186,69 +349,6 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 	@Override
 	public void end(String winner) 
 	{
-	}
-
-	@Override
-	public void handleServerMessage(String[] messageComponents) 
-	{
-		if ( messageComponents[ 0 ].compareTo( CELL_UPDATED ) == 0 )
-		{
-			GraphCellItem item = (GraphCellItem) mainPanel.getItemAt( Integer.parseInt( messageComponents[ 1 ] ) * 16, 
-								 									  Integer.parseInt( messageComponents[ 2 ] ) * 16 );
-			if ( item != null )
-			{
-				item.getModel().setState( messageComponents[ 3 ] );
-			}
-		}
-		else if ( messageComponents[ 0 ].compareTo( COMPUTE_RESULT ) == 0 )
-		{
-			setTitle( "GraphDisplay, path found = " + messageComponents[ 1 ] );
-			for ( int y = 0; y < 32; y++ )
-			{
-				for ( int x = 0; x < 32; x++ )
-				{
-					GraphCellItem item = (GraphCellItem) mainPanel.getItemAt( x * 16, y * 16 );
-					char currentChar = messageComponents[ 2 ].charAt( y * 32 + x ); 
-					switch( currentChar )
-					{
-					case '0':
-						item.getModel().setState(EMPTY);
-						break;
-					case 'S':
-						item.getModel().setState(START);
-						break;
-					case 'E':
-						item.getModel().setState(EXIT);
-						break;
-					case 'P':
-						item.getModel().setState(PATH);
-						break;
-					case 'V':
-						item.getModel().setState(VISITED);
-						break;
-					case 'X':
-						item.getModel().setState(BLOCK);
-						break;
-					}
-				}
-			}
-		}
-	}
-
-	public void requestChangeState(GraphCellModel model) 
-	{
-		// ask the server to change the state
-		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + CHANGE_CELL_STATE + " " + model.getX() + " " + model.getY() + " " + currentStateForCell );
-	}
-
-	public void setCurrentStateForCell( String state ) 
-	{
-		currentStateForCell  = state;
-	}
-
-	public void callForDfs() 
-	{
-		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageComputeDfs );
 	}
 
 }
