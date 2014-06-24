@@ -14,14 +14,9 @@ import java.util.List;
 import client.displayer.GraphMainDisplayer;
 import client.item.GraphCellItem;
 import client.model.AStarButtonModel;
-import client.model.BfsButtonModel;
-import client.model.DfsButtonModel;
-import client.model.DijButtonModel;
 import client.model.GraphCellModel;
-import client.model.ResetButtonModel;
-import client.model.SetBlockButtonModel;
-import client.model.SetExitButtonModel;
-import client.model.SetStartButtonModel;
+import client.model.MessageButtonModel;
+import client.model.SetKindButtonModel;
 import client.panel.GraphMainPanel;
 
 import common.MessageType;
@@ -36,6 +31,10 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 	private static final String START_BUTTON_CONFIG = "start_button_configuration";
 	private static final String EXIT_BUTTON_CONFIG = "exit_button_configuration";
 	private static final String BLOCK_BUTTON_CONFIG = "block_button_configuration";
+	private static final String WATER_BUTTON_CONFIG = "water_button_configuration";
+	private static final String ROAD_BUTTON_CONFIG = "road_button_configuration";
+	private static final String FOREST_BUTTON_CONFIG = "forest_button_configuration";
+	private static final String HILL_BUTTON_CONFIG = "mountain_button_configuration";
 	private static final String CELL_BUTTON_CONFIG = "cell_configuration";
 	private static final String DFS_BUTTON_CONFIG = "DFS_button_configuration";
 	private static final String BFS_BUTTON_CONFIG = "BFS_button_configuration";
@@ -44,14 +43,19 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 	private static final String ASTARM_BUTTON_CONFIG = "Astar_Manhattan_button_configuration";
 	private static final String ASTARME_BUTTON_CONFIG = "Astar_Manhattan_epsilon_button_configuration";
 	private static final String RESET_BUTTON_CONFIG = "reset_button_configuration";
+	private static final String CLEAR_BUTTON_CONFIG = "clear_button_configuration";
 
 	// the cell constant 
-	public static final String EMPTY = "EMPTY";
-	public static final String BLOCK = "BLOCK";
-	public static final String START = "START";
-	public static final String EXIT = "EXIT";
-	public static final String VISITED = "VISITED";
-	public static final String PATH = "PATH";
+	public static final String GRASS = "GRASS";
+	private static final String BLOCK = "BLOCK";
+	private static final String START = "START";
+	private static final String EXIT = "EXIT";
+	private static final String MOUNTAIN = "MOUNTAIN";
+	private static final String ROAD = "ROAD";
+	private static final String WATER = "WATER";
+	private static final String FOREST = "FOREST";
+	private static final String VISITED = "VISITED";
+	private static final String PATH = "PATH";
 	
 	// the network constant
 	private static final String CHANGE_CELL_STATE = "CHANGE_CELL_STATE";
@@ -61,12 +65,16 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 	// The member
 	private GraphMainDisplayer mainDisplayer = new GraphMainDisplayer();
 	private GraphMainPanel mainPanel;
-	private String currentStateForCell = EMPTY;
+	private String currentStateForCell = GRASS;
 	
 	// the static element
 	private GraphicalButtonItem setStartButton;
 	private GraphicalButtonItem setExitButton;
 	private GraphicalButtonItem setBlockButton;
+	private GraphicalButtonItem setWaterButton;
+	private GraphicalButtonItem setRoadButton;
+	private GraphicalButtonItem setForestButton;
+	private GraphicalButtonItem setHillButton;
 	private GraphicalButtonItem dfsButton;
 	private GraphicalButtonItem bfsButton;
 	private GraphicalButtonItem dijButton;
@@ -74,6 +82,7 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 	private GraphicalButtonItem astarMButton;
 	private GraphicalButtonItem astarMEButton;
 	private GraphicalButtonItem resetButton;
+	private GraphicalButtonItem clearButton;
 	
 	public GraphDisplayGameFrame() throws IOException 
 	{
@@ -114,8 +123,8 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 		List< AbstractStateButtonModel > buttons = new ArrayList< AbstractStateButtonModel >();
 		
 		// create a start button
-		setStartButton = new GraphicalButtonItem( new SetStartButtonModel( this,
-																		   repository.getData( START_BUTTON_CONFIG ) ),
+		setStartButton = new GraphicalButtonItem( new SetKindButtonModel( this,
+																		  repository.getData( START_BUTTON_CONFIG ) ),
 												  repository.getData( START_BUTTON_CONFIG ), 
 												  tracker, 
 												  ImageLevel.ENVIRONMENT_IMAGE.index() );
@@ -125,7 +134,7 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
 
 		// create an exit button
-		setExitButton = new GraphicalButtonItem( new SetExitButtonModel( this,
+		setExitButton = new GraphicalButtonItem( new SetKindButtonModel( this,
 																		 repository.getData( EXIT_BUTTON_CONFIG ) ),
 												 repository.getData( EXIT_BUTTON_CONFIG ), 
 												 tracker, 
@@ -136,7 +145,7 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
 	
 		// create a block button
-		setBlockButton = new GraphicalButtonItem( new SetBlockButtonModel( this,
+		setBlockButton = new GraphicalButtonItem( new SetKindButtonModel( this,
 																		   repository.getData( BLOCK_BUTTON_CONFIG ) ),
 												  repository.getData( BLOCK_BUTTON_CONFIG ), 
 												  tracker, 
@@ -146,9 +155,53 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 						   GraphMainDisplayer.NAME,
 						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
 		
+		// create a water button
+		setWaterButton = new GraphicalButtonItem( new SetKindButtonModel( this,
+																		  repository.getData( WATER_BUTTON_CONFIG ) ),
+												  repository.getData( WATER_BUTTON_CONFIG ), 
+												  tracker, 
+												  ImageLevel.ENVIRONMENT_IMAGE.index() );
+		buttons.add( (AbstractStateButtonModel) setWaterButton.getModel() );
+		mainPanel.addItem( setWaterButton,
+						   GraphMainDisplayer.NAME,
+						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
+		
+		// create a road button
+		setRoadButton = new GraphicalButtonItem( new SetKindButtonModel( this,
+																		 repository.getData( ROAD_BUTTON_CONFIG ) ),
+												  repository.getData( ROAD_BUTTON_CONFIG ), 
+												  tracker, 
+												  ImageLevel.ENVIRONMENT_IMAGE.index() );
+		buttons.add( (AbstractStateButtonModel) setRoadButton.getModel() );
+		mainPanel.addItem( setRoadButton,
+						   GraphMainDisplayer.NAME,
+						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
+		
+		// create a forest button
+		setForestButton = new GraphicalButtonItem( new SetKindButtonModel( this,
+																		   repository.getData( FOREST_BUTTON_CONFIG ) ),
+												  repository.getData( FOREST_BUTTON_CONFIG ), 
+												  tracker, 
+												  ImageLevel.ENVIRONMENT_IMAGE.index() );
+		buttons.add( (AbstractStateButtonModel) setForestButton.getModel() );
+		mainPanel.addItem( setForestButton,
+						   GraphMainDisplayer.NAME,
+						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
+		
+		// create a hill button
+		setHillButton = new GraphicalButtonItem( new SetKindButtonModel( this,
+																		 repository.getData( HILL_BUTTON_CONFIG ) ),
+												  repository.getData( HILL_BUTTON_CONFIG ), 
+												  tracker, 
+												  ImageLevel.ENVIRONMENT_IMAGE.index() );
+		buttons.add( (AbstractStateButtonModel) setHillButton.getModel() );
+		mainPanel.addItem( setHillButton,
+						   GraphMainDisplayer.NAME,
+						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
+		
 		// create a DFS button
-		dfsButton = new GraphicalButtonItem( new DfsButtonModel( this,
-																 repository.getData( DFS_BUTTON_CONFIG ) ),
+		dfsButton = new GraphicalButtonItem( new MessageButtonModel( this,
+																 	 repository.getData( DFS_BUTTON_CONFIG ) ),
 											 repository.getData( DFS_BUTTON_CONFIG ), 
 											 tracker, 
 											 ImageLevel.ENVIRONMENT_IMAGE.index() );
@@ -157,8 +210,8 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
 		
 		// create a BFS button
-		bfsButton = new GraphicalButtonItem( new BfsButtonModel( this,
-																 repository.getData( BFS_BUTTON_CONFIG ) ),
+		bfsButton = new GraphicalButtonItem( new MessageButtonModel( this,
+																 	 repository.getData( BFS_BUTTON_CONFIG ) ),
 											 repository.getData( BFS_BUTTON_CONFIG ), 
 											 tracker, 
 											 ImageLevel.ENVIRONMENT_IMAGE.index() );
@@ -167,8 +220,8 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
 		
 		// create a Dij button
-		dijButton = new GraphicalButtonItem( new DijButtonModel( this,
-																 repository.getData( DIJ_BUTTON_CONFIG ) ),
+		dijButton = new GraphicalButtonItem( new MessageButtonModel( this,
+																 	 repository.getData( DIJ_BUTTON_CONFIG ) ),
 											 repository.getData( DIJ_BUTTON_CONFIG ), 
 											 tracker, 
 											 ImageLevel.ENVIRONMENT_IMAGE.index() );
@@ -207,8 +260,8 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
 		
 		// create a  reset button
-		resetButton = new GraphicalButtonItem( new ResetButtonModel( this,
-																 	 repository.getData( RESET_BUTTON_CONFIG ) ),
+		resetButton = new GraphicalButtonItem( new MessageButtonModel( this,
+																 	   repository.getData( RESET_BUTTON_CONFIG ) ),
 											 repository.getData( RESET_BUTTON_CONFIG ), 
 											 tracker, 
 											 ImageLevel.ENVIRONMENT_IMAGE.index() );
@@ -216,10 +269,24 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 						   GraphMainDisplayer.NAME,
 						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
 		
-		// give the list to the model
+		// create a  clear button
+		clearButton = new GraphicalButtonItem( new MessageButtonModel( this,
+																 	   repository.getData( CLEAR_BUTTON_CONFIG ) ),
+											 repository.getData( CLEAR_BUTTON_CONFIG ), 
+											 tracker, 
+											 ImageLevel.ENVIRONMENT_IMAGE.index() );
+		mainPanel.addItem( clearButton,
+						   GraphMainDisplayer.NAME,
+						   AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
+		
+		// give the list to the model for the group
 		((AbstractStateButtonModel)setStartButton.getModel()).setButtonList( buttons );
 		((AbstractStateButtonModel)setExitButton.getModel()).setButtonList( buttons );
 		((AbstractStateButtonModel)setBlockButton.getModel()).setButtonList( buttons );
+		((AbstractStateButtonModel)setWaterButton.getModel()).setButtonList( buttons );
+		((AbstractStateButtonModel)setRoadButton.getModel()).setButtonList( buttons );
+		((AbstractStateButtonModel)setForestButton.getModel()).setButtonList( buttons );
+		((AbstractStateButtonModel)setHillButton.getModel()).setButtonList( buttons );
 		
 		// create the 32 x 32 cells
 		DataInformation dataCell = repository.getData( CELL_BUTTON_CONFIG );
@@ -264,7 +331,7 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 					switch( currentChar )
 					{
 					case '0':
-						item.getModel().setState(EMPTY);
+						item.getModel().setState(GRASS);
 						break;
 					case 'S':
 						item.getModel().setState(START);
@@ -283,6 +350,18 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 					case 'X':
 						item.getModel().setState(BLOCK);
 						break;
+					case 'M':
+						item.getModel().setState(MOUNTAIN);
+						break;
+					case 'R':
+						item.getModel().setState(ROAD);
+						break;
+					case 'W':
+						item.getModel().setState(WATER);
+						break;
+					case 'F':
+						item.getModel().setState(FOREST);
+						break;
 					}
 				}
 			}
@@ -298,32 +377,12 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 
 	public void setCurrentStateForCell( String state ) 
 	{
-		currentStateForCell  = state;
+		currentStateForCell = state;
 	}
 
-	public void callForDfs() 
+	public void sendMessage( String message ) 
 	{
-		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageComputeDfs );
-	}
-
-	public void callForBfs() 
-	{
-		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageComputeBfs );
-	}
-
-	public void callForDij() 
-	{
-		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageComputeDij );
-	}
-
-	public void callForAstar(String heuristic) 
-	{
-		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageComputeAStar + " " + heuristic );
-	}
-
-	public void callForReset() 
-	{
-		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageResetPath );
+		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + message );
 	}
 
 	@Override

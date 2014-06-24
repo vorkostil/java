@@ -7,7 +7,7 @@ public class GraphCellModel
 	private GraphDisplayGameFrame mainFrame;
 	private int x;
 	private int y;
-	private String state = GraphDisplayGameFrame.EMPTY;
+	private String state = GraphDisplayGameFrame.GRASS;
 	
 	public GraphCellModel( GraphDisplayGameFrame graphDisplayGameFrame,
 				      	   int x,
