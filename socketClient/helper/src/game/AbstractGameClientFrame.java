@@ -27,7 +27,10 @@ abstract public class AbstractGameClientFrame extends JFrame
 		gameId  = null;
 		
 		// load repository of information
-		repository.addFromFile( configPath );
+		if ( configPath != null )
+		{
+			repository.addFromFile( configPath );
+		}
 	}
 	
 	// check if the game is correctly defined

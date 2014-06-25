@@ -1,5 +1,9 @@
 package main;
 
+import frame.PeerToPeerCommunicationFrame;
+import game.AbstractGameClientFrame;
+import game.GameManager;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -43,12 +47,8 @@ import common.ConnectionDialog;
 import common.MessageType;
 import common.TronCommonInformation;
 
-import frame.PeerToPeerCommunicationFrame;
-import game.AbstractGameClientFrame;
-import game.GameManager;
-
 @SuppressWarnings("serial")
-public class GraphicalClient extends JFrame implements ConnectionObserver
+public class GraphicalClient extends AbstractGameClientFrame implements ConnectionObserver
 {
 	public static final Font errorFont = new Font( "Default", Font.BOLD, 12);
 	public static final Font normalFont = new Font( "Default", Font.PLAIN, 12);
@@ -75,6 +75,8 @@ public class GraphicalClient extends JFrame implements ConnectionObserver
 	
 	public GraphicalClient()
 	{
+		super( null );
+		
 		// characteristics of the frame
 		this.setTitle("Chat");
 		this.setSize(640, 480);
@@ -97,7 +99,7 @@ public class GraphicalClient extends JFrame implements ConnectionObserver
 					String message = textEdition.getText();
 					textEdition.setText( "" );
 					
-					if ( connectionClient.sendMessageIfConnected(message) == false )
+					if ( connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + getId()  + " " + MessageType.MessageChatSendAll + " " + getLogin() + " " + message) == false )
 					{
 						appendToChatArea( "|local|" + message, normalFont, normalColor );
 					}
@@ -375,6 +377,10 @@ public class GraphicalClient extends JFrame implements ConnectionObserver
 		{
 			return new ChessGameFrame();
 		}
+		else if ( gameName.compareTo( ChatCommonInformation.GAME_NAME ) == 0 )
+		{
+			return this;
+		}
 		return null;
 	}
 
@@ -386,5 +392,59 @@ public class GraphicalClient extends JFrame implements ConnectionObserver
 											     ChatCommonInformation.GAME_NAME + " " + 
 											     TronCommonInformation.GAME_NAME + " " +
 											     ChessCommonInformation.GAME_NAME );
+		
+		// wait a few millis
+		try 
+		{
+			Thread.sleep( 128 );
+		} 
+		catch (InterruptedException e) 
+		{
+			e.printStackTrace();
+		}
+		
+		// and send a request to join an existing chat
+		connectionClient.sendMessageIfConnected( MessageType.MessageSystemJoinOrNewGame + " " + ChatCommonInformation.GAME_NAME );
+	}
+
+	@Override
+	public void addPlayer(String playerName) 
+	{
+		this.appendToChatArea( "New player added '" + playerName + "'", normalFont, normalColor);
+	}
+
+	@Override
+	public void ready(String playerName) 
+	{
+		this.appendToChatArea( "Player '" + playerName + "' is ready", normalFont, normalColor);
+	}
+
+	@Override
+	public void start() 
+	{
+		this.appendToChatArea( "START", normalFont, normalColor);
+	}
+
+	@Override
+	public void startSoon() 
+	{
+		this.appendToChatArea( "START SOON", normalFont, normalColor);
+	}
+
+	@Override
+	public void end(String winner) 
+	{
+		this.appendToChatArea( "END: " + winner, normalFont, normalColor);
+	}
+
+	@Override
+	public void handleServerMessage(String[] messageComponents) 
+	{
+		String message = new String();
+		for ( String part : messageComponents )
+		{
+			message += " " + part;
+		}
+		this.appendToChatArea(message, normalFont, normalColor);
 	}
 }

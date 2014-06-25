@@ -59,7 +59,7 @@ public class ClientToServerLoginConnection implements Runnable
 			{
 				connectionClient.changeCurrentState( ConnectionClient.State.CONNECTED );
 				connectionClient.setLogin( connectionInfo.getLogin() );
-				connectionClient.forwardInfo( "Connection accepted, you can chat as " + connectionInfo.getLogin() );
+				connectionClient.forwardInfo( "Connection accepted, you are known as " + connectionInfo.getLogin() );
 				
 				Thread listenerThread = new Thread ( connectionClient.createSocketListener( socket ) );
 				listenerThread.setName( "Listen" );

@@ -72,12 +72,16 @@ public class MessageType {
 	public static final String MessageSystemLoginAsked = MessageSystem + "_" + MessageLoginAsked;
 	public static final String MessageSystemRegister = MessageSystem + "_REGISTER";
 	public static final String MessageSystemRequestGame = MessageSystem + "_REQUEST_GAME";
+	public static final String MessageSystemJoinOrNewGame = MessageSystem + "_JOIN_OR_REQUEST_GAME";
 	public static final String MessageSystemGameJoin = MessageSystem + "_JOIN_GAME";
 	public static final String MessageGameJoinRefused = "GAME_JOIN_REFUSED";
 	public static final String MessageGameIsRefused = "GAME_REFUSED";
 	public static final String MessageGameIsAccepted = "GAME_ACCEPTED";
+	public static final String MessageGameCreated = "GAME_CREATED";
 	
 	public static final String RegistrationAsConsumer = "CONSUMER";
 	public static final String RegistrationAsProvider = "PROVIDER";
 	public static final String MessageSystemLeaveGame = MessageSystem + "_LEAVE_GAME";
+	
+	public static final String MessageChatSendAll = "SEND_MESSAGE_ALL";
 }
