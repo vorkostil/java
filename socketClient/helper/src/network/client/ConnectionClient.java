@@ -1,7 +1,5 @@
 package network.client;
 
-import game.AbstractGameClientFrame;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ConnectException;
@@ -81,7 +79,8 @@ public class ConnectionClient
 		return writer;
 	}
 
-	public void launchConnection(ConnectionInfo info) 
+	public void launchConnection( ConnectionInfo info,
+								  boolean asProvider ) 
 	{
 		if ( socket == null )
 		{
@@ -92,6 +91,11 @@ public class ConnectionClient
 				
 				changeCurrentState( State.WAITING_FOR_LOGIN );
 				forwardInfo( "Socket client accepted on " + socket.getLocalSocketAddress() + " waiting for server interaction" );
+				
+				if ( asProvider == true )
+				{
+					info.useSocketForLogin( socket );
+				}
 				
 				writer = new PrintWriter( socket.getOutputStream() );
 				
@@ -198,11 +202,6 @@ public class ConnectionClient
 
 	public void handleGameMessage(String message) 
 	{
-		observer.manageGameMessage( message );
-	}
-
-	public AbstractGameClientFrame requireGame(String gameName) throws IOException 
-	{
-		return observer.requireGame(gameName);
+		observer.handleMessage( message );
 	}
 }

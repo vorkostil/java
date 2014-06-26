@@ -1,7 +1,5 @@
 package network.client;
 
-import game.AbstractGameClientFrame;
-
 import java.io.IOException;
 import java.net.Socket;
 
@@ -25,10 +23,7 @@ public interface ConnectionObserver {
 	abstract AbstractSocketListenerClientSide createSocketListener(Socket socket) throws IOException;
 
 	// manage message explicitly marked as GAME
-	abstract void manageGameMessage(String message);
-
-	// the game manager require a game given its name through the connection client components
-	abstract AbstractGameClientFrame requireGame(String gameName) throws IOException;
+	abstract void handleMessage(String message);
 
 	// the callback for login acceptation, use to register on the BBServer
 	abstract void onLoginAccepted();

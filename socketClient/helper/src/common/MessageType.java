@@ -84,4 +84,6 @@ public class MessageType {
 	public static final String MessageSystemLeaveGame = MessageSystem + "_LEAVE_GAME";
 	
 	public static final String MessageChatSendAll = "SEND_MESSAGE_ALL";
+	public static final String PlayerJoinGame = "PLAYER_JOIN_MESSAGE";
+	public static final String PlayerLeaveGame = "PLAYER_LEAVE_MESSAGE";
 }

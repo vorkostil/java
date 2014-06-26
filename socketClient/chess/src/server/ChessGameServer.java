@@ -1,17 +1,15 @@
 package server;
 
-import game.AbstractGameServer;
+import game.AbstractGameProvider;
 
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 
-import network.ConnectionServer;
-
 import common.ChessCommonInformation;
 import common.MessageType;
 
-public class ChessGameServer extends AbstractGameServer
+public class ChessGameServer extends AbstractGameProvider
 {
 	private static final String CREATE_PIECE_INFORMATION_MESSAGE( String id, ChessPiece piece )
 	{

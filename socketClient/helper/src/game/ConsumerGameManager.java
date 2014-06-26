@@ -4,16 +4,16 @@ import java.util.HashMap;
 
 import javax.swing.JOptionPane;
 
-import network.client.ConnectionClient;
+import network.client.ConsumerConnectionClient;
 
 import common.MessageType;
 
-public class GameManager 
+public class ConsumerGameManager 
 {
 	HashMap< String, AbstractGameClientFrame > games = new HashMap< String, AbstractGameClientFrame >();
-	ConnectionClient connectionClient;
+	ConsumerConnectionClient connectionClient;
 
-	public GameManager( ConnectionClient connectionClient )
+	public ConsumerGameManager( ConsumerConnectionClient connectionClient )
 	{
 		this.connectionClient = connectionClient;
 	}
@@ -81,7 +81,7 @@ public class GameManager
 		else
 		{
 			// in a standard game message, action is the gameID
-			forwardGameMessage(  action, remain.split( " " ) );
+			forwardGameMessage( action, remain );
 		}
 	}
 
@@ -163,15 +163,15 @@ public class GameManager
 		}
 	}
 
-	private void forwardGameMessage(String gameId, String[] messageComponents) 
+	private void forwardGameMessage(String gameId, String remain) 
 	{
 		if ( games.containsKey( gameId ) == true )
 		{
-			games.get( gameId ).handleServerMessage( messageComponents );
+			games.get( gameId ).handleServerMessage( remain );
 		}
 	}
 
-	public ConnectionClient getConnectionClient() 
+	public ConsumerConnectionClient getConsumerConnectionClient() 
 	{
 		return connectionClient;
 	}
@@ -181,5 +181,18 @@ public class GameManager
 	{
 		games.put( gameId, 
 				   game );
+	}
+
+	public void closeAllGames(String gameId) 
+	{
+		for ( AbstractGameClientFrame game : games.values() )
+		{
+			connectionClient.forwardInfo( "Game close with id: " + game.getId() );
+			if ( game.getId().compareTo( gameId ) != 0 )
+			{
+				game.disposeView();
+			}
+		}
+		games.clear();
 	}
 }

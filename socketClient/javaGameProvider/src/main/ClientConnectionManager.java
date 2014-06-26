@@ -1,12 +1,12 @@
-package server;
+package main;
 
+import game.AbstractGameProvider;
 import helper.DataRepository;
 import helper.DataRepository.DataInformation;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 import network.client.AbstractSocketListenerClientSide;
 import network.client.ConnectionClient;
@@ -15,14 +15,16 @@ import network.client.ConnectionInfo;
 import network.client.ConnectionObserver;
 import network.client.MinimalSocketListener;
 
-import common.ChatCommonInformation;
+import common.ChessCommonInformation;
 import common.MessageType;
+import common.TronCommonInformation;
 
-public class ChatServer implements ConnectionObserver 
+public class ClientConnectionManager implements ConnectionObserver  
 {
 	// the constant part
-	private static final String CONFIG_PATH = "resources/config/chatServer.cfg";
-
+	private static final String CONFIG_PATH = "resources/config/javaProvider.cfg";
+	private static final int MAX_GAME = 4;
+	
 	// use to retrieve configuration
 	// server connection for example
 	protected DataRepository repository = new DataRepository();
@@ -33,12 +35,11 @@ public class ChatServer implements ConnectionObserver
 	
 	// Network relevant information
 	private ConnectionClient connectionClient;
-	private String gameId;
 
-	// internal information
-	private List< String > players = new ArrayList< String >();
-	
-	public ChatServer() 
+	// the game map indexed by gameId
+	HashMap< String, AbstractGameProvider > games = new HashMap< String, AbstractGameProvider >();
+
+	public ClientConnectionManager() 
 	{
 		// load repository of information
 		repository.addFromFile( CONFIG_PATH );
@@ -57,7 +58,7 @@ public class ChatServer implements ConnectionObserver
 		// connect to the master server
 		connectionClient = new ConnectionClient( this );
 	}
-
+	
 	// launch the server
 	public void start() 
 	{
@@ -110,42 +111,27 @@ public class ChatServer implements ConnectionObserver
 	@Override
 	public void handleMessage(String message) 
 	{
-		String[] parts = message.split( " ", 4 );
-		if ( parts[ 0 ].compareTo( MessageType.MessageGameCreated) == 0 )
+//		String[] parts = message.split( " ", 4 );
+//		if ( parts[ 0 ].compareTo( MessageType.MessageGameCreated) == 0 )
+//		{
+//			gameId = parts[ 1 ];
+//		}
+//		else if (  ( parts[ 0 ].compareTo( gameId ) == 0 )
+//				 &&( parts[ 1 ].compareTo( MessageType.PlayerJoinGame) == 0 )  )
+//		{
+//			players.add( parts[ 2 ] );
+//			sendPlayerUpdatedMessage();
+//		}
+//		else if (  ( parts[ 0 ].compareTo( gameId ) == 0 )
+//				 &&( parts[ 1 ].compareTo( MessageType.PlayerLeaveGame) == 0 )  )
+//		{
+//			players.remove( parts[ 2 ] );
+//			sendPlayerUpdatedMessage();
+//		}
+//		else
 		{
-			gameId = parts[ 1 ];
+			raiseInfo( "[handleMessage])> " + message );
 		}
-		else if (  ( parts[ 0 ].compareTo( gameId ) == 0 )
-				 &&( parts[ 1 ].compareTo( MessageType.MessageChatSendAll) == 0 )  )
-		{
-			connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageChatSendAll + " " + parts[ 2 ] + "> " + parts[ 3 ] );			
-		}
-		else if (  ( parts[ 0 ].compareTo( gameId ) == 0 )
-				 &&( parts[ 1 ].compareTo( MessageType.PlayerJoinGame) == 0 )  )
-		{
-			players.add( parts[ 2 ] );
-			sendPlayerUpdatedMessage();
-		}
-		else if (  ( parts[ 0 ].compareTo( gameId ) == 0 )
-				 &&( parts[ 1 ].compareTo( MessageType.PlayerLeaveGame) == 0 )  )
-		{
-			players.remove( parts[ 2 ] );
-			sendPlayerUpdatedMessage();
-		}
-		else
-		{
-			raiseInfo( "( manageGameMessage )> " + message );
-		}
-	}
-
-	private void sendPlayerUpdatedMessage() 
-	{
-		String message = new String( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageContactListSnapshot );
-		for ( String player : players )
-		{
-			message += " " + player;
-		}
-		connectionClient.sendMessageIfConnected( message );
 	}
 
 	@Override
@@ -153,6 +139,6 @@ public class ChatServer implements ConnectionObserver
 	{
 	   // register as provider
 	   // [GameName MinPlayer MaxPlayer IAAvailable]
-	   connectionClient.sendMessageIfConnected( MessageType.MessageSystemRegister + " " + MessageType.RegistrationAsProvider + " " + ChatCommonInformation.GAME_NAME + " 1 128 0" );
+	   connectionClient.sendMessageIfConnected( MessageType.MessageSystemRegister + " " + MessageType.RegistrationAsProvider + " " + TronCommonInformation.GAME_NAME + " 2 2 0 " + ChessCommonInformation.GAME_NAME + " 2 2 0" );
 	}
 }

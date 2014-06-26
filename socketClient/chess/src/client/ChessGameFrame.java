@@ -130,8 +130,9 @@ public class ChessGameFrame extends AbstractGameClientFrame
 	}
 
 	@Override
-	public void handleServerMessage(String[] messageComponents) 
+	public void handleServerMessage(String message ) 
 	{
+		String[] messageComponents = message.split( " " );
 		String action = messageComponents[ 2 ];
 		//String gameId = messageComponents[ 3 ];
 		

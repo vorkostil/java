@@ -1,11 +1,16 @@
 package network.client;
 
+import java.net.Socket;
+
 public class ConnectionInfo {
 
 	private String server = null;
 	private String port = null;
 	private String login = null;
 	private String passwd = null;
+	
+	// use for provider
+	private String baseLogin = null;
 	
 	public ConnectionInfo() 
 	{
@@ -61,5 +66,15 @@ public class ConnectionInfo {
 	public String getPasswd()
 	{
 		return passwd;
+	}
+
+	public void useSocketForLogin(Socket socket) 
+	{
+		if ( baseLogin == null )
+		{
+			baseLogin = login;
+		}
+		login = baseLogin + socket.getLocalAddress() + "@" + socket.getLocalPort();
+		passwd = login;
 	}
 }

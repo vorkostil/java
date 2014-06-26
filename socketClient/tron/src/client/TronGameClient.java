@@ -260,8 +260,9 @@ public class TronGameClient extends AbstractGameClientFrame
 	}
 
 	@Override
-	public void handleServerMessage(String[] messageComponents) 
+	public void handleServerMessage(String message) 
 	{
+		String[] messageComponents = message.split( " " );
 		String action = messageComponents[ 2 ];
 		
 		if ( action.compareTo( MessageType.MessageUpdatePosition ) == 0 )

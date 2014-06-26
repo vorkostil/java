@@ -94,6 +94,6 @@ abstract public class AbstractGameClientFrame extends JFrame
 	abstract public void end(String winner);
 
 	// the server send a message relative to the game modification
-	abstract public void handleServerMessage(String[] messageComponents);
+	abstract public void handleServerMessage(String remain);
 
 }

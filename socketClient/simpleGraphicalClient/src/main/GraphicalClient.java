@@ -2,7 +2,7 @@ package main;
 
 import frame.PeerToPeerCommunicationFrame;
 import game.AbstractGameClientFrame;
-import game.GameManager;
+import game.ConsumerGameManager;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -34,9 +34,9 @@ import javax.swing.text.StyleContext;
 
 import main.listener.ClientNameMouseListener;
 import network.client.AbstractSocketListenerClientSide;
-import network.client.ConnectionClient;
 import network.client.ConnectionInfo;
-import network.client.ConnectionObserver;
+import network.client.ConsumerConnectionClient;
+import network.client.GameConsumerObserver;
 import network.client.MinimalSocketListener;
 import client.ChessGameFrame;
 import client.TronGameClient;
@@ -48,7 +48,7 @@ import common.MessageType;
 import common.TronCommonInformation;
 
 @SuppressWarnings("serial")
-public class GraphicalClient extends AbstractGameClientFrame implements ConnectionObserver
+public class GraphicalClient extends AbstractGameClientFrame implements GameConsumerObserver
 {
 	public static final Font errorFont = new Font( "Default", Font.BOLD, 12);
 	public static final Font normalFont = new Font( "Default", Font.PLAIN, 12);
@@ -70,8 +70,8 @@ public class GraphicalClient extends AbstractGameClientFrame implements Connecti
 	HashMap< String, PeerToPeerCommunicationFrame > directCommunications = new HashMap< String, PeerToPeerCommunicationFrame >();
 
 	// Network relevant information
-	ConnectionClient connectionClient;
-	private GameManager gameManager = null;
+	ConsumerConnectionClient connectionClient;
+	private ConsumerGameManager gameManager = null;
 	
 	public GraphicalClient()
 	{
@@ -206,14 +206,7 @@ public class GraphicalClient extends AbstractGameClientFrame implements Connecti
 			// close the games
 			if ( gameManager != null )
 			{
-				try 
-				{
-					gameManager.closeAllGames();
-				} 
-				catch (InterruptedException e) 
-				{
-					e.printStackTrace();
-				}
+				gameManager.closeAllGames( this.getId() );
 				gameManager = null;
 			}
 			
@@ -224,10 +217,10 @@ public class GraphicalClient extends AbstractGameClientFrame implements Connecti
 
 	public void launchConnection( ConnectionInfo info ) throws UnknownHostException, IOException, InterruptedException 
 	{
-		connectionClient = new ConnectionClient( this );
-		connectionClient.launchConnection( info );
+		connectionClient = new ConsumerConnectionClient( this );
+		connectionClient.launchConnection( info, false );
 		
-		gameManager = new GameManager( connectionClient );
+		gameManager = new ConsumerGameManager( connectionClient );
 	}
 
     public void appendToChatArea(String msg, Font f, Color c)
@@ -361,9 +354,12 @@ public class GraphicalClient extends AbstractGameClientFrame implements Connecti
 	}
 
 	@Override
-	public void manageGameMessage(String message) 
+	public void handleMessage(String message) 
 	{
-		gameManager.handleGameMessage( message );
+		if ( gameManager != null )
+		{
+			gameManager.handleGameMessage( message );
+		}
 	}
 
 	@Override
@@ -438,13 +434,17 @@ public class GraphicalClient extends AbstractGameClientFrame implements Connecti
 	}
 
 	@Override
-	public void handleServerMessage(String[] messageComponents) 
+	public void handleServerMessage(String message) 
 	{
-		String message = new String();
-		for ( String part : messageComponents )
+		String[] messageComponents = message.split( " ", 2 );
+		String action = messageComponents[ 0 ];
+		if ( action.compareTo( MessageType.MessageChatSendAll ) == 0 )
 		{
-			message += " " + part;
+			this.appendToChatArea( messageComponents[ 1 ], normalFont, normalColor);
 		}
-		this.appendToChatArea(message, normalFont, normalColor);
+		else if ( action.compareTo( MessageType.MessageContactListSnapshot ) == 0 )
+		{
+			updateContactList(messageComponents[ 1 ].split( " " ) );
+		}
 	}
 }

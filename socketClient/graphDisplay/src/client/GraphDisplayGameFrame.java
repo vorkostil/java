@@ -307,8 +307,9 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 	}
 	
 	@Override
-	public void handleServerMessage(String[] messageComponents) 
+	public void handleServerMessage(String message) 
 	{
+		String[] messageComponents = message.split( " " );
 		if ( messageComponents[ 0 ].compareTo( CELL_UPDATED ) == 0 )
 		{
 			GraphCellItem item = (GraphCellItem) mainPanel.getItemAt( Integer.parseInt( messageComponents[ 1 ] ) * 16, 

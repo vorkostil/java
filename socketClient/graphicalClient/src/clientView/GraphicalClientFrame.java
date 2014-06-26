@@ -2,7 +2,7 @@ package clientView;
 
 import frame.ConsoleFrame;
 import game.AbstractGameClientFrame;
-import game.GameManager;
+import game.ConsumerGameManager;
 import graphic.GraphicalEnvironment;
 import graphic.GraphicalEnvironment.ImageLevel;
 import graphic.item.GraphicalButtonItem;
@@ -19,9 +19,9 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import network.client.AbstractSocketListenerClientSide;
-import network.client.ConnectionClient;
 import network.client.ConnectionInfo;
-import network.client.ConnectionObserver;
+import network.client.ConsumerConnectionClient;
+import network.client.GameConsumerObserver;
 import network.client.MinimalSocketListener;
 import client.ChessGameFrame;
 import client.GraphDisplayGameFrame;
@@ -45,7 +45,7 @@ import common.TronCommonInformation;
 import displayer.AbstractDisplayer;
 
 @SuppressWarnings("serial")
-public class GraphicalClientFrame extends JFrame implements ConnectionObserver
+public class GraphicalClientFrame extends JFrame implements GameConsumerObserver
 {
 	// the constant
 	
@@ -76,10 +76,10 @@ public class GraphicalClientFrame extends JFrame implements ConnectionObserver
 	private GraphicalButtonItem graphButton;
 	
 	// Network relevant information
-	private ConnectionClient connectionClient;
+	private ConsumerConnectionClient connectionClient;
 
 	// game relevant information
-	private GameManager gameManager;
+	private ConsumerGameManager gameManager;
 
 	private ConsoleFrame consoleFrame = new ConsoleFrame();
 	
@@ -187,10 +187,10 @@ public class GraphicalClientFrame extends JFrame implements ConnectionObserver
 	
 	public void launchConnection( ConnectionInfo info ) throws UnknownHostException, IOException, InterruptedException 
 	{
-		connectionClient = new ConnectionClient( this );
-		connectionClient.launchConnection( info );
+		connectionClient = new ConsumerConnectionClient( this );
+		connectionClient.launchConnection( info, false );
 		
-		gameManager = new GameManager( connectionClient );
+		gameManager = new ConsumerGameManager( connectionClient );
 	}
 
 	public void closeConnection() 
@@ -306,7 +306,7 @@ public class GraphicalClientFrame extends JFrame implements ConnectionObserver
 	}
 
 	@Override
-	public void manageGameMessage(String message) 
+	public void handleMessage(String message) 
 	{
 		gameManager.handleGameMessage(message);
 	}
