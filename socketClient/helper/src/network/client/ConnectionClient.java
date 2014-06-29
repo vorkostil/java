@@ -202,6 +202,11 @@ public class ConnectionClient
 
 	public void handleGameMessage(String message) 
 	{
-		observer.handleMessage( message );
+		observer.handleGameMessage( message );
+	}
+
+	public void handleSystemMessage(String message) 
+	{
+		observer.handleSystemMessage( message );
 	}
 }

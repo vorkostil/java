@@ -63,19 +63,19 @@ public class TronGameClient extends AbstractGameClientFrame
 		{
 			if ( arg0.getKeyCode() == KeyEvent.VK_LEFT )
 			{
-				connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + connectionClient.getLogin() + " " + leftDirection );
+				connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageChangeDirection + " " + connectionClient.getLogin() + " " + leftDirection );
 			}
 			else if ( arg0.getKeyCode() == KeyEvent.VK_RIGHT )
 			{
-				connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + connectionClient.getLogin() + " " + rightDirection );
+				connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageChangeDirection + " " + connectionClient.getLogin() + " " + rightDirection );
 			}
 			else if ( arg0.getKeyCode() == KeyEvent.VK_UP )
 			{
-				connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + connectionClient.getLogin() + " " + upDirection );
+				connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageChangeDirection + " " + connectionClient.getLogin() + " " + upDirection );
 			}
 			else if ( arg0.getKeyCode() == KeyEvent.VK_DOWN )
 			{
-				connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameChangeDirection + " " + gameId + " " + connectionClient.getLogin() + " " + downDirection );
+				connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageChangeDirection + " " + connectionClient.getLogin() + " " + downDirection );
 			}
 		}
 	};
@@ -149,12 +149,16 @@ public class TronGameClient extends AbstractGameClientFrame
 		}
 	}
 
-	public void startSoon() 
+	public void startSoon( String bluePlayer, String redPlayer ) 
 	{
+		// manage the players
+		addPlayer( bluePlayer );
+		addPlayer( redPlayer );
+
+		// launch the game init
 		gamePanel.setStartSoon();
 	}
 
-	@Override
 	public void addPlayer(String playerName) 
 	{
 		if ( bluePlayerModel == null )
@@ -186,7 +190,7 @@ public class TronGameClient extends AbstractGameClientFrame
 				// ask for readiness
 				if ( connectionClient.getLogin().compareTo( playerName ) == 0 )
 				{
-					if ( JOptionPane.showConfirmDialog( null, 
+					if ( JOptionPane.showConfirmDialog( this, 
 														"You play as blue\nare you ready ?", 
 														"Game launch", 
 														JOptionPane.YES_NO_OPTION, 
@@ -234,7 +238,7 @@ public class TronGameClient extends AbstractGameClientFrame
 				// ask for readiness
 				if ( connectionClient.getLogin().compareTo( playerName ) == 0 )
 				{
-					if ( JOptionPane.showConfirmDialog( null, 
+					if ( JOptionPane.showConfirmDialog( this, 
 														"You play as red\nare you ready ?", 
 														"Game launch", 
 														JOptionPane.YES_NO_OPTION, 
@@ -263,30 +267,42 @@ public class TronGameClient extends AbstractGameClientFrame
 	public void handleServerMessage(String message) 
 	{
 		String[] messageComponents = message.split( " " );
-		String action = messageComponents[ 2 ];
+		String action = messageComponents[ 0 ];
 		
-		if ( action.compareTo( MessageType.MessageUpdatePosition ) == 0 )
+		if ( action.compareTo( MessageType.MessageStart ) == 0 )
 		{
-			double bX 	= java.lang.Double.parseDouble( messageComponents[ 4 ] );
-			double bY 	= java.lang.Double.parseDouble( messageComponents[ 5 ] );
-			int bD 		= Integer.parseInt( messageComponents[ 6 ] );
-			int bS 		= Integer.parseInt( messageComponents[ 7 ] );
+			start();
+		}
+		else if ( action.compareTo( MessageType.MessageStartSoon ) == 0 )
+		{
+			startSoon( messageComponents[ 1 ], messageComponents[ 2 ] );
+		}
+		else if ( action.compareTo( MessageType.MessageEnd ) == 0 )
+		{
+			end( messageComponents[ 1 ] );
+		}
+		else if ( action.compareTo( MessageType.MessageUpdatePosition ) == 0 )
+		{
+			double bX 	= java.lang.Double.parseDouble( messageComponents[ 1 ] );
+			double bY 	= java.lang.Double.parseDouble( messageComponents[ 2 ] );
+			int bD 		= Integer.parseInt( messageComponents[ 3 ] );
+			int bS 		= Integer.parseInt( messageComponents[ 4 ] );
 			List< Point2D > bP = new ArrayList< Point2D >();  
 			for ( int i = 0; i < bS; i++ )
 			{
-				bP.add( new Point2D.Double( java.lang.Double.parseDouble( messageComponents[ 8 + i * 2 ] ),
-											java.lang.Double.parseDouble( messageComponents[ 9 + i * 2 ] ) ) );
+				bP.add( new Point2D.Double( java.lang.Double.parseDouble( messageComponents[ 5 + i * 2 ] ),
+											java.lang.Double.parseDouble( messageComponents[ 6 + i * 2 ] ) ) );
 			}
 			
-			double rX 	= java.lang.Double.parseDouble( messageComponents[ 8 + bS * 2 ] );
-			double rY 	= java.lang.Double.parseDouble( messageComponents[ 9 + bS * 2 ] );
-			int rD 		= Integer.parseInt( messageComponents[ 10 + bS * 2 ] );
-			int rS 		= Integer.parseInt( messageComponents[ 11 + bS * 2 ] );
+			double rX 	= java.lang.Double.parseDouble( messageComponents[ 5 + bS * 2 ] );
+			double rY 	= java.lang.Double.parseDouble( messageComponents[ 6 + bS * 2 ] );
+			int rD 		= Integer.parseInt( messageComponents[ 7 + bS * 2 ] );
+			int rS 		= Integer.parseInt( messageComponents[ 8 + bS * 2 ] );
 			List< Point2D > rP = new ArrayList< Point2D >();  
 			for ( int i = 0; i < rS; i++ )
 			{
-				rP.add( new Point2D.Double( java.lang.Double.parseDouble( messageComponents[ 12 + bS * 2 + i * 2] ),
-											java.lang.Double.parseDouble( messageComponents[ 13 + bS * 2 + i * 2] ) ) );
+				rP.add( new Point2D.Double( java.lang.Double.parseDouble( messageComponents[ 9 + bS * 2 + i * 2] ),
+											java.lang.Double.parseDouble( messageComponents[ 10 + bS * 2 + i * 2] ) ) );
 			}
 
 			// forward player position update

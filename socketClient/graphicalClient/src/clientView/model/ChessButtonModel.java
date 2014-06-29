@@ -2,6 +2,9 @@ package clientView.model;
 
 import graphic.model.AbstractButtonModel;
 import helper.DataRepository.DataInformation;
+
+import javax.swing.JOptionPane;
+
 import clientView.GraphicalClientFrame;
 
 import common.ChessCommonInformation;
@@ -20,12 +23,18 @@ public class ChessButtonModel extends AbstractButtonModel {
 	@Override
 	public void callAction() 
 	{
-		String opponent = gClient.displayOpponentChoiceDialog( ChessCommonInformation.GAME_NAME, false );
-		if ( opponent != null )
+		int response = JOptionPane.showConfirmDialog( null, 
+				 							  		  "Create a new " + ChessCommonInformation.GAME_SHORT_NAME + " game (join an existing one if NO answered)",
+				 							  		  "Playing " + ChessCommonInformation.GAME_SHORT_NAME,
+				 							  		  JOptionPane.YES_NO_OPTION,
+				 							  		  JOptionPane.QUESTION_MESSAGE );
+		if ( response == JOptionPane.YES_OPTION )
 		{
-// TODO use new protocol
-//			gClient.askForGameTo( opponent, 
-//								  ChessCommonInformation.GAME_NAME );
+			gClient.requestGame( ChessCommonInformation.GAME_NAME );
+		}
+		else
+		{
+			gClient.joinGame( ChessCommonInformation.GAME_NAME );
 		}
 	}
 }

@@ -23,8 +23,11 @@ public interface ConnectionObserver {
 	abstract AbstractSocketListenerClientSide createSocketListener(Socket socket) throws IOException;
 
 	// manage message explicitly marked as GAME
-	abstract void handleMessage(String message);
+	abstract void handleGameMessage(String message);
 
 	// the callback for login acceptation, use to register on the BBServer
 	abstract void onLoginAccepted();
+
+	// manage message explicitly not marked as GAME
+	abstract void handleSystemMessage(String message);
 }

@@ -29,10 +29,6 @@ import displayer.AbstractDisplayer;
 @SuppressWarnings("serial")
 public class ChessGameFrame extends AbstractGameClientFrame 
 {
-	private static final String WHITE = "white";
-	private static final String BLACK = "black";
-	private static final String[] strKind = { "peon", "tower", "horse", "bishop", "queen", "king" };
-
 	private ChessMainPanel gamePanel = null;
 	
 	private AbstractDisplayer mainDisplayer = new ChessMainDisplayer( 95, 0 );
@@ -49,13 +45,15 @@ public class ChessGameFrame extends AbstractGameClientFrame
 	private List< Point > movableCells = new ArrayList< Point >();
 	private List< Point > targetCells = new ArrayList< Point >();
 	private Point cellSelected = null;
+
+	private boolean gameIsStarted = false;
 	
 	public ChessGameFrame() throws IOException 
 	{
 		super( ChessCommonInformation.CHESS_CONFIG_PATH );
 		
 		// characteristics of the frame
-		this.setTitle( "Chess" );
+		this.setTitle( ChessCommonInformation.GAME_SHORT_NAME );
 		this.setSize( ChessMainPanel.frameWidth + 7, ChessMainPanel.frameHeight + 29 ); // add the border to the size and the padding
 		this.setLocationRelativeTo( null );
 		this.setResizable( false );
@@ -97,21 +95,289 @@ public class ChessGameFrame extends AbstractGameClientFrame
 		this.setLayout( new BorderLayout() );
 		this.getContentPane().add( gamePanel, BorderLayout.CENTER );
 
+		// create the piece
+		try 
+		{
+//			whitePieceAlive.add( board[ 0 ] = new ChessPiece( true, ChessPiece.TOWER_ID, 0, 0 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 0, 0),
+												   repository.getData( "white_tower_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+			
+//			whitePieceAlive.add( board[ 1 ] = new ChessPiece( true, ChessPiece.HORSE_ID, 1, 0 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 1, 0),
+												   repository.getData( "white_horse_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+			
+//			whitePieceAlive.add( board[ 2 ] = new ChessPiece( true, ChessPiece.BISHOP_ID, 2, 0 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 2, 0),
+												   repository.getData( "white_bishop_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+			
+//			whitePieceAlive.add( board[ 3 ] = new ChessPiece( true, ChessPiece.QUEEN_ID, 3, 0 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 3, 0),
+												   repository.getData( "white_queen_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+							
+//			whitePieceAlive.add( whiteKing = board[ 4 ] = new ChessPiece( true, ChessPiece.KING_ID, 4, 0 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 4, 0),
+												   repository.getData( "white_king_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			whitePieceAlive.add( board[ 5 ] = new ChessPiece( true, ChessPiece.BISHOP_ID, 5, 0 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 5, 0),
+												   repository.getData( "white_bishop_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			whitePieceAlive.add( board[ 6 ] = new ChessPiece( true, ChessPiece.HORSE_ID, 6, 0 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 6, 0),
+												   repository.getData( "white_horse_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			whitePieceAlive.add( board[ 7 ] = new ChessPiece( true, ChessPiece.TOWER_ID, 7, 0 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 7, 0),
+												   repository.getData( "white_tower_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			whitePieceAlive.add( board[ 8 ] = new ChessPiece( true, ChessPiece.PEON_ID, 0, 1 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 0, 1),
+												   repository.getData( "white_peon_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			whitePieceAlive.add( board[ 9 ] = new ChessPiece( true, ChessPiece.PEON_ID, 1, 1 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 1, 1),
+												   repository.getData( "white_peon_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			whitePieceAlive.add( board[ 10 ] = new ChessPiece( true, ChessPiece.PEON_ID, 2, 1 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 2, 1),
+												   repository.getData( "white_peon_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			whitePieceAlive.add( board[ 11 ] = new ChessPiece( true, ChessPiece.PEON_ID, 3, 1 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 3, 1),
+												   repository.getData( "white_peon_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			whitePieceAlive.add( board[ 12 ] = new ChessPiece( true, ChessPiece.PEON_ID, 4, 1 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 4, 1),
+												   repository.getData( "white_peon_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			whitePieceAlive.add( board[ 13 ] = new ChessPiece( true, ChessPiece.PEON_ID, 5, 1 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 5, 1),
+												   repository.getData( "white_peon_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			whitePieceAlive.add( board[ 14 ] = new ChessPiece( true, ChessPiece.PEON_ID, 6, 1 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 6, 1),
+												   repository.getData( "white_peon_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			whitePieceAlive.add( board[ 15 ] = new ChessPiece( true, ChessPiece.PEON_ID, 7, 1 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 7, 1),
+												   repository.getData( "white_peon_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			blackPieceAlive.add( board[ 48 ] = new ChessPiece( false, ChessPiece.PEON_ID, 0, 6 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 0, 6),
+												   repository.getData( "black_peon_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			blackPieceAlive.add( board[ 49 ] = new ChessPiece( false, ChessPiece.PEON_ID, 1, 6 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 1, 6),
+												   repository.getData( "black_peon_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			blackPieceAlive.add( board[ 50 ] = new ChessPiece( false, ChessPiece.PEON_ID, 2, 6 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 2, 6),
+												   repository.getData( "black_peon_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			blackPieceAlive.add( board[ 51 ] = new ChessPiece( false, ChessPiece.PEON_ID, 3, 6 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 3, 6),
+												   repository.getData( "black_peon_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			blackPieceAlive.add( board[ 52 ] = new ChessPiece( false, ChessPiece.PEON_ID, 4, 6 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 4, 6),
+												   repository.getData( "black_peon_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			blackPieceAlive.add( board[ 53 ] = new ChessPiece( false, ChessPiece.PEON_ID, 5, 6 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 5, 6),
+												   repository.getData( "black_peon_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			blackPieceAlive.add( board[ 54 ] = new ChessPiece( false, ChessPiece.PEON_ID, 6, 6 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 6, 6),
+												   repository.getData( "black_peon_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			blackPieceAlive.add( board[ 55 ] = new ChessPiece( false, ChessPiece.PEON_ID, 7, 6 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 7, 6),
+												   repository.getData( "black_peon_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			blackPieceAlive.add( board[ 56 ] = new ChessPiece( false, ChessPiece.TOWER_ID, 0, 7 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 0, 7),
+												   repository.getData( "black_tower_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			blackPieceAlive.add( board[ 57 ] = new ChessPiece( false, ChessPiece.HORSE_ID, 1, 7 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 1, 7),
+												   repository.getData( "black_horse_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			blackPieceAlive.add( board[ 58 ] = new ChessPiece( false, ChessPiece.BISHOP_ID, 2, 7 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 2, 7),
+												   repository.getData( "black_bishop_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			blackPieceAlive.add( board[ 59 ] = new ChessPiece( false, ChessPiece.QUEEN_ID, 3, 7 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 3, 7),
+												   repository.getData( "black_queen_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			blackPieceAlive.add( blackKing = board[ 60 ] = new ChessPiece( false, ChessPiece.KING_ID, 4, 7 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 4, 7),
+												   repository.getData( "black_king_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			blackPieceAlive.add( board[ 61 ] = new ChessPiece( false, ChessPiece.BISHOP_ID, 5, 7 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 5, 7),
+												   repository.getData( "black_bishop_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			blackPieceAlive.add( board[ 62 ] = new ChessPiece( false, ChessPiece.HORSE_ID, 6, 7 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 6, 7),
+												   repository.getData( "black_horse_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+//			blackPieceAlive.add( board[ 63 ] = new ChessPiece( false, ChessPiece.TOWER_ID, 7, 7 ) );
+			gamePanel.addItem( new ChessPieceItem( new ChessPieceModel( 7, 7),
+												   repository.getData( "black_tower_configuration" ),
+												   tracker,
+												   ImageLevel.ENVIRONMENT_IMAGE.index() ),
+							ChessMainDisplayer.NAME,
+							GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
+
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+		
 		// display itself
 		this.setVisible( true );
 	}
 
-	@Override
-	public void ready(String name) 
+	public void start(String whitePlayer, String blackPlayer) 
 	{
+		// manage the players
+		addPlayer( blackPlayer );
+		addPlayer( whitePlayer );
+		
+		// and set white as beginner
+		playDisplayer.isWhiteToPlay( true );
+		this.isPlayerToPlay = ( isWhite == true );
+		
+		// and set the start flag
+		this.gameIsStarted  = true;
 	}
 
-	@Override
-	public void start() 
-	{
-	}
-
-	@Override
 	public void end(String winner) 
 	{
 		if ( connectionClient.getLogin().compareTo( winner ) == 0 )
@@ -125,61 +391,36 @@ public class ChessGameFrame extends AbstractGameClientFrame
 	}
 
 	@Override
-	public void startSoon() 
-	{
-	}
-
-	@Override
 	public void handleServerMessage(String message ) 
 	{
 		String[] messageComponents = message.split( " " );
-		String action = messageComponents[ 2 ];
-		//String gameId = messageComponents[ 3 ];
+		String action = messageComponents[ 0 ];
 		
-		if ( action.compareTo( MessageType.MessageInitPieceInformation ) == 0 )
+		if ( action.compareTo( MessageType.MessageStart ) == 0 )
 		{
-			int kind = Integer.parseInt(messageComponents[4]);
-			boolean isWhite = Boolean.parseBoolean(messageComponents[5]); 
-			int x = Integer.parseInt(messageComponents[6]);
-			int y = Integer.parseInt(messageComponents[7]);
-			
-			String color = BLACK;
-			if ( isWhite == true )
-			{
-				color = WHITE;
-			}
-			
-			try 
-			{
-				ChessPieceItem pieceItem = new ChessPieceItem( new ChessPieceModel(x,y),
-															   repository.getData( color + "_" + strKind[ kind ] + "_configuration" ),
-															   tracker,
-															   ImageLevel.ENVIRONMENT_IMAGE.index() );
-				gamePanel.addItem( pieceItem,
-								   ChessMainDisplayer.NAME,
-								   GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
-			} 
-			catch (IOException e) 
-			{
-				e.printStackTrace();
-			}
+			start( messageComponents[ 1 ], messageComponents[ 2 ] );
+		}
+		else if ( action.compareTo( MessageType.MessageEnd ) == 0 )
+		{
+			end( messageComponents[ 1 ] );
 		}
 		else if ( action.compareTo( MessageType.MessagePlayerToPlay ) == 0 )
 		{
-			boolean isWhiteToPlay = Boolean.parseBoolean(messageComponents[4]);
+			boolean isWhiteToPlay = Boolean.parseBoolean( messageComponents[ 1 ] );
 			playDisplayer.isWhiteToPlay( isWhiteToPlay );
 			
 			this.isPlayerToPlay = ( isWhite == isWhiteToPlay );
 		}
 		else if ( action.compareTo( MessageType.MessagePlayerMovablePieces ) == 0 )
 		{
-			if ( isPlayerToPlay == true )
+			if (  ( isPlayerToPlay == true )
+				||( gameIsStarted == false )  )
 			{
-				int size = Integer.parseInt(messageComponents[4]);
+				int size = Integer.parseInt(messageComponents[ 1 ]);
 				movableCells.clear();
 				for (int i = 0; i < size; i++ )
 				{
-					movableCells.add( new Point( Integer.parseInt(messageComponents[5 + i * 2]), Integer.parseInt(messageComponents[6 + i * 2]) ) );
+					movableCells.add( new Point( Integer.parseInt(messageComponents[2 + i * 2]), Integer.parseInt(messageComponents[3 + i * 2]) ) );
 				}
 			}
 		}
@@ -187,21 +428,21 @@ public class ChessGameFrame extends AbstractGameClientFrame
 		{
 			if ( isPlayerToPlay == true )
 			{
-				int size = Integer.parseInt(messageComponents[4]);
+				int size = Integer.parseInt(messageComponents[ 1 ]);
 				targetCells.clear();
 				for (int i = 0; i < size; i++ )
 				{
-					targetCells.add( new Point( Integer.parseInt(messageComponents[5 + i * 2]), Integer.parseInt(messageComponents[6 + i * 2]) ) );
+					targetCells.add( new Point( Integer.parseInt(messageComponents[2 + i * 2]), Integer.parseInt(messageComponents[3 + i * 2]) ) );
 				}
 			}
 		}
 		else if ( action.compareTo( MessageType.MessageUpdatePieceInformation ) == 0 )
 		{
-			ChessPieceItem piece = gamePanel.findChessPieceAt( Integer.parseInt(messageComponents[ 4 ]), Integer.parseInt(messageComponents[ 5 ]) );
+			ChessPieceItem piece = gamePanel.findChessPieceAt( Integer.parseInt(messageComponents[ 1 ]), Integer.parseInt(messageComponents[ 2 ]) );
 			if ( piece != null )
 			{
-				boolean isAlive = Boolean.parseBoolean(messageComponents[8]);
-				piece.getModel().update( Integer.parseInt(messageComponents[ 6 ]), Integer.parseInt(messageComponents[ 7 ]), isAlive );
+				boolean isAlive = Boolean.parseBoolean(messageComponents[5]);
+				piece.getModel().update( Integer.parseInt(messageComponents[ 3 ]), Integer.parseInt(messageComponents[ 4 ]), isAlive );
 				
 				if ( isAlive == false )
 				{
@@ -222,7 +463,8 @@ public class ChessGameFrame extends AbstractGameClientFrame
 
 	public void mouseClickOnCell( int x, int y )
 	{
-		if ( isPlayerToPlay == true )
+		if (  ( isPlayerToPlay == true )
+			&&( gameIsStarted == true )  )
 		{
 			if ( x >= 0 && y >= 0 && x < 8 && y < 8 )
 			{
@@ -254,7 +496,7 @@ public class ChessGameFrame extends AbstractGameClientFrame
 						if ( found == true )
 						{
 							// a valid move, send it to the server
-							connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGamePlayerMovePiece + " " + gameId + " " + cellSelected.x + " " + cellSelected.y + " " + x + " " + y );
+							connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessagePlayerMovePiece + " " + cellSelected.x + " " + cellSelected.y + " " + x + " " + y );
 							
 							// reset information
 							validCellModel.setVisible(false);
@@ -290,7 +532,7 @@ public class ChessGameFrame extends AbstractGameClientFrame
 						invalidCellModel.setVisible(false);
 						
 						// ask for target cells to the server
-						connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGamePlayerAskTargetCells + " " + gameId + " " + x + " " + y );
+						connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessagePlayerAskTargetCells + " " + x + " " + y );
 					}
 				}
 			}
@@ -300,7 +542,8 @@ public class ChessGameFrame extends AbstractGameClientFrame
 	
 	public void mouseMoveOnCell(int x, int y) 
 	{
-		if ( isPlayerToPlay == true )
+		if (  ( isPlayerToPlay == true )
+			&&( gameIsStarted == true )  )
 		{
 			if ( x >= 0 && y >= 0 && x < 8 && y < 8 )
 			{
@@ -351,7 +594,6 @@ public class ChessGameFrame extends AbstractGameClientFrame
 		gamePanel.computeDisplayableItems();
 	}
 
-	@Override
 	public void addPlayer(String playerName) 
 	{
 		if ( playDisplayer.isBlackPlayerNameInitialized() == false )
@@ -360,20 +602,7 @@ public class ChessGameFrame extends AbstractGameClientFrame
 			if ( connectionClient.getLogin().compareTo( playerName ) == 0 )
 			{
 				isWhite = false;
-				
-				// ask for readiness
-				if ( JOptionPane.showConfirmDialog( null, 
-													"You play as BLACK\nare you ready to play ?", 
-													"Game launch", 
-													JOptionPane.YES_NO_OPTION, 
-													JOptionPane.QUESTION_MESSAGE ) == JOptionPane.OK_OPTION )
-				{
-					readyToPlay();
-				}
-				else
-				{
-					closeGame();
-				}
+				this.setTitle( ChessCommonInformation.GAME_SHORT_NAME + " (" + connectionClient.getLogin() + ") playing BLACK" );
 			}
 		}
 		else
@@ -382,20 +611,7 @@ public class ChessGameFrame extends AbstractGameClientFrame
 			if ( connectionClient.getLogin().compareTo( playerName ) == 0 )
 			{
 				isWhite = true;
-				
-				// ask for readiness
-				if ( JOptionPane.showConfirmDialog( null, 
-													"You play as BLACK\nare you ready to play ?", 
-													"Game launch", 
-													JOptionPane.YES_NO_OPTION, 
-													JOptionPane.QUESTION_MESSAGE ) == JOptionPane.OK_OPTION )
-				{
-					readyToPlay();
-				}
-				else
-				{
-					closeGame();
-				}
+				this.setTitle( ChessCommonInformation.GAME_SHORT_NAME + " (" + connectionClient.getLogin() + ") playing WHITE" );
 			}
 		}
 	}

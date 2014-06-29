@@ -58,7 +58,7 @@ public class GraphicalClientFrame extends JFrame implements GameConsumerObserver
 	private static final String TRON_BUTTON = "tron_button_configuration";
 	private static final String CHESS_BUTTON = "chess_button_configuration";
 	private static final String GRAPH_BUTTON = "graph_display_button_configuration";
-
+	
 	// the mandatory information
 	protected DataRepository repository = new DataRepository();
 	protected MediaTracker tracker = new MediaTracker( this );
@@ -82,6 +82,11 @@ public class GraphicalClientFrame extends JFrame implements GameConsumerObserver
 	private ConsumerGameManager gameManager;
 
 	private ConsoleFrame consoleFrame = new ConsoleFrame();
+	
+	// game manipulation
+	private static enum INTERNAL_STATE { DEFAULT, WAITING_FOR_GAME_LIST };
+	private INTERNAL_STATE state = INTERNAL_STATE.DEFAULT;
+	private String gameWaited;
 	
 	public GraphicalClientFrame() throws IOException
 	{
@@ -306,9 +311,47 @@ public class GraphicalClientFrame extends JFrame implements GameConsumerObserver
 	}
 
 	@Override
-	public void handleMessage(String message) 
+	public void handleGameMessage(String message) 
 	{
 		gameManager.handleGameMessage(message);
+	}
+
+	@Override
+	public void handleSystemMessage(String message) 
+	{
+		String[] messagePart = message.split( " ", 2 );
+		if (  ( messagePart[ 0 ].compareTo( MessageType.MessageSystemRequestGameListResult ) == 0 )
+			&&( state == INTERNAL_STATE.WAITING_FOR_GAME_LIST )  )
+		{
+			state = INTERNAL_STATE.DEFAULT;
+			
+			// display the game list if any
+			if ( messagePart.length > 1 )
+			{
+				String[] gameList = messagePart[ 1 ].split( " " );
+				// display the choice dialog 
+				String gameId = (String) JOptionPane.showInputDialog( null, 
+															 		  "Choose an existing game> ",
+															 		  "Playing " + gameWaited,
+															 		  JOptionPane.QUESTION_MESSAGE,
+															 		  null,
+															 		  gameList,
+															 		  gameList[ 0 ] );
+				if (  ( gameId != null )
+					&&( gameId.length() > 0 )  )
+				{
+					gameManager.openGame( gameId, gameWaited );
+				}
+			}
+			else
+			{
+				// no game created, too bad
+				JOptionPane.showMessageDialog( null, 
+											   "No game available, you should create one instead",
+											   "Game " + gameWaited,
+											   JOptionPane.WARNING_MESSAGE );
+			}
+		}
 	}
 
 	@Override
@@ -345,23 +388,25 @@ public class GraphicalClientFrame extends JFrame implements GameConsumerObserver
 											     ChessCommonInformation.GAME_NAME );
 	}
 
-
-//	// ask a game to the server, giving the opponent and the game name
-//	public void askForGameTo( String opponentName, 
-//							  String gameName) 
-//	{
-//		connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameAsked + " " + opponentName + " " + gameName );
-//	}
-//
-//	// ask a solo game to the server (no opponent)
-//	public void askForSoloGame(String gameName) 
-//	{
-//		connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + MessageType.MessageGameAsked + " " + MessageType.MessageGameSoloGameOpponent + " " + gameName );
-//	}
-	
 	// request a game given its name
 	public void requestGame( String gameName ) 
 	{
 		connectionClient.sendMessageIfConnected( MessageType.MessageSystemRequestGame + " " + gameName );
+	}
+
+	// request a game given its name
+	public void joinGame( String gameName ) 
+	{
+		if ( state == INTERNAL_STATE.DEFAULT )
+		{
+			state = INTERNAL_STATE.WAITING_FOR_GAME_LIST;
+			gameWaited = gameName;
+			
+			connectionClient.sendMessageIfConnected( MessageType.MessageSystemRequestGameList + " " + gameName );
+		}
+		else
+		{
+			raiseInfo( "The client is still waiting for a game list for " + gameWaited );
+		}
 	}
 }

@@ -1,6 +1,7 @@
 package server;
 
-import game.AbstractGameServer;
+import game.AbstractGameProvider;
+import game.GameProvider;
 import helper.DataRepository;
 import helper.DataRepository.DataInformation;
 
@@ -13,8 +14,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-import network.ConnectionServer;
-
 import common.MessageType;
 import common.TronCommonInformation;
 
@@ -25,7 +24,7 @@ import common.TronCommonInformation;
  *		gestion des regles
  *		appel des IA si besion
  */
-public class TronGameServer extends AbstractGameServer
+public class TronGameServer extends AbstractGameProvider
 {
 	// number of cell each second
 	private static double speed = 1.5;
@@ -83,12 +82,10 @@ public class TronGameServer extends AbstractGameServer
 	MainTask mainTask = new MainTask();
 	Timer mainTimer = new Timer();
 	
-	public TronGameServer( String player1, 
-						   String player2, 
-						   String gameId, 
-						   ConnectionServer connectionServer ) 
+	public TronGameServer( String gameId, 
+						   GameProvider gameProvider ) 
 	{
-		super( gameId, connectionServer );
+		super( gameId, gameProvider );
 
 		// get the repository
 		DataRepository repository = new DataRepository();
@@ -117,15 +114,12 @@ public class TronGameServer extends AbstractGameServer
 		downDirection = gameInformation.getIntegerValue( TronCommonInformation.DOWN_VALUE );
 		
 		// create the player
-		addPlayer( bluePlayer = player1 );
-		addPlayer( redPlayer = player2 );
+		bluePlayer = null;
+		redPlayer = null;
 		
 		// and the player's path
 		pathBlue.add( new Point2D.Double( blueX, blueY ) );
 		pathRed.add( new Point2D.Double( redX, redY ) );
-		
-		// and open the game
-		sendOpenMessageToPlayers();
 	}
 
 	protected void computeMovement( long elaspedTimeInMilliSecond ) 
@@ -207,7 +201,7 @@ public class TronGameServer extends AbstractGameServer
 		}
 		
 		// forward the new position to the client
-		forwardMessageToAllPlayer( MessageType.MessageSystem + " " + MessageType.MessageGameUpdatePosition + " " + id + " " + createBlueInfo() + " " + createRedInfo() );
+		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + id + " " + MessageType.MessageUpdatePosition + " " + createBlueInfo() + " " + createRedInfo() );
 
 		// check for the and of the game
 		checkEndGame();
@@ -331,7 +325,9 @@ public class TronGameServer extends AbstractGameServer
 		// send the end game signal
 		if ( winner.length() > 0 )
 		{
-			sendGameEndMessage(winner);
+			stop();
+			connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + id + " " + MessageType.MessageEnd + " " + winner );
+			gameProvider.closeGame( id );
 		}
 	}
 	
@@ -377,20 +373,20 @@ public class TronGameServer extends AbstractGameServer
 		}
 	}
 
-	@Override
 	public void stop()
 	{
 		mainTimer.cancel();
 		mainTimer = null;
 	}
 
-	@Override
 	protected void callGameStart() 
 	{
+		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + id + " " + MessageType.MessageStartSoon + " " + bluePlayer + " " + redPlayer );
+		
 		javax.swing.Timer timer = new javax.swing.Timer( 3000, new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				sendGameStartMessage();
+				connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + id + " " + MessageType.MessageStart );
 				
 				if (  ( mainTimer != null )
 					&&( mainTask != null )  )
@@ -405,20 +401,43 @@ public class TronGameServer extends AbstractGameServer
 	}
 
 	@Override
-	public void manageSpecificMessage(String command) 
+	public void handleMessage( String action, String remain ) 
 	{
-		String[] splitted = command.split( " " );
-		String action = splitted[2]; 
-		
 		if ( action.compareTo( MessageType.MessageChangeDirection ) == 0 )
 		{
-			changePlayerDirection( splitted[ 4 ], splitted[ 5 ] );
+			String[] parts = remain.split( " " );
+			changePlayerDirection( parts[ 0 ], parts[ 1 ] );
 		}
 	}
 
 	@Override
-	protected String getName() 
+	public void playerJoinGame(String playerName) 
 	{
-		return TronCommonInformation.GAME_NAME;
+		if ( bluePlayer == null )
+		{
+			bluePlayer = playerName;
+		}
+		else if ( redPlayer == null )
+		{
+			redPlayer = playerName;
+			
+			// send the game start message
+			callGameStart();
+		}
+	}
+
+	@Override
+	public void playerLeaveGame(String playerName) 
+	{
+		stop();
+		if ( playerName.compareTo( bluePlayer ) == 0 )
+		{
+			connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + id + " " + MessageType.MessageEnd + " " + redPlayer );
+		}
+		else
+		{
+			connectionClient.sendMessageIfConnected( MessageType.MessageSystem + " " + id + " " + MessageType.MessageEnd + " " + bluePlayer );
+		}
+		gameProvider.closeGame( id );
 	}
 }

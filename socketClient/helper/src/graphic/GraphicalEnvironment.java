@@ -186,7 +186,7 @@ public abstract class GraphicalEnvironment extends JPanel
 		return tracker;
 	}
 	
-	private void processVisibleElement() 
+	private synchronized void processVisibleElement() 
 	{
 		// process event for animated item
 		long time = System.currentTimeMillis();

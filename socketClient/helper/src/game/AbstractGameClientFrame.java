@@ -69,7 +69,7 @@ abstract public class AbstractGameClientFrame extends JFrame
 	// send the ready message to the server
 	public void readyToPlay()
 	{
-		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + MessageType.MessageReady + " " + connectionClient.getLogin() );
+		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + MessageType.MessageReady + " " + connectionClient.getLogin() );
 	}
 	
 	// dispose the view
@@ -78,21 +78,6 @@ abstract public class AbstractGameClientFrame extends JFrame
 		this.dispose();
 	}
 	
-	// add a player into the game
-	abstract public void addPlayer( String playerName );
-	
-	// a player send the ready message (could be himself)
-	abstract public void ready(String playerName); 
-
-	// the server send the game start message
-	abstract public void start();
-
-	// the server send the start soon message (3s timer usually)
-	abstract public void startSoon();
-	
-	// the server send the end game message with the winner
-	abstract public void end(String winner);
-
 	// the server send a message relative to the game modification
 	abstract public void handleServerMessage(String remain);
 

@@ -3,6 +3,7 @@ package common;
 public class TronCommonInformation 
 {
 	public static final String GAME_NAME = "TronGame";
+	public static final String GAME_SHORT_NAME = "Tron";
 	public static final String TRON_CONFIG_PATH = "../tron/resources/config/tron.cfg";
 	
 	public static final String BLUE_PLAYER_CONFIGURATION = "blue_player_configuration";

@@ -8,7 +8,7 @@ import common.MessageType;
 
 public class MinimalSocketListener extends AbstractSocketListenerClientSide 
 {
-	private boolean debug = true;
+	private boolean debug = false;
 	
 	public MinimalSocketListener( Socket socket,
 								  ConnectionClient connectionClient) throws IOException
@@ -38,6 +38,11 @@ public class MinimalSocketListener extends AbstractSocketListenerClientSide
 		else if ( command.compareTo( MessageType.MessageGame ) == 0 )
 		{
 			connectionClient.handleGameMessage( splitted[ 1 ] );
+		}
+		// system message
+		else 
+		{
+			connectionClient.handleSystemMessage( line );
 		}
 	}
 }

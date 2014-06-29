@@ -108,7 +108,7 @@ public class ChatServer implements ConnectionObserver
 	}
 
 	@Override
-	public void handleMessage(String message) 
+	public void handleGameMessage(String message) 
 	{
 		String[] parts = message.split( " ", 4 );
 		if ( parts[ 0 ].compareTo( MessageType.MessageGameCreated) == 0 )
@@ -154,5 +154,11 @@ public class ChatServer implements ConnectionObserver
 	   // register as provider
 	   // [GameName MinPlayer MaxPlayer IAAvailable]
 	   connectionClient.sendMessageIfConnected( MessageType.MessageSystemRegister + " " + MessageType.RegistrationAsProvider + " " + ChatCommonInformation.GAME_NAME + " 1 128 0" );
+	}
+
+	@Override
+	public void handleSystemMessage(String message) 
+	{
+		raiseAlert( "System message received> " + message );
 	}
 }

@@ -386,29 +386,4 @@ public class GraphDisplayGameFrame extends AbstractGameClientFrame
 		connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + gameId + " " + message );
 	}
 
-	@Override
-	public void addPlayer(String playerName) 
-	{
-	}
-
-	@Override
-	public void ready(String playerName) 
-	{
-	}
-
-	@Override
-	public void start() 
-	{
-	}
-
-	@Override
-	public void startSoon() 
-	{
-	}
-
-	@Override
-	public void end(String winner) 
-	{
-	}
-
 }

@@ -22,6 +22,7 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
@@ -72,6 +73,11 @@ public class GraphicalClient extends AbstractGameClientFrame implements GameCons
 	// Network relevant information
 	ConsumerConnectionClient connectionClient;
 	private ConsumerGameManager gameManager = null;
+	
+	// game manipulation
+	private static enum INTERNAL_STATE { DEFAULT, WAITING_FOR_GAME_LIST };
+	private INTERNAL_STATE state = INTERNAL_STATE.DEFAULT;
+	private String gameWaited;
 	
 	public GraphicalClient()
 	{
@@ -354,7 +360,7 @@ public class GraphicalClient extends AbstractGameClientFrame implements GameCons
 	}
 
 	@Override
-	public void handleMessage(String message) 
+	public void handleGameMessage(String message) 
 	{
 		if ( gameManager != null )
 		{
@@ -404,36 +410,6 @@ public class GraphicalClient extends AbstractGameClientFrame implements GameCons
 	}
 
 	@Override
-	public void addPlayer(String playerName) 
-	{
-		this.appendToChatArea( "New player added '" + playerName + "'", normalFont, normalColor);
-	}
-
-	@Override
-	public void ready(String playerName) 
-	{
-		this.appendToChatArea( "Player '" + playerName + "' is ready", normalFont, normalColor);
-	}
-
-	@Override
-	public void start() 
-	{
-		this.appendToChatArea( "START", normalFont, normalColor);
-	}
-
-	@Override
-	public void startSoon() 
-	{
-		this.appendToChatArea( "START SOON", normalFont, normalColor);
-	}
-
-	@Override
-	public void end(String winner) 
-	{
-		this.appendToChatArea( "END: " + winner, normalFont, normalColor);
-	}
-
-	@Override
 	public void handleServerMessage(String message) 
 	{
 		String[] messageComponents = message.split( " ", 2 );
@@ -445,6 +421,66 @@ public class GraphicalClient extends AbstractGameClientFrame implements GameCons
 		else if ( action.compareTo( MessageType.MessageContactListSnapshot ) == 0 )
 		{
 			updateContactList(messageComponents[ 1 ].split( " " ) );
+		}
+	}
+
+	@Override
+	public void handleSystemMessage(String message) 
+	{
+		String[] messagePart = message.split( " ", 2 );
+		if (  ( messagePart[ 0 ].compareTo( MessageType.MessageSystemRequestGameListResult ) == 0 )
+			&&( state == INTERNAL_STATE.WAITING_FOR_GAME_LIST )  )
+		{
+			state = INTERNAL_STATE.DEFAULT;
+			
+			// display the game list if any
+			if ( messagePart.length > 1 )
+			{
+				String[] gameList = messagePart[ 1 ].split( " " );
+				// display the choice dialog 
+				String gameId = (String) JOptionPane.showInputDialog( null, 
+															 		  "Choose an existing game> ",
+															 		  "Playing " + gameWaited,
+															 		  JOptionPane.QUESTION_MESSAGE,
+															 		  null,
+															 		  gameList,
+															 		  gameList[ 0 ] );
+				if (  ( gameId != null )
+					&&( gameId.length() > 0 )  )
+				{
+					gameManager.openGame( gameId, gameWaited );
+				}
+			}
+			else
+			{
+				// no game created, too bad
+				JOptionPane.showMessageDialog( null, 
+											   "No game available, you should create one instead",
+											   "Game " + gameWaited,
+											   JOptionPane.WARNING_MESSAGE );
+			}
+		}
+	}
+
+	// request a game given its name
+	public void requestGame( String gameName ) 
+	{
+		connectionClient.sendMessageIfConnected( MessageType.MessageSystemRequestGame + " " + gameName );
+	}
+
+	// request a game given its name
+	public void joinGame( String gameName ) 
+	{
+		if ( state == INTERNAL_STATE.DEFAULT )
+		{
+			state = INTERNAL_STATE.WAITING_FOR_GAME_LIST;
+			gameWaited = gameName;
+			
+			connectionClient.sendMessageIfConnected( MessageType.MessageSystemRequestGameList + " " + gameName );
+		}
+		else
+		{
+			raiseInfo( "The client is still waiting for a game list for " + gameWaited );
 		}
 	}
 }

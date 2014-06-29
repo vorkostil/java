@@ -63,5 +63,12 @@ public class NetworkHelper
 		writer.print( message );
 		writer.print( (char) 0 );
 		writer.flush();
+
+		// TODO remove this awful tricks by fixing the BBServer
+		try {
+			Thread.sleep( 8 );
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }
