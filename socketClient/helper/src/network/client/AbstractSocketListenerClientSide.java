@@ -14,6 +14,7 @@ public abstract class AbstractSocketListenerClientSide implements Runnable
 	private Socket listenSocket = null;
 	private BufferedReader reader = null;
 	protected ConnectionClient connectionClient = null;
+	boolean debug = false;
 	
 	public AbstractSocketListenerClientSide( Socket socket, ConnectionClient connectionClient ) throws IOException
 	{
@@ -32,7 +33,10 @@ public abstract class AbstractSocketListenerClientSide implements Runnable
 			String line = NetworkHelper.readOnSocket( reader );
 			while ( line != null )
 			{
-				System.err.println( "message> " + line );
+				if ( debug == true )
+				{
+					System.err.println( "message> " + line );
+				}
 				lineReceived( line );
 				line = NetworkHelper.readOnSocket( reader );
 			} 

@@ -29,6 +29,9 @@ public class ConnectionClient
 	// store the list of connected people
 	List< String > clients = new ArrayList< String >();
 	
+	// debug purpose
+	boolean debug = false;
+	
 	public ConnectionClient( ConnectionObserver observer )
 	{
 		this.observer = observer;
@@ -173,7 +176,10 @@ public class ConnectionClient
 		if (  ( writer != null )
 			&&( currentState == State.CONNECTED )  )
 		{
-			System.out.println("message sent> " + message);
+			if ( debug == true )
+			{
+				System.out.println("message sent> " + message);
+			}
 			NetworkHelper.writeOnSocket( writer, 
 										 message );
 			return true;

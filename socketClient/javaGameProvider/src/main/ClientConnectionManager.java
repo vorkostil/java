@@ -26,7 +26,6 @@ public class ClientConnectionManager implements ConnectionObserver, GameProvider
 {
 	// the constant part
 	private static final String CONFIG_PATH = "resources/config/javaProvider.cfg";
-	private static final int MAX_GAME = 1;
 	
 	// use to retrieve configuration
 	// server connection for example
@@ -35,6 +34,7 @@ public class ClientConnectionManager implements ConnectionObserver, GameProvider
 	private ConnectionInfo info;
 	private int reconnectionTries;
 	private int reconnectionDelay;
+	private int MAX_GAME;
 	
 	// Network relevant information
 	private ConnectionClient connectionClient;
@@ -57,6 +57,9 @@ public class ClientConnectionManager implements ConnectionObserver, GameProvider
 								   connection.getStringValue( "server_port" ),
 								   connection.getStringValue( "server_login" ),
 								   connection.getStringValue( "server_password" ) );
+		
+		// and other stuff
+		MAX_GAME = connection.getIntegerValue( "max_game" );
 		
 		// connect to the master server
 		connectionClient = new ConnectionClient( this );
@@ -83,13 +86,13 @@ public class ClientConnectionManager implements ConnectionObserver, GameProvider
 	@Override
 	public void raiseAlert(String message) 
 	{
-		System.err.println( "ChatServer::Alert> " + message );
+		System.err.println( "ClientConnectionManager::Alert> " + message );
 	}
 
 	@Override
 	public void raiseInfo(String message) 
 	{
-		System.out.println( "ChatServer::Info > " + message );
+		System.out.println( "ClientConnectionManager::Info > " + message );
 	}
 
 	@Override
@@ -189,9 +192,7 @@ public class ClientConnectionManager implements ConnectionObserver, GameProvider
 	@Override
 	public void handleSystemMessage(String message) 
 	{
-		{
-			raiseAlert( "[HandleSystemMessage])> " + message );
-		}
+		raiseAlert( "[HandleSystemMessage])> " + message );
 	}
 
 	@Override

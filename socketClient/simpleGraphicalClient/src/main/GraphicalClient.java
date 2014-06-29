@@ -67,6 +67,7 @@ public class GraphicalClient extends AbstractGameClientFrame implements GameCons
 	JMenuBar menuBar = new JMenuBar();
 	JMenuItem menuItemConnect = new JMenuItem( "Connect" );
 	JMenuItem menuItemDisconnect = new JMenuItem( "Disconnect" );
+	JMenu menuGame;
 	
 	HashMap< String, PeerToPeerCommunicationFrame > directCommunications = new HashMap< String, PeerToPeerCommunicationFrame >();
 
@@ -194,9 +195,70 @@ public class GraphicalClient extends AbstractGameClientFrame implements GameCons
 		
 		menuConnection.add( menuItemConnect );
 		menuConnection.add( menuItemDisconnect );
+		menuConnection.addSeparator();
 		menuConnection.add( menuItemQuit );
 		
+		menuGame = new JMenu( "Game" );
+//		JMenuItem chat = new JMenuItem( ChatCommonInformation.GAME_SHORT_NAME );
+//		chat.addActionListener( new ActionListener() 
+//		{
+//			@Override
+//			public void actionPerformed(ActionEvent arg0) 
+//			{
+//				
+//			}
+//		});
+		
+		JMenuItem tron = new JMenuItem( TronCommonInformation.GAME_SHORT_NAME );
+		tron.addActionListener( new ActionListener() 
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				int response = JOptionPane.showConfirmDialog( null, 
+													  		  "Create a new " + TronCommonInformation.GAME_SHORT_NAME + " game (join an existing one if NO answered)",
+													  		  "Playing " + TronCommonInformation.GAME_SHORT_NAME,
+													  		  JOptionPane.YES_NO_OPTION,
+													  		  JOptionPane.QUESTION_MESSAGE );
+				if ( response == JOptionPane.YES_OPTION )
+				{
+					requestGame( TronCommonInformation.GAME_NAME );
+				}
+				else
+				{
+					joinGame( TronCommonInformation.GAME_NAME );
+				}
+			}
+		});
+		menuGame.add( tron );
+		
+		JMenuItem chess = new JMenuItem( ChessCommonInformation.GAME_SHORT_NAME );
+		chess.addActionListener( new ActionListener() 
+		{
+			@Override
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				int response = JOptionPane.showConfirmDialog( null, 
+													  		  "Create a new " + ChessCommonInformation.GAME_SHORT_NAME + " game (join an existing one if NO answered)",
+													  		  "Playing " + ChessCommonInformation.GAME_SHORT_NAME,
+													  		  JOptionPane.YES_NO_OPTION,
+													  		  JOptionPane.QUESTION_MESSAGE );
+				if ( response == JOptionPane.YES_OPTION )
+				{
+					requestGame( ChessCommonInformation.GAME_NAME );
+				}
+				else
+				{
+					joinGame( ChessCommonInformation.GAME_NAME );
+				}
+			}
+		});
+		menuGame.add( chess );
+		
+		menuGame.setEnabled( false );
+		
 		menuBar.add( menuConnection );
+		menuBar.add( menuGame );
 	}
 
 	protected void closeConnection() 
@@ -336,6 +398,7 @@ public class GraphicalClient extends AbstractGameClientFrame implements GameCons
 	{
 		menuItemConnect.setEnabled( currentState == network.client.ConnectionClient.State.WAITING_FOR_SERVER );
 		menuItemDisconnect.setEnabled( ( currentState != network.client.ConnectionClient.State.WAITING_FOR_SERVER ) );
+		menuGame.setEnabled( ( currentState != network.client.ConnectionClient.State.WAITING_FOR_SERVER ) );
 	}
 
 	@Override

@@ -151,17 +151,33 @@ public class TronGameClient extends AbstractGameClientFrame
 
 	public void startSoon( String bluePlayer, String redPlayer ) 
 	{
-		// manage the players
-		addPlayer( bluePlayer );
-		addPlayer( redPlayer );
-
 		// launch the game init
 		gamePanel.setStartSoon();
 	}
 
-	public void addPlayer(String playerName) 
+	public void playerJoinAccepted(String playerName, String playerColor) 
 	{
-		if ( bluePlayerModel == null )
+		// ask for readiness
+		if ( connectionClient.getLogin().compareTo( playerName ) == 0 )
+		{
+			if ( JOptionPane.showConfirmDialog( this, 
+												"You play as " + playerColor + "\nare you ready ?", 
+												"Game launch", 
+												JOptionPane.YES_NO_OPTION, 
+												JOptionPane.QUESTION_MESSAGE ) == JOptionPane.OK_OPTION)
+			{
+				readyToPlay();
+			}
+			else
+			{
+				closeGame();
+			}
+		}
+	}
+	public void createPlayer( String playerName, String playerColor )
+	{
+		if (  ( playerColor.compareTo( "blue" ) == 0 )
+			&&( bluePlayerModel == null )  )
 		{
 			try 
 			{
@@ -187,29 +203,14 @@ public class TronGameClient extends AbstractGameClientFrame
 
 				gamePanel.computeDisplayableItems();
 				
-				// ask for readiness
-				if ( connectionClient.getLogin().compareTo( playerName ) == 0 )
-				{
-					if ( JOptionPane.showConfirmDialog( this, 
-														"You play as blue\nare you ready ?", 
-														"Game launch", 
-														JOptionPane.YES_NO_OPTION, 
-														JOptionPane.QUESTION_MESSAGE ) == JOptionPane.OK_OPTION)
-					{
-						readyToPlay();
-					}
-					else
-					{
-						closeGame();
-					}
-				}
 			} 
 			catch (IOException e) 
 			{
 				connectionClient.forwardAlert( "Something bad happens during blue player creation: " + e.getMessage() );
 			}
 		}
-		else if ( redPlayerModel == null )
+		else if (  ( playerColor.compareTo( "red" ) == 0 )
+				 &&( redPlayerModel == null )  )
 		{
 			try 
 			{
@@ -234,23 +235,6 @@ public class TronGameClient extends AbstractGameClientFrame
 						   		   GraphicalEnvironment.FIRST_LAYER_LEVEL_TO_DRAW );
 				
 				gamePanel.computeDisplayableItems();
-				
-				// ask for readiness
-				if ( connectionClient.getLogin().compareTo( playerName ) == 0 )
-				{
-					if ( JOptionPane.showConfirmDialog( this, 
-														"You play as red\nare you ready ?", 
-														"Game launch", 
-														JOptionPane.YES_NO_OPTION, 
-														JOptionPane.QUESTION_MESSAGE ) == JOptionPane.OK_OPTION)
-					{
-						readyToPlay();
-					}
-					else
-					{
-						closeGame();
-					}
-				}
 			} 
 			catch (IOException e) 
 			{
@@ -280,6 +264,21 @@ public class TronGameClient extends AbstractGameClientFrame
 		else if ( action.compareTo( MessageType.MessageEnd ) == 0 )
 		{
 			end( messageComponents[ 1 ] );
+		}
+		else if ( action.compareTo( MessageType.MessagePlayerJoinAccepted ) == 0 )
+		{
+			playerJoinAccepted( messageComponents[ 1 ], messageComponents[ 2 ] );
+		}
+		else if ( action.compareTo( MessageType.MessagePlayerListUpdate ) == 0 )
+		{
+			if ( messageComponents.length >= 3 )
+			{
+				createPlayer( messageComponents[ 1 ], messageComponents[ 2 ] );
+			}
+			if ( messageComponents.length >= 5 )
+			{
+				createPlayer( messageComponents[ 3 ], messageComponents[ 4 ] );
+			}
 		}
 		else if ( action.compareTo( MessageType.MessageUpdatePosition ) == 0 )
 		{

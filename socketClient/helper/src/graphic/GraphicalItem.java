@@ -312,6 +312,7 @@ public abstract class GraphicalItem
 
 	/* return the AABB of the item
 	 * SHALL NOT return NULL
+	 * used for mouse interaction, if no reaction to mouse are expected, return the emptyBoundingBox
 	 * */
 	abstract public Rectangle getBoundingBox();
 }

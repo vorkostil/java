@@ -61,8 +61,6 @@ public class MessageType {
 	public static final String MessageGamePlayerAskTargetCells = MessageGame + " " + MessagePlayerAskTargetCells;
 	public static final String MessageGamePlayerMovePiece = MessageGame + " " + MessagePlayerMovePiece;
 
-	public static final String MessageGameSoloGameOpponent = "SOLO_OPPONENT";
-	
 	// new message for interaction with BackBoneServer
 	public static final String MessageSystem = "SYSTEM";
 	public static final String MessageSystemInit = MessageSystem + "_INIT_CONNECTION";
@@ -89,5 +87,8 @@ public class MessageType {
 	public static final String MessageChatSendAll = "SEND_MESSAGE_ALL";
 	public static final String PlayerJoinGame = "PLAYER_JOIN_MESSAGE";
 	public static final String PlayerLeaveGame = "PLAYER_LEAVE_MESSAGE";
+	
+	public static final String MessagePlayerJoinAccepted = "PLAYER_JOIN_ACCEPTED";
+	public static final String MessagePlayerListUpdate = "PLAYER_LIST_UPDATE";
 	
 }

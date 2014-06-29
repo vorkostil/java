@@ -121,7 +121,11 @@ public abstract class GraphicalEnvironment extends JPanel
 			// and start the rendering thread
 			renderingThread.start();
 		} 
-		catch (IOException | InterruptedException e) 
+		catch (IOException e) 
+		{
+			System.err.println( "Could not find the image: " + backgroundFileName + "> " + e.getMessage() );
+		} 
+		catch( InterruptedException e )
 		{
 			System.err.println( "Could not find the image: " + backgroundFileName + "> " + e.getMessage() );
 		} 

@@ -25,6 +25,7 @@ import network.client.GameConsumerObserver;
 import network.client.MinimalSocketListener;
 import client.ChessGameFrame;
 import client.GraphDisplayGameFrame;
+import client.MazeMainFrame;
 import client.TronGameClient;
 import clientView.displayer.MainViewDisplayer;
 import clientView.model.ChessButtonModel;
@@ -32,13 +33,14 @@ import clientView.model.ConnectButtonModel;
 import clientView.model.ConsoleButtonModel;
 import clientView.model.DisconnectButtonModel;
 import clientView.model.GraphButtonModel;
+import clientView.model.MazeButtonModel;
 import clientView.model.QuitButtonModel;
 import clientView.model.TronButtonModel;
 import clientView.panel.MainView;
 
-import common.ChatCommonInformation;
 import common.ChessCommonInformation;
 import common.GraphCommonInformation;
+import common.MazeCommonInformation;
 import common.MessageType;
 import common.TronCommonInformation;
 
@@ -58,6 +60,7 @@ public class GraphicalClientFrame extends JFrame implements GameConsumerObserver
 	private static final String TRON_BUTTON = "tron_button_configuration";
 	private static final String CHESS_BUTTON = "chess_button_configuration";
 	private static final String GRAPH_BUTTON = "graph_display_button_configuration";
+	private static final String MAZE_BUTTON = "maze_button_configuration";
 	
 	// the mandatory information
 	protected DataRepository repository = new DataRepository();
@@ -74,6 +77,7 @@ public class GraphicalClientFrame extends JFrame implements GameConsumerObserver
 	private GraphicalButtonItem tronButton;
 	private GraphicalButtonItem chessButton;
 	private GraphicalButtonItem graphButton;
+	private GraphicalButtonItem mazeButton;
 	
 	// Network relevant information
 	private ConsumerConnectionClient connectionClient;
@@ -181,6 +185,17 @@ public class GraphicalClientFrame extends JFrame implements GameConsumerObserver
 							  AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
 		graphButton.getModel().hide();
 		
+		// create a maze button
+		mazeButton = new GraphicalButtonItem( new MazeButtonModel( this,
+												 				   repository.getData( MAZE_BUTTON ) ),
+											  repository.getData( MAZE_BUTTON ), 
+											  tracker, 
+											  ImageLevel.ENVIRONMENT_IMAGE.index() );
+		displayPanel.addItem( mazeButton,
+				 			  MainViewDisplayer.NAME,
+							  AbstractDisplayer.LAST_LAYER_LEVEL_TO_DRAW );
+		mazeButton.getModel().hide();
+		
 		// create a quit button
 		displayPanel.addItem( new GraphicalButtonItem( new QuitButtonModel( repository.getData( QUIT_BUTTON ) ),
 				 									   repository.getData( QUIT_BUTTON ), 
@@ -226,6 +241,10 @@ public class GraphicalClientFrame extends JFrame implements GameConsumerObserver
 	public void raiseAlert(String message) 
 	{
 		consoleFrame.displayAlert(message);
+		JOptionPane.showMessageDialog( this, 
+									   message, 
+									   "Alert", 
+									   JOptionPane.ERROR_MESSAGE );
 	}
 
 	@Override
@@ -242,6 +261,7 @@ public class GraphicalClientFrame extends JFrame implements GameConsumerObserver
 		tronButton.getModel().hide();
 		chessButton.getModel().hide();
 		graphButton.getModel().hide();
+		mazeButton.getModel().hide();
 		
 		displayPanel.computeDisplayableItems();
 	}
@@ -256,6 +276,7 @@ public class GraphicalClientFrame extends JFrame implements GameConsumerObserver
 			tronButton.getModel().show();
 			chessButton.getModel().show();
 			graphButton.getModel().show();
+			mazeButton.getModel().show();
 			
 			displayPanel.computeDisplayableItems();
 		}
@@ -313,7 +334,10 @@ public class GraphicalClientFrame extends JFrame implements GameConsumerObserver
 	@Override
 	public void handleGameMessage(String message) 
 	{
-		gameManager.handleGameMessage(message);
+		if ( gameManager != null )
+		{
+			gameManager.handleGameMessage(message);
+		}
 	}
 
 	@Override
@@ -369,6 +393,10 @@ public class GraphicalClientFrame extends JFrame implements GameConsumerObserver
 		{
 			return new GraphDisplayGameFrame();
 		}
+		else if ( gameName.compareTo( MazeCommonInformation.GAME_NAME ) == 0 )
+		{
+			return new MazeMainFrame();
+		}
 		return null;
 	}
 
@@ -382,7 +410,7 @@ public class GraphicalClientFrame extends JFrame implements GameConsumerObserver
 	{
 		// send the registration
 		connectionClient.sendMessageIfConnected( MessageType.MessageSystemRegister + " " + MessageType.RegistrationAsConsumer + " " + 
-											     ChatCommonInformation.GAME_NAME + " " + 
+											     MazeCommonInformation.GAME_NAME + " " + 
 											     TronCommonInformation.GAME_NAME + " " +
 											     GraphCommonInformation.GAME_NAME + " " +
 											     ChessCommonInformation.GAME_NAME );

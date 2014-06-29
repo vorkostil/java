@@ -81,6 +81,8 @@ public class TronGameServer extends AbstractGameProvider
 	
 	MainTask mainTask = new MainTask();
 	Timer mainTimer = new Timer();
+	private boolean blueIsReady = false;
+	private boolean redIsReady = false;
 	
 	public TronGameServer( String gameId, 
 						   GameProvider gameProvider ) 
@@ -403,10 +405,33 @@ public class TronGameServer extends AbstractGameProvider
 	@Override
 	public void handleMessage( String action, String remain ) 
 	{
-		if ( action.compareTo( MessageType.MessageChangeDirection ) == 0 )
+		if ( action.compareTo( MessageType.MessageReady ) == 0 )
+		{
+			playerIsReady( remain );
+		}
+		else if ( action.compareTo( MessageType.MessageChangeDirection ) == 0 )
 		{
 			String[] parts = remain.split( " " );
 			changePlayerDirection( parts[ 0 ], parts[ 1 ] );
+		}
+	}
+
+	private void playerIsReady(String playerName) 
+	{
+		if ( playerName.compareTo(bluePlayer) == 0)
+		{
+			blueIsReady = true;
+		}
+		else if (playerName.compareTo(redPlayer) == 0 )
+		{
+			redIsReady = true;
+		}
+		
+		if (  ( blueIsReady == true )
+			&&( redIsReady == true ) )
+		{
+			// send the game start message
+			callGameStart();
 		}
 	}
 
@@ -415,15 +440,32 @@ public class TronGameServer extends AbstractGameProvider
 	{
 		if ( bluePlayer == null )
 		{
+			// set the player as blue
 			bluePlayer = playerName;
+			
+			// and send the join acceptation message
+			connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + id + " " + MessageType.MessagePlayerJoinAccepted + " " + playerName + " blue" );
 		}
 		else if ( redPlayer == null )
 		{
+			// set the player as red
 			redPlayer = playerName;
 			
-			// send the game start message
-			callGameStart();
+			// and send the join acceptation message
+			connectionClient.sendMessageIfConnected( MessageType.MessageGame + " " + id + " " + MessageType.MessagePlayerJoinAccepted + " " + playerName + " red" );
 		}
+		
+		// send the player list to everyone
+		String message = new String( MessageType.MessageGame + " " + id + " " + MessageType.MessagePlayerListUpdate );
+		if ( bluePlayer != null )
+		{
+			message += " " + bluePlayer + " blue";
+		}
+		if ( redPlayer != null )
+		{
+			message += " " + redPlayer + " red";
+		}
+		connectionClient.sendMessageIfConnected( message );
 	}
 
 	@Override

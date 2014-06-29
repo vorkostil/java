@@ -85,7 +85,9 @@ public abstract class AbstractDisplayer
 		return false;
 	}
 	
+	// return true if the point x,y is inside the displayer (used to manage the mouse)
 	abstract public boolean contains(int x, int y);
 	
+	// graphical rendering
 	abstract public void render(Graphics g);
 }

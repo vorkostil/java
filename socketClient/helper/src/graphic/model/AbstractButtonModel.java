@@ -2,7 +2,7 @@ package graphic.model;
 
 import helper.DataRepository.DataInformation;
 
-public abstract class AbstractButtonModel 
+public abstract class AbstractButtonModel extends VisibilityModel
 {
 	public static final String UP = "UP"; 
 	public static final String DOWN = "DOWN"; 
@@ -11,13 +11,13 @@ public abstract class AbstractButtonModel
 	private int x;
 	private int y;
 	private String state = UP;
-	private boolean isVisible;
 	
 	public AbstractButtonModel(DataInformation data) 
 	{
+		super( data.getBooleanValue( "visible" ) );
+		
 		x = data.getIntegerValue( "x" );
 		y = data.getIntegerValue( "y" );
-		isVisible = data.getBooleanValue( "visible" );
 	}
 
 	public int getX()
@@ -35,21 +35,6 @@ public abstract class AbstractButtonModel
 		return state;
 	}
 
-	public void hide() 
-	{
-		isVisible = false;
-	}
-	
-	public void show() 
-	{
-		isVisible = true;
-	}
-	
-	public boolean isVisible()
-	{
-		return isVisible;
-	}
-	
 	// behavior when mouse left the item zone
 	public void mouseLeftItem(int x, int y, boolean leftButtonIsUp, boolean rightButtonIsUp )
 	{
@@ -91,7 +76,7 @@ public abstract class AbstractButtonModel
 		
 		// if it's a left click and it is visible, do it
 		if (  ( leftButtonIsUp == false )
-			&&( isVisible == true )  )
+			&&( isVisible() == true )  )
 		{
 			callAction();
 		}

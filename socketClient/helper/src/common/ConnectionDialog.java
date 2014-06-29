@@ -37,7 +37,8 @@ public class ConnectionDialog extends JDialog {
 	private JTextField loginText;
 	private JTextField passwdText;
 
-	private String registerServerName = "127.0.0.1";
+	// private String registerServerName = "127.0.0.1";
+	private String registerServerName = "192.168.1.76";
 	private String registerServerHost = "8001";
 	private String registerLogin = "";
 	private String registerPasswd = "";

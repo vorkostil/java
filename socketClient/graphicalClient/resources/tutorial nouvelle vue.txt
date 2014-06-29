@@ -6,7 +6,8 @@ Tuto nouveau jeu
 		- item			pour les graphicalItem spécifique
 		- model			pour les models associé au graphical item (ou a la vue principale)
 		- panel			pour le graphical environement (vue principale)
-		
+	- common			pour les information à partager commel e config path, le nom etc...
+	
 2> lier le projet au projet helper
 
 3> Créer la frame principale
